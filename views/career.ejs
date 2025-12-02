@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <title>保育士転職 職務経歴書自動作成</title>
+    <meta
+      name="description"
+      content="保育士転職向けの職務経歴書をWeb上で自動作成し、PDFでダウンロードできます。"
+    />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+
+     :root {
+      --primary: #0f766e;
+      --primary-soft: #e0f2f1;
+      --accent: #0f766e;
+      --border: #e5e7eb;
+      --bg: #f3f4f6;
+      --card-bg: #ffffff;
+      --text-main: #111827;
+      --text-sub: #6b7280;
+      --danger: #ef4444;
+    }
+
+      body {
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI',
+          sans-serif;
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 24px 16px 40px;
+        background: radial-gradient(circle at top left, #eef2ff 0, #f3f4f6 40%, #f9fafb 100%);
+        color: var(--text-main);
+      }
+
+      /* 共通ヘッダー */
+      .site-header {
+        display: flex;
+        align-items: center;
+        height: 56px;
+        margin-bottom: 24px;
+      }
+      .site-header a {
+        color: var(--text-main);
+        text-decoration: none;
+      }
+      .site-header a:hover {
+        color: var(--text-main);
+        text-decoration: none;
+      }
+      .site-logo {
+        font-weight: 700;
+        font-size: 20px;
+        letter-spacing: 0.12em;
+        display: inline-block;
+        padding: 6px 4px;
+      }
+
+    /* ページコンテナ */
+    .page {
+      border-radius: 18px;
+      padding: 28px 24px 32px;
+      background: var(--card-bg);
+      box-shadow:
+        0 20px 45px rgba(15, 23, 42, 0.10),
+        0 1px 0 rgba(255, 255, 255, 0.6) inset;
+    }
+
+    .page-title {
+      font-size: 22px;
+      font-weight: 700;
+      text-align: center;
+      margin-bottom: 18px;
+      letter-spacing: 0.04em;
+    }
+
+      /* ───────── ステッパー ───────── */
+
+    .stepper-container {
+      margin-bottom: 20px;
+    }
+
+    .stepper-title {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 6px;
+      color: var(--text-sub);
+    }
+
+    .stepper {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 10px 12px;
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 999px;
+      box-shadow: 0 10px 25px rgba(15, 23, 42, 0.08);
+      position: relative;
+      overflow: hidden;
+      backdrop-filter: blur(10px);
+    }
+
+    .stepper::before {
+      content: '';
+      position: absolute;
+      left: 40px;
+      right: 40px;
+      top: 24px;
+      height: 2px;
+      background: linear-gradient(90deg, #e5e7eb, #e5e7eb);
+      z-index: 0;
+    }
+
+    .step {
+      position: relative;
+      z-index: 1;
+      flex: 1;
+      text-align: center;
+      min-width: 0;
+      cursor: pointer;
+    }
+
+    .step-circle {
+      width: 26px;
+      height: 26px;
+      border-radius: 999px;
+      margin: 0 auto 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      border: 2px solid #d1d5db;
+      background: #f9fafb;
+      color: #9ca3af;
+      transition: 0.18s ease;
+    }
+
+    .step-label {
+      font-size: 11px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      color: #9ca3af;
+      transition: 0.18s ease;
+    }
+
+    .step--active .step-circle {
+      border-color: var(--primary);
+      background: var(--primary-soft);
+      color: var(--primary);
+      font-weight: 600;
+      transform: translateY(-1px);
+    }
+
+    .step--active .step-label {
+      color: var(--primary);
+      font-weight: 600;
+    }
+
+    .step--completed .step-circle {
+      border-color: var(--primary);
+      background: var(--primary);
+      color: #fff;
+    }
+
+    .step--completed .step-label {
+      color: var(--primary);
+    }
+
+      /* ───────── モバイル切り替えタブ ───────── */
+
+      .view-toggle {
+        margin: 16px 0 12px;
+        display: flex;
+        justify-content: center;
+      }
+      .view-toggle-inner {
+        display: inline-flex;
+        border-radius: 999px;
+        border: 1px solid var(--border);
+        overflow: hidden;
+        background: #fff;
+      }
+      .view-toggle-btn {
+        padding: 6px 14px;
+        font-size: 13px;
+        border: none;
+        background: transparent;
+        cursor: pointer;
+        color: var(--text-sub);
+      }
+      .view-toggle-btn.is-active {
+        background: var(--primary-soft);
+        color: var(--primary);
+        font-weight: 600;
+      }
+      @media (min-width: 900px) {
+        .view-toggle {
+          display: none;
+        }
+      }
+
+      /* ───────── レイアウト ───────── */
+
+      .layout {
+        display: flex;
+        gap: 16px;
+        align-items: flex-start;
+      }
+      .preview-pane,
+      .form-pane {
+        background: #fff;
+        border-radius: 12px;
+        padding: 16px 18px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.04);
+      }
+
+      @media (min-width: 900px) {
+        .preview-pane {
+          flex: 1;
+          min-width: 0;
+        }
+        .form-pane {
+          flex: 1;
+          min-width: 0;
+        }
+        .layout.show-form .form-pane,
+        .layout.show-form .preview-pane,
+        .layout.show-preview .form-pane,
+        .layout.show-preview .preview-pane {
+          display: block;
+        }
+      }
+
+      @media (max-width: 899px) {
+        .layout {
+          flex-direction: column;
+        }
+        .preview-pane,
+        .form-pane {
+          width: 100%;
+          margin: 0 0 16px;
+        }
+        .layout.show-form .form-pane {
+          display: block;
+        }
+        .layout.show-form .preview-pane {
+          display: none;
+        }
+        .layout.show-preview .preview-pane {
+          display: block;
+        }
+        .layout.show-preview .form-pane {
+          display: none;
+        }
+      }
+
+      /* ───────── 職務経歴書プレビュー ───────── */
+
+      .preview-title {
+        font-size: 16px;
+        font-weight: 600;
+        margin-bottom: 8px;
+      }
+      .preview-sub {
+        font-size: 11px;
+        color: var(--text-sub);
+        margin-bottom: 12px;
+      }
+      .preview-card {
+        border: 1px solid #e2e2e2;
+        border-radius: 8px;
+        padding: 18px 20px;
+        background: #ffffff;
+        font-size: 12px;
+        line-height: 1.6;
+      }
+
+      .jis-header {
+        display: flex;
+        align-items: flex-start;
+        margin-bottom: 10px;
+      }
+      .jis-title {
+        flex: 1;
+        text-align: center;
+        font-size: 18px;
+        letter-spacing: 0.3em;
+      }
+      .jis-date {
+        font-size: 10px;
+        text-align: right;
+        white-space: nowrap;
+      }
+      .jis-divider {
+        border-bottom: 1px solid #333;
+        margin: 6px 0 10px;
+      }
+      .jis-section {
+        margin-bottom: 16px;
+      }
+      .jis-section-heading {
+        font-size: 12px;
+        font-weight: 600;
+        border-bottom: 1px solid #333;
+        padding-bottom: 2px;
+        margin-bottom: 6px;
+      }
+      .jis-row {
+        display: flex;
+        font-size: 11.5px;
+        margin-bottom: 3px;
+      }
+      .jis-label {
+        width: 80px;
+        flex-shrink: 0;
+      }
+      .jis-value {
+        flex: 1;
+        min-height: 1.2em;
+        border-bottom: 0.5px solid #ccc;
+      }
+      .jis-multiline-box {
+        min-height: 80px;
+        border: 0.5px solid #ccc;
+        padding: 6px 8px;
+        border-radius: 2px;
+        background: #fff;
+      }
+      .preview-empty {
+        color: #bbb;
+        font-style: italic;
+      }
+
+      /* ───────── フォーム共通 ───────── */
+
+      .form-title {
+        font-size: 16px;
+        font-weight: 600;
+        margin-bottom: 12px;
+      }
+      form {
+        margin: 0;
+      }
+      .step-section {
+        display: none;
+      }
+      .step-section.is-active {
+        display: block;
+      }
+      .field {
+        margin-bottom: 14px;
+      }
+      label,
+      .field-label {
+        display: block;
+        font-size: 13px;
+        margin: 0 0 4px;
+      }
+      input[type='text'],
+      input[type='email'],
+      input[type='tel'],
+      input[type='date'],
+      textarea {
+        width: 100%;
+        padding: 8px;
+        border-radius: 6px;
+        border: 1px solid #ccc;
+        box-sizing: border-box;
+        font-size: 14px;
+      }
+      textarea {
+        min-height: 80px;
+        resize: vertical;
+      }
+
+      .nav-buttons {
+        margin-top: 16px;
+        display: flex;
+        justify-content: space-between;
+        gap: 8px;
+        align-items: center;
+      }
+      .btn {
+        padding: 9px 18px;
+        border-radius: 999px;
+        border: none;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 600;
+      }
+      .btn-prev {
+        background: #eee;
+        color: #555;
+      }
+      .btn-next {
+        background: var(--primary);
+        color: #fff;
+      }
+      .btn-submit {
+        background: var(--accent);
+        color: #fff;
+      }
+      .btn-prev[disabled] {
+        opacity: 0.5;
+        cursor: default;
+      }
+
+      .note {
+        font-size: 11px;
+        color: var(--text-sub);
+        margin-top: 8px;
+      }
+
+      .pr-checkbox-group {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        margin-bottom: 14px;
+      }
+      .pr-checkbox-group label {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 14px;
+      }
+      .generate-pr-btn {
+        margin-top: 4px;
+        margin-bottom: 12px;
+        padding: 8px 12px;
+        background: var(--primary);
+        color: #fff;
+        border-radius: 6px;
+        border: none;
+        cursor: pointer;
+        font-size: 14px;
+      }
+      .generate-pr-btn:hover {
+        opacity: 0.85;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- 共通ヘッダー -->
+    <header class="site-header">
+      <a href="/">
+        <div class="site-logo">ホイクレジュメ</div>
+      </a>
+    </header>
+
+    <!-- ステップバー -->
+    <div class="stepper-container">
+      <div class="stepper-title">保育士 職務経歴書</div>
+      <div class="stepper" id="stepper">
+        <div class="step step--active" data-step="1">
+          <div class="step-circle">1</div>
+          <div class="step-label">経歴要約</div>
+        </div>
+        <div class="step" data-step="2">
+          <div class="step-circle">2</div>
+          <div class="step-label">職務経歴</div>
+        </div>
+        <div class="step" data-step="3">
+          <div class="step-circle">3</div>
+          <div class="step-label">自己PR</div>
+        </div>
+        <div class="step" data-step="4">
+          <div class="step-circle">4</div>
+          <div class="step-label">確認</div>
+        </div>
+      </div>
+    </div>
+
+    <main class="page">
+      <h1 class="page-title">職務経歴書を作成する</h1>
+
+    <!-- モバイル：入力 / プレビュー切り替え -->
+    <div class="view-toggle">
+      <div class="view-toggle-inner">
+        <button
+          type="button"
+          class="view-toggle-btn is-active"
+          data-view="form"
+        >
+          入力画面
+        </button>
+        <button
+          type="button"
+          class="view-toggle-btn"
+          data-view="preview"
+        >
+          プレビュー画面
+        </button>
+      </div>
+    </div>
+
+    <!-- メインレイアウト -->
+    <div class="layout show-form" id="layout">
+      <!-- プレビュー -->
+      <div class="preview-pane">
+        <div class="preview-title">職務経歴書プレビュー</div>
+        <div class="preview-sub">
+          このプレビューとほぼ同じレイアウトでPDFが作成されます。
+        </div>
+
+        <div class="preview-card">
+          <div class="jis-header">
+            <div class="jis-title">職 務 経 歴 書</div>
+            <div class="jis-date" id="pv-date"></div>
+          </div>
+          <div class="jis-divider"></div>
+
+          <div class="jis-section">
+            <div class="jis-row">
+              <div class="jis-label">氏名</div>
+              <div class="jis-value">
+                <span id="pv-name" class="preview-empty">未入力</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="jis-section">
+            <div class="jis-section-heading">職務要約</div>
+            <div class="jis-multiline-box">
+              <span id="pv-summary" class="preview-empty">
+                （ここに経歴要約が入ります）
+              </span>
+            </div>
+          </div>
+
+          <div class="jis-section">
+            <div class="jis-section-heading">
+              職務経歴（勤務先企業・職務内容）
+            </div>
+            <div class="jis-multiline-box">
+              <span id="pv-history" class="preview-empty">
+                （ここに勤務先企業・職務内容が入ります）
+              </span>
+            </div>
+          </div>
+
+          <div class="jis-section">
+            <div class="jis-section-heading">自己PR・志望動機</div>
+            <div class="jis-multiline-box">
+              <span id="pv-prText" class="preview-empty">
+                （ここに自己PR・志望動機が入ります）
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 入力フォーム -->
+      <div class="form-pane">
+        <div class="form-title" id="form-title">
+          経歴要約（氏名・職務要約）を入力
+        </div>
+
+        <form action="/career/generate" method="POST" id="career-form">
+          <!-- STEP 1: 経歴要約 -->
+          <div class="step-section is-active" data-step="1">
+            <div class="field">
+              <label for="name">氏名</label>
+              <input type="text" id="name" name="name" required />
+            </div>
+
+            <div class="field">
+              <label for="summary">経歴要約</label>
+              <textarea
+                id="summary"
+                name="summary"
+                rows="6"
+                placeholder="例：保育士として〇年勤務し、〇〇保育園にて0〜5歳児クラスを経験してきました。クラス担任として保護者対応や行事運営も担当し、チームで協力しながら子どもたちが安心して過ごせる環境づくりに取り組んできました。"
+              ></textarea>
+            </div>
+          </div>
+
+          <!-- STEP 2: 職務経歴 -->
+          <div class="step-section" data-step="2">
+            <p class="note">
+              時系列順に、勤務先・雇用形態・担当業務などを記入してください。<br />
+              例）〇〇保育園（正職員／2018年4月〜2023年3月）0〜2歳児クラス担任、連絡帳・保護者対応、行事企画・運営 など
+            </p>
+
+            <div class="field">
+              <label for="history">職務経歴</label>
+              <textarea
+                id="history"
+                name="history"
+                rows="10"
+                placeholder="〇〇保育園（正職員／2018年4月〜2023年3月）&#10;・0〜2歳児クラス担任（複数担任制）&#10;・保護者対応、連絡帳記入、個別面談&#10;・運動会・発表会など行事の企画・準備・当日運営&#10;&#10;△△保育園（パート／2023年4月〜現在）&#10;・フリー保育士として各クラスの補助業務  など"
+              ></textarea>
+            </div>
+          </div>
+
+          <!-- STEP 3: 自己PR（選択肢＋自動生成） -->
+          <div class="step-section" data-step="3">
+
+            <p class="field-label">当てはまる項目を選択してください（複数選択可）</p>
+            <div class="pr-checkbox-group">
+              <label
+                ><input
+                  type="checkbox"
+                  class="pr-option"
+                  value="子ども一人ひとりの気持ちに寄り添い、安心して過ごせる雰囲気づくりを大切にしてきました。"
+                />
+                子どもへの寄り添い</label
+              >
+              <label
+                ><input
+                  type="checkbox"
+                  class="pr-option"
+                  value="保護者とのコミュニケーションを丁寧に行い、信頼関係の構築に努めてきました。"
+                />
+                保護者との連携</label
+              >
+              <label
+                ><input
+                  type="checkbox"
+                  class="pr-option"
+                  value="行事や制作活動の企画・準備・当日運営まで主体的に取り組んできました。"
+                />
+                行事・制作活動が得意</label
+              >
+              <label
+                ><input
+                  type="checkbox"
+                  class="pr-option"
+                  value="0〜2歳児クラスの経験が豊富で、発達段階に合わせた保育を心がけています。"
+                />
+                0〜2歳児の経験</label
+              >
+              <label
+                ><input
+                  type="checkbox"
+                  class="pr-option"
+                  value="急なシフト変更やトラブルにも落ち着いて対応し、チームで解決にあたってきました。"
+                />
+                柔軟な対応力・協調性</label
+              >
+              <label
+                ><input
+                  type="checkbox"
+                  class="pr-option"
+                  value="新しい保育方法や研修にも積極的に参加し、学んだことを現場で実践してきました。"
+                />
+                学び続ける姿勢</label
+              >
+            </div>
+
+            <button
+              id="generatePR"
+              type="button"
+              class="generate-pr-btn"
+            >
+              選択内容から自己PR文を自動生成する
+            </button>
+
+            <p class="field-label">自己PR・志望動機（編集もOK）</p>
+            <textarea
+              id="prText"
+              name="pr"
+              rows="6"
+              placeholder="自動生成ボタンを押すと、ここに自己PR文が入ります。気になる部分は自由に書き換えてください。"
+            ></textarea>
+          </div>
+
+          <!-- STEP 4: 確認・PDF -->
+          <div class="step-section" data-step="4">
+            <p
+              style="
+                font-size: 13px;
+                color: var(--text-sub);
+                line-height: 1.6;
+              "
+            >
+              入力内容は左側のプレビューに反映されています。<br />
+              内容を確認し、問題なければ「PDFをダウンロード」を押してください。
+            </p>
+            <p class="note">
+              ※テスト版のため、入力内容はサーバーに保存されません（PDF生成のみに利用されます）。
+            </p>
+          </div>
+
+          <!-- ナビゲーションボタン -->
+          <div class="nav-buttons">
+            <button
+              type="button"
+              class="btn btn-prev"
+              id="btn-prev"
+            >
+              ＜ 前へ
+            </button>
+
+            <div style="margin-left: auto; display: flex; gap: 8px">
+              <button
+                type="button"
+                class="btn btn-next"
+                id="btn-next"
+              >
+                次へ ＞
+              </button>
+              <button
+                type="submit"
+                class="btn btn-submit"
+                id="btn-submit"
+                style="display: none"
+              >
+                PDFをダウンロード
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+    </main>
+
+    <script>
+      // ───── モバイル：入力/プレビュー切り替え ─────
+      const layout = document.getElementById('layout');
+      const toggleButtons = document.querySelectorAll('.view-toggle-btn');
+      toggleButtons.forEach((btn) => {
+        btn.addEventListener('click', () => {
+          toggleButtons.forEach((b) => b.classList.remove('is-active'));
+          btn.classList.add('is-active');
+          const view = btn.dataset.view;
+          if (view === 'form') {
+            layout.classList.add('show-form');
+            layout.classList.remove('show-preview');
+          } else {
+            layout.classList.add('show-preview');
+            layout.classList.remove('show-form');
+          }
+        });
+      });
+
+      // ───── ステップ制ロジック（4ステップ） ─────
+      const totalSteps = 4;
+      let currentStep = 1;
+
+      const stepSections = document.querySelectorAll('.step-section');
+      const stepElems = document.querySelectorAll('#stepper .step');
+      const prevBtn = document.getElementById('btn-prev');
+      const nextBtn = document.getElementById('btn-next');
+      const submitBtn = document.getElementById('btn-submit');
+      const formTitle = document.getElementById('form-title');
+
+      const stepTitles = {
+        1: '経歴要約（氏名・職務要約）を入力',
+        2: '職務経歴（勤務先企業・職務内容）を入力',
+        3: '自己PR・志望動機を入力',
+        4: '内容確認・PDFダウンロード',
+      };
+
+      function showStep(step) {
+        currentStep = step;
+
+        stepSections.forEach((sec) => {
+          const s = parseInt(sec.dataset.step, 10);
+          sec.classList.toggle('is-active', s === currentStep);
+        });
+
+        if (formTitle) {
+          formTitle.textContent = stepTitles[currentStep] || '';
+        }
+
+        stepElems.forEach((el) => {
+          const s = parseInt(el.dataset.step, 10);
+          el.classList.remove('step--active', 'step--completed');
+          if (s < currentStep) el.classList.add('step--completed');
+          else if (s === currentStep) el.classList.add('step--active');
+        });
+
+        if (currentStep === 1) {
+          prevBtn.disabled = true;
+        } else {
+          prevBtn.disabled = false;
+        }
+
+        if (currentStep === totalSteps) {
+          nextBtn.style.display = 'none';
+          submitBtn.style.display = 'inline-block';
+        } else {
+          nextBtn.style.display = 'inline-block';
+          submitBtn.style.display = 'none';
+        }
+      }
+
+      prevBtn.addEventListener('click', () => {
+        if (currentStep > 1) showStep(currentStep - 1);
+      });
+      nextBtn.addEventListener('click', () => {
+        if (currentStep < totalSteps) showStep(currentStep + 1);
+      });
+      stepElems.forEach((el) => {
+        el.addEventListener('click', () => {
+          const targetStep = parseInt(el.dataset.step, 10);
+          if (!Number.isNaN(targetStep)) showStep(targetStep);
+        });
+      });
+      showStep(1);
+
+      // ───── プレビューのリアルタイム反映 ─────
+      function bindText(inputId, previewId, defaultText) {
+        const input = document.getElementById(inputId);
+        const preview = document.getElementById(previewId);
+        if (!input || !preview) return;
+
+        const base = defaultText || preview.textContent || '未入力';
+        preview.dataset.default = base;
+
+        const update = () => {
+          const v = input.value.trim();
+          if (v) {
+            preview.textContent = v;
+            preview.classList.remove('preview-empty');
+          } else {
+            preview.textContent = preview.dataset.default;
+            preview.classList.add('preview-empty');
+          }
+        };
+
+        input.addEventListener('input', update);
+        update();
+      }
+
+      bindText('name', 'pv-name', '未入力');
+      bindText('summary', 'pv-summary', '（ここに経歴要約が入ります）');
+      bindText(
+        'history',
+        'pv-history',
+        '（ここに勤務先企業・職務内容が入ります）'
+      );
+      bindText(
+        'prText',
+        'pv-prText',
+        '（ここに自己PR・志望動機が入ります）'
+      );
+
+      // ───── 自己PR：選択肢から自動生成 ─────
+      const generateBtn = document.getElementById('generatePR');
+      const prTextarea = document.getElementById('prText');
+      const prOptions = document.querySelectorAll('.pr-option');
+
+      if (generateBtn && prTextarea) {
+        generateBtn.addEventListener('click', () => {
+          const checked = Array.from(prOptions).filter((o) => o.checked);
+          if (!checked.length) {
+            alert('まず当てはまる項目を1つ以上選択してください。');
+            return;
+          }
+
+          const parts = checked.map((o) => o.value);
+          const text =
+            'これまでの保育士としての経験の中で、' +
+            parts.join(' ') +
+            ' といった点を大切にしてまいりました。' +
+            '貴園でも子どもたち一人ひとりに寄り添いながら、保護者や職員の方々と協力し、安心して過ごせる環境づくりに貢献したいと考えております。';
+
+          prTextarea.value = text;
+          prTextarea.dispatchEvent(new Event('input'));
+        });
+      }
+
+      // ───── 日付（職務経歴書の日付） ─────
+      const dateEl = document.getElementById('pv-date');
+      if (dateEl) {
+        const d = new Date();
+        const y = d.getFullYear();
+        const m = d.getMonth() + 1;
+        const day = d.getDate();
+        dateEl.textContent = `${y}年${m}月${day}日現在`;
+      }
+    </script>
+  </body>
+</html>

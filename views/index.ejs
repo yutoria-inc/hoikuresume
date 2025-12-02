@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <title>ホイクレジュメ | 保育士転職 履歴書自動作成</title>
+    <meta
+      name="description"
+      content="保育士転職向けの履歴書を、Web上で入力するだけで自動作成できます。PDFでダウンロードしてそのまま応募に使えます。"
+    />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+      :root {
+        --primary: #0e9f6e;
+        --primary-soft: #e0f4ec;
+        --accent: #ff4b8b;
+        --border: #ddd;
+        --bg: #ffffff;
+        --text-main: #222;
+        --text-sub: #666;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI',
+          sans-serif;
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 24px 16px 40px;
+        background: var(--bg);
+        color: var(--text-main);
+      }
+
+      /* 共通ヘッダー */
+      .site-header {
+        display: flex;
+        align-items: center;
+        height: 56px;
+        margin-bottom: 24px;
+      }
+
+      /* ロゴリンクのデフォルト装飾を無効化 */
+      .site-header a {
+      color: var(--text-main); /* 黒に戻す */
+      text-decoration: none;  /* 下線消す */
+      }
+
+      /* ホバー時も色が変わらないように */
+      .site-header a:hover {
+      color: var(--text-main);
+      text-decoration: none;
+      }
+
+      .site-logo {
+        font-weight: 700;
+        font-size: 20px;
+        letter-spacing: 0.12em;
+        display: inline-block;
+        padding: 6px 4px;
+      }
+
+      /* トップのヒーロー */
+
+      .hero {
+        border-radius: 16px;
+        padding: 40px 24px;
+        box-shadow: 0 0 12px rgba(0, 0, 0, 0.06);
+        min-height: calc(100vh - 56px - 80px);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+      }
+
+      .hero-title {
+        font-size: 22px;
+        font-weight: 700;
+        margin-bottom: 12px;
+      }
+
+      .hero-sub {
+        font-size: 13px;
+        color: var(--text-sub);
+        margin-bottom: 24px;
+        line-height: 1.7;
+      }
+
+      .hero-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 12px 28px;
+        border-radius: 999px;
+        border: none;
+        background: var(--primary);
+        color: #fff;
+        font-size: 15px;
+        font-weight: 600;
+        text-decoration: none;
+        cursor: pointer;
+        box-shadow: 0 6px 16px rgba(14, 159, 110, 0.25);
+        transition: transform 0.1s ease, box-shadow 0.1s ease,
+          background 0.1s ease;
+      }
+
+      .hero-button:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 8px 18px rgba(14, 159, 110, 0.3);
+        background: #0b8b60;
+      }
+
+      .hero-button:active {
+        transform: translateY(0);
+        box-shadow: 0 4px 10px rgba(14, 159, 110, 0.2);
+      }
+
+      .hero-hint {
+        margin-top: 12px;
+        font-size: 11px;
+        color: var(--text-sub);
+      }
+
+      .button-row {
+        display: flex;
+        gap: 16px;
+        margin-bottom: 16px;
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+
+      .hero-button.secondary {
+        background: #4b5563;
+        box-shadow: 0 6px 16px rgba(75, 85, 99, 0.25);
+      }
+
+      .hero-button.secondary:hover {
+        background: #374151;
+      }
+      @media (max-width: 480px) {
+        .button-row {
+          flex-direction: column;
+          gap: 12px;
+        }
+      }
+
+    </style>
+  </head>
+  <body>
+    <!-- 共通ヘッダー -->
+    <header class="site-header">
+      <a href="/">
+        <div class="site-logo">ホイクレジュメ</div>
+      </a>
+    </header>
+
+    <!-- メインコンテンツ -->
+    <main class="hero">
+      <h1 class="hero-title">保育士転職の履歴書を、数分で自動作成</h1>
+      <p class="hero-sub">
+        フォームに必要事項を入力するだけで、<br />
+        JIS形式に近いレイアウトの履歴書PDFを自動生成します。
+      </p>
+
+      <div class="button-row">
+        <a href="/resume" class="hero-button">履歴書を作成する</a>
+        <a href="/career" class="hero-button">職務経歴書を作成する</a>
+      </div>
+      <p class="hero-hint">※メールアドレスなどの情報はPDF生成にのみ使用されます。</p>
+    </main>
+  </body>
+</html>
