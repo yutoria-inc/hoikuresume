@@ -373,12 +373,9 @@
 
 .preview-card.preview {
   font-weight: 400;
-  background: #fff;
+  background: #ffffff;
   color: #000;
-
-  /* 9px〜11pxの範囲で、画面幅に応じて可変 */
   font-size: clamp(9px, 1.1vw, 11px);
-
   width: 100%;
   max-width: 794px;
   aspect-ratio: 210 / 297;
@@ -406,8 +403,8 @@
 .rirekisho-box1 {
   border-left: 1px solid #111;
   border-right: 1px solid #111;
-  border-top: none;      /* タイトルとは切り離し */
-  border-bottom: none;   /* 下は住所ブロックと接続するのでナシ */
+  border-top: none; 
+  border-bottom: none;
   box-sizing: border-box;
 }
 
@@ -416,19 +413,13 @@
   display: flex;
   align-items: flex-end;
   padding: 4px 8px 2px;
-  border-bottom: 1px solid #111; /* 下線だけ */
+  border-bottom: 1px solid #111;
 }
 
 .rirekisho-header .title {
-  /* 画面幅に応じて 14px〜18px の間で変化 */
   font-size: clamp(14px, 3vw, 18px);
-
-  /* ちょい詰めて、モバイルでも折り返さないように */
   letter-spacing: 0.4em;
-
-  /* 絶対に改行させない */
   white-space: nowrap;
-
   margin-right: auto;
 }
 
@@ -437,6 +428,11 @@
     font-size: 14px;
     letter-spacing: 0.3em;
   }
+}
+
+.preview-empty {
+  color: #aaaaaa;
+  text-align: center;
 }
 
 .rirekisho-header .date {
@@ -481,6 +477,7 @@
   flex: 1;
   padding: 2px 6px;
   box-sizing: border-box;
+  text-align: center;
 }
 
 /* 名前だけフォント大きめ */
@@ -491,8 +488,8 @@
 /* ---- 生年月日＋性別の行 ---- */
 .rirekisho-profile .etc {
   display: flex;
-  justify-content: space-between;
-  padding: 4px 0;
+  justify-content: flex-end;
+  padding: 2px;
 }
 
 .rirekisho-profile .birthday {
@@ -517,26 +514,25 @@
 
 /* 写真エリア全体（外側の余白をかなり減らす） */
 .rirekisho-photo {
-  flex: 0 0 72px;              /* ← 外側の横幅をかなりスリムにした */
+  flex: 0 0 72px;
   display: flex;
   justify-content: center;
   align-items: flex-start;
-  margin-left: 6px;            /* ← 左との間隔（少しだけ） */
-  padding-top: 12px;            /* ← 上側もピッタリ気味 */
+  margin-left: 6px;
+  padding-top: 12px;
 }
 
 /* 写真枠（JIS の 4×3cm 比率に近づける） */
 .jis-photo-cell {
-  width: 69px;                 /* ← 横幅かなり削った（JIS近似） */
-  height: 92px;                /* ← 縦長、4:3っぽいバランス */
-  border: 1px solid #111;
+  width: 69px;
+  height: 92px;
   text-align: center;
   font-size: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
   box-sizing: border-box;
-  padding: 2px;                /* ← 内側余白少し */
+  padding: 2px;
 }
 
 .jis-photo-cell img {
@@ -612,6 +608,33 @@
   white-space: pre-wrap;
 }
 
+.contact-information-etc .tel .label,
+.contact-information-etc .email .label {
+  width: 32px;
+}
+
+/* Email 行だけ上下レイアウトにする */
+.contact-information-etc .email {
+  flex-direction: column;
+  align-items: flex-start;  /* ラベルと中身を左寄せにしたい場合 */
+}
+
+.contact-information-etc .email .label {
+  width: auto;   /* 32px固定を解除して自然な幅に */
+}
+
+.contact-information-etc .email .input {
+  width: 100%;   /* 全幅使わせる */
+}
+
+
+#pv-address-kana-current {
+  font-size: 6px;
+}
+
+#pv-contact-address {
+  text-align: center;
+}
 
 /* 既存 JIS テーブル系（学歴・職歴、資格など）は今の .jis-table 系をそのまま利用 */
 
@@ -619,7 +642,7 @@
     .jis-table {
       width: 100%;
       border-collapse: collapse;
-      font-size: 11px;
+      font-size: 9px;
       margin-top: 0;
     }
 
@@ -1030,7 +1053,7 @@
                   <div class="contact-information-address">
                     <div class="ruby">
                       <div class="label">ふりがな</div>
-                      <div id="pv-address-kana-current" class="input preview-empty"></div>
+                      <div id="pv-address-kana-current" class="input preview-empty">未入力</div>
                     </div>
                     <div class="address">
                       <div class="label">現住所</div>
@@ -1070,11 +1093,11 @@
                   <div class="contact-information-etc">
                     <div class="tel">
                       <div class="label">電話</div>
-                      <div class="input"></div>
+                      <div id="pv-phone-contact" class="input preview-empty"></div>
                     </div>
                     <div class="email">
                       <div class="label">Email</div>
-                      <div class="input"></div>
+                      <div id="pv-email-contact" class="input preview-empty"></div>
                     </div>
                   </div>
                 </div>
@@ -1139,13 +1162,13 @@
               <h3>基本情報を入力</h3>
 
               <div class="field">
-                <label for="name">氏名（漢字）</label>
-                <input type="text" id="name" name="name" required />
+                <label for="furigana">ふりがな</label>
+                <input type="text" id="furigana" name="furigana" />
               </div>
 
               <div class="field">
-                <label for="furigana">ふりがな</label>
-                <input type="text" id="furigana" name="furigana" />
+                <label for="name">氏名（漢字）</label>
+                <input type="text" id="name" name="name" required />
               </div>
 
               <div class="field">
@@ -1214,6 +1237,16 @@
               <input type="hidden" id="address-current-hidden" name="addressCurrent" />
             </div>
 
+            <div class="field">
+              <label for="phone">電話</label>
+              <input type="tel" id="phone" name="phone" />
+            </div>
+
+            <div class="field">
+              <label for="email">Email</label>
+              <input type="email" id="email" name="email" />
+            </div>
+
             <!-- 連絡先 -->
             <div class="field">
               <div
@@ -1273,15 +1306,14 @@
               <input type="hidden" id="address-contact-hidden" name="addressContact" />
             </div>
 
-            <!-- 電話・メール -->
             <div class="field">
-              <label for="phone">電話番号</label>
-              <input type="tel" id="phone" name="phone" />
+              <label for="phoneContact">電話</label>
+              <input type="tel" id="phoneContact" name="phoneContact" />
             </div>
 
             <div class="field">
-              <label for="email">メールアドレス</label>
-              <input type="email" id="email" name="email" />
+              <label for="emailContact">Email</label>
+              <input type="email" id="emailContact" name="emailContact" />
             </div>
 
 
@@ -1943,6 +1975,36 @@ function updateEmailPreview() {
   }
 }
 
+
+function updatePhoneContactPreview() {
+  const val = document.getElementById('phoneContact').value;
+  const pv = document.getElementById('pv-phone-contact');
+  if (!pv) return;
+
+  if (val) {
+    pv.textContent = val;
+    pv.classList.remove('preview-empty');
+  } else {
+    pv.textContent = '';
+    pv.classList.add('preview-empty');
+  }
+}
+
+function updateEmailContactPreview() {
+  const val = document.getElementById('emailContact').value;
+  const pv = document.getElementById('pv-email-contact');
+  if (!pv) return;
+
+  if (val) {
+    pv.textContent = val;
+    pv.classList.remove('preview-empty');
+  } else {
+    pv.textContent = '';
+    pv.classList.add('preview-empty');
+  }
+}
+
+
 /* ============================
    入力イベントまとめて捕まえる
    ============================ */
@@ -1972,6 +2034,8 @@ document.addEventListener('input', (e) => {
 
   if (id === 'phone') updatePhonePreview();
   if (id === 'email') updateEmailPreview();
+  if (id === 'phoneContact') updatePhoneContactPreview();
+  if (id === 'emailContact') updateEmailContactPreview();
 });
 
 /* ============================
@@ -1982,6 +2046,8 @@ updateCurrentAddressPreview();
 updateContactAddress();
 updatePhonePreview();
 updateEmailPreview();
+updatePhoneContactPreview();
+updateEmailContactPreview();
 
 })();
 
