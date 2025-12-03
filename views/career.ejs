@@ -280,30 +280,40 @@
 
       .jis-header {
         display: flex;
-        align-items: flex-start;
-        margin-bottom: 10px;
+        justify-content: space-between;
+        align-items: flex-end;
+        margin-bottom: 4px;
       }
+
       .jis-title {
-        flex: 1;
-        text-align: center;
-        font-size: 18px;
-        letter-spacing: 0.3em;
+        font-size: 22px;
+        font-weight: 700;
+        letter-spacing: 0.1em;
       }
+
+      .jis-meta {
+        text-align: right;
+        font-size: 13px;
+        line-height: 1.4;
+      }
+
       .jis-date {
         font-size: 10px;
         text-align: right;
         white-space: nowrap;
       }
       .jis-divider {
-        border-bottom: 1px solid #333;
-        margin: 6px 0 10px;
+        border-bottom: 3px double #333;
+        margin: 6px 0 12px;
       }
+
       .jis-section {
         margin-bottom: 16px;
       }
       .jis-section-heading {
-        font-size: 12px;
+        font-size: 16px;
         font-weight: 600;
+        text-align: center;
         border-bottom: 1px solid #333;
         padding-bottom: 2px;
         margin-bottom: 6px;
@@ -323,11 +333,8 @@
         border-bottom: 0.5px solid #ccc;
       }
       .jis-multiline-box {
-        min-height: 80px;
-        border: 0.5px solid #ccc;
+        min-height: 60px;
         padding: 6px 8px;
-        border-radius: 2px;
-        background: #fff;
       }
       .preview-empty {
         color: #bbb;
@@ -408,10 +415,75 @@
         cursor: default;
       }
 
+      .skill-row {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 8px;
+      }
+
+      .skill-input-left {
+        flex: 0 0 45%;
+      }
+
+      .skill-input-right {
+        flex: 1;
+      }
+
+      .career-item {
+        background: #fafafa;
+        border: 1px solid #ddd;
+        padding: 16px;
+        border-radius: 8px;
+        margin-bottom: 18px;
+      }
+
+      .career-period-row {
+        display: flex;
+        gap: 14px;
+      }
+
+      .career-divider {
+        margin-top: 20px;
+        border: none;
+        border-bottom: 1px solid #ccc;
+      }
+
+      #add-career-btn {
+        margin-top: 10px;
+      }
+
       .note {
         font-size: 11px;
         color: var(--text-sub);
         margin-top: 8px;
+      }
+
+      .career-preview-header {
+        display: flex;
+        justify-content: space-between;
+        background: #eee;
+        padding: 6px 10px;
+        font-size: 11.5px;
+        border-radius: 4px;
+      }
+      
+      .career-preview-title {
+        font-weight: 600;
+        font-size: 12px;
+        margin-top: 6px;
+        display: flex;
+        gap: 4px;
+      }
+
+      .career-preview-title .label {
+        color: #333;
+        font-weight: 600;
+      }
+
+      .career-preview-detail {
+        font-size: 11.5px;
+        margin-top: 2px;
+        line-height: 1.5;
       }
 
       .pr-checkbox-group {
@@ -460,14 +532,18 @@
         </div>
         <div class="step" data-step="2">
           <div class="step-circle">2</div>
-          <div class="step-label">職務経歴</div>
+          <div class="step-label">スキル</div>
         </div>
         <div class="step" data-step="3">
           <div class="step-circle">3</div>
-          <div class="step-label">自己PR</div>
+          <div class="step-label">職務経歴</div>
         </div>
         <div class="step" data-step="4">
           <div class="step-circle">4</div>
+          <div class="step-label">自己PR</div>
+        </div>
+        <div class="step" data-step="5">
+          <div class="step-circle">5</div>
           <div class="step-label">確認</div>
         </div>
       </div>
@@ -507,18 +583,14 @@
 
         <div class="preview-card">
           <div class="jis-header">
-            <div class="jis-title">職 務 経 歴 書</div>
-            <div class="jis-date" id="pv-date"></div>
+            <div class="jis-title">職務経歴書</div>
           </div>
+
           <div class="jis-divider"></div>
 
-          <div class="jis-section">
-            <div class="jis-row">
-              <div class="jis-label">氏名</div>
-              <div class="jis-value">
-                <span id="pv-name" class="preview-empty">未入力</span>
-              </div>
-            </div>
+          <div class="jis-meta">
+            <div id="pv-date"></div>
+            <div id="pv-name-top"></div>
           </div>
 
           <div class="jis-section">
@@ -531,18 +603,29 @@
           </div>
 
           <div class="jis-section">
-            <div class="jis-section-heading">
-              職務経歴（勤務先企業・職務内容）
-            </div>
-            <div class="jis-multiline-box">
-              <span id="pv-history" class="preview-empty">
-                （ここに勤務先企業・職務内容が入ります）
-              </span>
+            <div class="jis-section-heading">活かせるスキル・経験</div>
+
+            <div id="pv-skill-wrapper">
+              <!-- JS で行ごとにここへ差し込む -->
+              <div class="jis-row">
+                <div class="jis-label">
+                  <span class="preview-empty">（未入力）</span>
+                </div>
+                <div class="jis-value">
+                  <span class="preview-empty">（未入力）</span>
+                </div>
+              </div>
             </div>
           </div>
 
           <div class="jis-section">
-            <div class="jis-section-heading">自己PR・志望動機</div>
+            <div class="jis-section-heading">職務経歴</div>
+
+            <div id="pv-career-wrapper"></div>
+          </div>
+
+          <div class="jis-section">
+            <div class="jis-section-heading">自己PR</div>
             <div class="jis-multiline-box">
               <span id="pv-prText" class="preview-empty">
                 （ここに自己PR・志望動機が入ります）
@@ -577,26 +660,106 @@
             </div>
           </div>
 
-          <!-- STEP 2: 職務経歴 -->
+          <!-- STEP 2: 活かせるスキル・経験 -->
           <div class="step-section" data-step="2">
             <p class="note">
-              時系列順に、勤務先・雇用形態・担当業務などを記入してください。<br />
-              例）〇〇保育園（正職員／2018年4月〜2023年3月）0〜2歳児クラス担任、連絡帳・保護者対応、行事企画・運営 など
+              左側に「保育／実務経験◯年以上」などのスキル名を、右側に一言コメントを入力してください。
             </p>
 
-            <div class="field">
-              <label for="history">職務経歴</label>
-              <textarea
-                id="history"
-                name="history"
-                rows="10"
-                placeholder="〇〇保育園（正職員／2018年4月〜2023年3月）&#10;・0〜2歳児クラス担任（複数担任制）&#10;・保護者対応、連絡帳記入、個別面談&#10;・運動会・発表会など行事の企画・準備・当日運営&#10;&#10;△△保育園（パート／2023年4月〜現在）&#10;・フリー保育士として各クラスの補助業務  など"
-              ></textarea>
+            <div id="skill-list">
+              <!-- 1行目（テンプレ） -->
+              <div class="skill-row">
+                <input
+                  type="text"
+                  name="skill_left[]"
+                  class="skill-input-left skill-left"
+                  placeholder="例：保育／実務経験3年以上"
+                />
+                <input
+                  type="text"
+                  name="skill_right[]"
+                  class="skill-input-right skill-right"
+                  placeholder="例：オフの日も個人的に取り組んでいます"
+                />
+              </div>
             </div>
+
+            <button type="button" id="add-skill-btn" class="generate-pr-btn">
+              ＋ 行を追加する
+            </button>
           </div>
 
-          <!-- STEP 3: 自己PR（選択肢＋自動生成） -->
+          <!-- STEP 3: 職務経歴 -->
           <div class="step-section" data-step="3">
+            <p class="note">
+              1社ごとに入力してください。（後で「＋追加」ボタンで複数追加できます）
+            </p>
+
+            <div id="career-list">
+
+              <!-- 1社目 -->
+              <div class="career-item">
+
+                <div class="field">
+                  <label>会社名</label>
+                  <input
+                    type="text"
+                    name="company[]"
+                    class="career-company"
+                    placeholder="例：株式会社〇〇〇〇"
+                  />
+                </div>
+
+                <div class="field career-period-row">
+                  <div>
+                    <label>開始年月</label>
+                    <input type="month" name="period_start[]" class="career-start" />
+                  </div>
+
+                  <div>
+                    <label>終了年月</label>
+                    <input type="month" name="period_end[]" class="career-end" />
+                  </div>
+
+                  <div style="display:flex; align-items:center; gap:6px;">
+                    <input type="checkbox" name="current[]" class="career-current" />
+                    <label>現在も勤務中</label>
+                  </div>
+                </div>
+
+                <div class="field">
+                  <label>職務内容タイトル（太字で表示）</label>
+                  <input
+                    type="text"
+                    name="duty_title[]"
+                    class="career-duty-title"
+                    placeholder="例：■ 主な実績"
+                  />
+                </div>
+
+                <div class="field">
+                  <label>詳細コメント（解説文）</label>
+                  <textarea
+                    name="duty_detail[]"
+                    rows="4"
+                    class="career-duty-detail"
+                    placeholder="例：ブラウザで履歴書をつくれるWEBサービスの運営スタッフとして..."
+                  ></textarea>
+                </div>
+
+                <hr class="career-divider" />
+              </div>
+
+            </div>
+
+            <!-- 追加ボタン -->
+            <button type="button" id="add-career-btn" class="generate-pr-btn">
+              ＋ 勤務先を追加
+            </button>
+          </div>
+
+          <!-- STEP 4: 自己PR（選択肢＋自動生成） -->
+          <div class="step-section" data-step="4">
 
             <p class="field-label">当てはまる項目を選択してください（複数選択可）</p>
             <div class="pr-checkbox-group">
@@ -667,8 +830,8 @@
             ></textarea>
           </div>
 
-          <!-- STEP 4: 確認・PDF -->
-          <div class="step-section" data-step="4">
+          <!-- STEP 5: 確認・PDF -->
+          <div class="step-section" data-step="5">
             <p
               style="
                 font-size: 13px;
@@ -737,7 +900,7 @@
       });
 
       // ───── ステップ制ロジック（4ステップ） ─────
-      const totalSteps = 4;
+      const totalSteps = 5;
       let currentStep = 1;
 
       const stepSections = document.querySelectorAll('.step-section');
@@ -749,9 +912,10 @@
 
       const stepTitles = {
         1: '経歴要約（氏名・職務要約）を入力',
-        2: '職務経歴（勤務先企業・職務内容）を入力',
-        3: '自己PR・志望動機を入力',
-        4: '内容確認・PDFダウンロード',
+        2: '活かせるスキル・経験を入力',
+        3: '職務経歴（勤務先企業・職務内容）を入力',
+        4: '自己PR・志望動機を入力',
+        5: '内容確認・PDFダウンロード',
       };
 
       function showStep(step) {
@@ -826,7 +990,14 @@
         update();
       }
 
+      bindText('name', 'pv-name-top', '');
       bindText('name', 'pv-name', '未入力');
+      bindText('skill1-left', 'pv-skill1-left', '（未入力）');
+      bindText('skill1-right', 'pv-skill1-right', '（未入力）');
+      bindText('skill2-left', 'pv-skill2-left', '（未入力）');
+      bindText('skill2-right', 'pv-skill2-right', '（未入力）');
+      bindText('skill3-left', 'pv-skill3-left', '（未入力）');
+      bindText('skill3-right', 'pv-skill3-right', '（未入力）');
       bindText('summary', 'pv-summary', '（ここに経歴要約が入ります）');
       bindText(
         'history',
@@ -838,6 +1009,92 @@
         'pv-prText',
         '（ここに自己PR・志望動機が入ります）'
       );
+
+      // ───── スキル：行追加ボタン ─────
+      const addSkillBtn = document.getElementById("add-skill-btn");
+      const skillList = document.getElementById("skill-list");
+
+      if (addSkillBtn && skillList) {
+        addSkillBtn.addEventListener("click", () => {
+          const firstRow = skillList.querySelector(".skill-row");
+          if (!firstRow) return;
+
+          const clone = firstRow.cloneNode(true);
+
+          // 中身を空にする
+          clone.querySelectorAll("input").forEach((input) => {
+            input.value = "";
+          });
+
+          skillList.appendChild(clone);
+          updateSkillPreview(); // 追加直後にプレビューも更新
+        });
+      }
+
+      // ───── スキル：プレビュー反映 ─────
+      function updateSkillPreview() {
+        const wrapper = document.getElementById("pv-skill-wrapper");
+        if (!wrapper) return;
+
+        wrapper.innerHTML = "";
+
+        const rows = document.querySelectorAll("#skill-list .skill-row");
+
+        if (!rows.length) {
+          // 行がない時は1行だけ「未入力」表示
+          const empty = document.createElement("div");
+          empty.className = "jis-row";
+          empty.innerHTML = `
+            <div class="jis-label">
+              <span class="preview-empty">（未入力）</span>
+            </div>
+            <div class="jis-value">
+              <span class="preview-empty">（未入力）</span>
+            </div>
+          `;
+          wrapper.appendChild(empty);
+          return;
+        }
+
+        rows.forEach((row) => {
+          const left = row.querySelector(".skill-left")?.value.trim() || "";
+          const right = row.querySelector(".skill-right")?.value.trim() || "";
+
+          const el = document.createElement("div");
+          el.className = "jis-row";
+
+          el.innerHTML = `
+            <div class="jis-label">
+              <span class="${left ? "" : "preview-empty"}">
+                ${left || "（未入力）"}
+              </span>
+            </div>
+            <div class="jis-value">
+              <span class="${right ? "" : "preview-empty"}">
+                ${right || "（未入力）"}
+              </span>
+            </div>
+          `;
+
+          wrapper.appendChild(el);
+        });
+      }
+
+
+      document.addEventListener("input", (e) => {
+        const target = e.target;
+
+        // スキル欄の入力ならプレビュー更新
+        if (
+          target.classList.contains("skill-left") ||
+          target.classList.contains("skill-right")
+        ) {
+          updateSkillPreview();
+        }
+      });
+
+      // 初期表示時にも一度反映
+      updateSkillPreview();
 
       // ───── 自己PR：選択肢から自動生成 ─────
       const generateBtn = document.getElementById('generatePR');
@@ -863,6 +1120,68 @@
           prTextarea.dispatchEvent(new Event('input'));
         });
       }
+
+      // ───── 職務経歴：追加ボタン ─────
+      const addCareerBtn = document.getElementById("add-career-btn");
+      const careerList = document.getElementById("career-list");
+
+      addCareerBtn.addEventListener("click", () => {
+        const item = document.querySelector(".career-item").cloneNode(true);
+
+        // 入力値クリア
+        item.querySelectorAll("input, textarea").forEach((el) => {
+          if (el.type === "checkbox") el.checked = false;
+          else el.value = "";
+        });
+
+        careerList.appendChild(item);
+      });
+
+      // ───── 職務経歴：プレビュー反映 ─────
+      function updateCareerPreview() {
+        const wrapper = document.getElementById("pv-career-wrapper");
+        wrapper.innerHTML = "";
+
+        const companies = document.querySelectorAll(".career-item");
+
+        companies.forEach((item) => {
+          const company = item.querySelector(".career-company").value.trim();
+          const start = item.querySelector(".career-start").value;
+          const end = item.querySelector(".career-end").value;
+          const current = item.querySelector(".career-current").checked;
+          const dutyTitle = item.querySelector(".career-duty-title").value.trim();
+          const dutyDetail = item.querySelector(".career-duty-detail").value.trim();
+
+          const jpStart = start ? start.replace("-", "年") + "月" : "";
+          let jpEnd = end ? end.replace("-", "年") + "月" : "";
+          if (current) jpEnd = "現在";
+
+          const el = document.createElement("div");
+          el.className = "career-preview-block";
+          el.innerHTML = `
+            <div class="career-preview-header">
+              <strong>${company || "（会社名未入力）"}</strong>
+              <span>${jpStart} ～ ${jpEnd}</span>
+            </div>
+
+            <div class="career-preview-title">
+              <span class="label">主な職務内容：</span>
+              <span>${dutyTitle || "（未入力）"}</span>
+            </div>
+
+            <div class="career-preview-detail">
+              ${dutyDetail || ""}
+            </div>
+
+            <div style="margin-bottom:16px;"></div>
+          `;
+
+          wrapper.appendChild(el);
+        });
+      }
+
+      // 入力イベントと紐づける
+      document.addEventListener("input", updateCareerPreview);
 
       // ───── 日付（職務経歴書の日付） ─────
       const dateEl = document.getElementById('pv-date');

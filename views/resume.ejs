@@ -232,119 +232,433 @@
       min-width: 0;
     }
 
-    /* PC: show both */
-    @media (min-width: 900px) {
-      .layout.show-form .form-pane,
-      .layout.show-preview .preview-pane {
-        display: block;
-      }
-    }
+/* PC（幅900px以上）：プレビュー左・フォーム右 */
+@media (min-width: 900px) {
+  .layout {
+    display: flex;
+    gap: 18px;
+    align-items: flex-start;
+  }
 
-    /* Mobile: hide one side */
-    @media (max-width: 899px) {
-      .layout {
-        flex-direction: column;
-      }
+  .layout.show-form .form-pane,
+  .layout.show-preview .preview-pane {
+    display: block;
+  }
 
-      .preview-pane,
-      .form-pane {
-        width: 100%;
-        margin-bottom: 14px;
-        box-shadow: 0 10px 25px rgba(15, 23, 42, 0.08);
-      }
+  /* 左右 1/2 ずつ固定 */
+  .preview-pane,
+  .form-pane {
+    flex: 0 0 50%;
+    max-width: 50%;
+  }
 
-      .layout.show-form .preview-pane {
-        display: none;
-      }
-      .layout.show-preview .form-pane {
-        display: none;
-      }
-    }
+  /* プレビュー列 */
+  .preview-card-container {
+    width: 100%;
+    display: flex;
+    justify-content: flex-start;  /* ← 左寄せ */
+  }
+
+  .preview-card.preview {
+    position: relative;   /* 以前の absolute をリセット */
+    left: auto;
+    top: auto;
+    transform: none;      /* スケールも PC では使わない */
+    margin: 0;            /* auto で中央寄せされるのを防ぐ */
+    margin-right: auto;   /* 左に寄せる */
+    width: 100%;
+    max-width: 794px;     /* A4 横幅 */
+  }
+}
+
+    /* ─ モバイル：JISプレビュー（縮小＋中央寄せ＋スクロール） ─ */
+@media (max-width: 899px) {
+  /* レイアウト自体は縦並び */
+  .layout {
+    flex-direction: column;
+  }
+
+  .preview-pane,
+  .form-pane {
+    width: 100%;
+    margin-bottom: 14px;
+    box-shadow: 0 10px 25px rgba(15, 23, 42, 0.08);
+  }
+
+  /* 入力 / プレビュー切替 */
+  .layout.show-form .preview-pane {
+    display: none;
+  }
+  .layout.show-preview .form-pane {
+    display: none;
+  }
+}
+
+/* ========================
+   モバイル時のプレビュー拡大表示
+   ======================== */
+@media (max-width: 899px) {
+
+  /* PC用のスケール縮小を無効化 */
+  .preview-card.preview {
+    position: relative;
+    left: 0;
+    transform: none !important;
+    width: 100% !important;
+    max-width: 100% !important;    /* ← 画面幅いっぱい */
+    padding: 24px !important;      /* ← モバイル用余白に調整しておく */
+    box-sizing: border-box;
+  }
+
+  /* 包むコンテナは縮小モードを解除し、高さ固定も削除 */
+  .preview-card-container {
+    height: auto !important;
+    overflow-y: auto !important;   /* ← スクロール可能に */
+    overflow-x: hidden;
+  }
+
+  /* 右ズレが起きないように */
+  .preview-pane {
+    padding: 0 12px;
+  }
+}
+
 
     /* ───────── 8. PREVIEW (JIS STYLE) ───────── */
 
     .preview-title {
-      font-size: 15px;
+      font-size: 14px;
       font-weight: 600;
       margin-bottom: 4px;
     }
 
     .preview-sub {
-      font-size: 11px;
-      color: var(--text-sub);
-      margin-bottom: 10px;
+      margin-bottom: 8px;
     }
 
-    .preview-card {
-      border: 1px solid #e5e7eb;
-      border-radius: 10px;
-      padding: 18px 20px;
-      background: #fff;
-      font-size: 12px;
-      line-height: 1.6;
+    /* JISページ本体との距離を少し空ける */
+    .preview-pane .preview-card {
+      margin-top: 8px;
     }
 
-    .jis-header {
-      display: flex;
-      align-items: flex-start;
-      margin-bottom: 6px;
-    }
+/* ---- JIS履歴書の上部レイアウト（見本サイト準拠） ---- */
 
-    .jis-title {
-      flex: 1;
-      text-align: center;
-      font-size: 18px;
-      letter-spacing: 0.4em;
-    }
+/* 共通ユーティリティ */
+.flex {
+  display: flex;
+}
 
-    .jis-date {
-      font-size: 10px;
-      white-space: nowrap;
-    }
+/* A4プレビュー用カード（PC基準） */
+.preview-card {
+  font-weight: 400;
+  background: #fff;
+  color: #000;
+  font-size: 15px;
+  width: 100%;
+  max-width: 794px;       /* A4 横 */
+  min-height: 1123px;     /* A4 縦の目安 */
+  margin: 0 auto;
+  padding: 68px;
+  box-sizing: border-box;
+  word-wrap: break-word;
+}
 
-    .jis-divider {
-      border-bottom: 1px solid #111827;
-      margin: 4px 0 8px;
-    }
+/* A4プレビューを包むコンテナ */
+.preview-card-container {
+  width: 100%;
+  overflow: visible;
+}
 
-    .jis-section {
-      margin-bottom: 14px;
-    }
+.preview-card.preview {
+  font-weight: 400;
+  background: #fff;
+  color: #000;
 
-    .jis-section-heading {
-      font-size: 12px;
-      font-weight: 600;
-      border-bottom: 1px solid #111827;
-      margin-bottom: 6px;
-      padding-bottom: 2px;
-    }
+  /* 9px〜11pxの範囲で、画面幅に応じて可変 */
+  font-size: clamp(9px, 1.1vw, 11px);
 
-    .preview-empty {
-      color: #d1d5db;
-      font-style: italic;
-    }
+  width: 100%;
+  max-width: 794px;
+  aspect-ratio: 210 / 297;
+  height: auto;
+  padding: 44px 56px;
+  margin: 0 auto;
+  box-sizing: border-box;
+  position: relative;
+}
 
-    .jis-multiline-box {
-      min-height: 70px;
-      padding: 4px 6px;
-      border: 0.5px solid #9ca3af;
-      border-radius: 3px;
-      background: #ffffff;
-      font-size: 11px;
-    }
 
-    /* 表レイアウト（学歴・職歴） */
+/* ─ 上部：氏名〜生年月日＋写真 ─ */
+
+.rirekisho-top {
+  display: flex;
+}
+
+/* 左側ブロック全体（タイトル〜氏名〜生年月日〜住所） */
+.rirekisho-left {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+/* 氏名〜生年月日を囲う枠線（タイトルは別） */
+.rirekisho-box1 {
+  border-left: 1px solid #111;
+  border-right: 1px solid #111;
+  border-top: none;      /* タイトルとは切り離し */
+  border-bottom: none;   /* 下は住所ブロックと接続するのでナシ */
+  box-sizing: border-box;
+}
+
+/* 「履歴書」「○年○月○日現在」 */
+.rirekisho-header {
+  display: flex;
+  align-items: flex-end;
+  padding: 4px 8px 2px;
+  border-bottom: 1px solid #111; /* 下線だけ */
+}
+
+.rirekisho-header .title {
+  /* 画面幅に応じて 14px〜18px の間で変化 */
+  font-size: clamp(14px, 3vw, 18px);
+
+  /* ちょい詰めて、モバイルでも折り返さないように */
+  letter-spacing: 0.4em;
+
+  /* 絶対に改行させない */
+  white-space: nowrap;
+
+  margin-right: auto;
+}
+
+@media (max-width: 430px) {
+  .rirekisho-header .title {
+    font-size: 14px;
+    letter-spacing: 0.3em;
+  }
+}
+
+.rirekisho-header .date {
+  font-size: 9px;
+  white-space: nowrap;
+}
+
+/* 氏名ブロック全体 */
+.rirekisho-profile {
+  font-size: 10px;
+}
+
+/* 各行共通 */
+.rirekisho-profile .ruby,
+.rirekisho-profile .name {
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid #111;
+}
+
+/* ふりがな */
+.rirekisho-profile .ruby {
+  padding: 2px 0;
+  border-bottom: 1px dashed #111;
+}
+
+/* 名前 */
+.rirekisho-profile .name {
+  padding: 4px 0;
+}
+
+/* 左側ラベル */
+.rirekisho-profile .label {
+  width: 64px;
+  padding-left: 4px;
+  border-right: 1px solid #111;
+  box-sizing: border-box;
+}
+
+/* 入力欄 */
+.rirekisho-profile .input {
+  flex: 1;
+  padding: 2px 6px;
+  box-sizing: border-box;
+}
+
+/* 名前だけフォント大きめ */
+.rirekisho-profile .name .input {
+  font-size: 14px;
+}
+
+/* ---- 生年月日＋性別の行 ---- */
+.rirekisho-profile .etc {
+  display: flex;
+  justify-content: space-between;
+  padding: 4px 0;
+}
+
+.rirekisho-profile .birthday {
+  flex: 1;
+  text-align: right;
+  padding-right: 6px;
+}
+
+.rirekisho-profile .gender {
+  min-width: 70px;
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.gender span.circle {
+  border: 1px solid #000;
+  border-radius: 50%;
+  padding: 0 4px;
+}
+
+
+/* 写真エリア全体（外側の余白をかなり減らす） */
+.rirekisho-photo {
+  flex: 0 0 72px;              /* ← 外側の横幅をかなりスリムにした */
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  margin-left: 6px;            /* ← 左との間隔（少しだけ） */
+  padding-top: 12px;            /* ← 上側もピッタリ気味 */
+}
+
+/* 写真枠（JIS の 4×3cm 比率に近づける） */
+.jis-photo-cell {
+  width: 69px;                 /* ← 横幅かなり削った（JIS近似） */
+  height: 92px;                /* ← 縦長、4:3っぽいバランス */
+  border: 1px solid #111;
+  text-align: center;
+  font-size: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  padding: 2px;                /* ← 内側余白少し */
+}
+
+.jis-photo-cell img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ─ 住所／連絡先ブロック ─ */
+
+.rirekisho-box2 {
+  margin-top: 0;
+  margin-bottom: 4px;
+  border: 1px solid #111;
+  box-sizing: border-box;
+  font-size: 9px;
+}
+
+.contact-information {
+  display: flex;
+  border-bottom: 1px solid #111;
+}
+
+.contact-information:last-child {
+  border-bottom: none;
+}
+
+.contact-information-address {
+  flex: 2;
+  border-right: 1px solid #111;
+}
+
+.contact-information-etc {
+  flex: 1;
+}
+
+/* 各行共通（ふりがな／住所／電話／Email） */
+.contact-information .ruby,
+.contact-information .address,
+.contact-information .tel,
+.contact-information .email {
+  display: flex;
+  border-bottom: 1px solid #111;
+  padding: 2px 0;
+}
+
+.contact-information .ruby {
+  border-bottom: 1px dashed #111;
+}
+
+.contact-information .ruby:last-child,
+.contact-information .address:last-child,
+.contact-information .tel:last-child,
+.contact-information .email:last-child {
+  border-bottom: none;
+}
+
+.contact-information .label {
+  width: 64px;
+  padding-left: 4px;
+  box-sizing: border-box;
+}
+
+.contact-information .input {
+  width: 100%;
+  padding: 2px 4px;
+  box-sizing: border-box;
+}
+
+/* 改行付き住所 */
+.contact-information .address pre {
+  margin: 0;
+  white-space: pre-wrap;
+}
+
+
+/* 既存 JIS テーブル系（学歴・職歴、資格など）は今の .jis-table 系をそのまま利用 */
+
+    /* 表全体の罫線をJISっぽく（黒・1px） */
     .jis-table {
       width: 100%;
       border-collapse: collapse;
       font-size: 11px;
-      margin-top: 4px;
+      margin-top: 0;
     }
 
     .jis-table th,
     .jis-table td {
-      border: 0.5px solid #9ca3af;
-      padding: 2px 4px;
+      border: 1px solid #111;      /* 0.5px → 1px & 黒 */
+      padding: 4px 6px;            /* ちょい広めに */
+    }
+
+    /* セクション見出しの線も太く */
+    .jis-section-heading {
+      font-size: 12px;
+      font-weight: 600;
+      border-bottom: 1px solid #111827;
+      margin-bottom: 4px;
+      padding-bottom: 2px;
+    }
+
+    /* タイトル行セル */
+    .jis-title-cell {
+      position: relative;
+      height: 48px;              /* 好きに微調整してOK */
+      text-align: center;
+    }
+
+    .jis-title {
+      font-size: 20px;
+      letter-spacing: 0.4em;
+    }
+
+    /* 日付を右上寄せに */
+    .jis-date {
+      position: absolute;
+      right: 6px;
+      bottom: 4px;
+      font-size: 10px;
+      white-space: nowrap;
+    }
+       
+    .jis-col-label {
+      width: 80px;
     }
 
     .jis-col-year {
@@ -357,20 +671,65 @@
       text-align: center;
     }
 
-    .jis-photo-cell {
-      width: 110px;
-      height: 140px;
-      border: 1px solid #9ca3af;
-      text-align: center;
-      font-size: 10px;
-      vertical-align: middle;
+    /* 学歴・職歴 / 免許・資格 の縦幅を統一する */
+    .jis-table thead tr {
+      height: 24px; 
     }
 
-    .jis-photo-cell img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      border-radius: 2px;
+    .jis-table tbody tr {
+      height: 24px;  
+    }
+
+    /* 行内のセルに余白（可読性アップ） */
+    .jis-table td {
+      padding: 6px 4px;
+    }
+
+    /* 学歴・職歴／免許・資格の tbody セルを全部センター寄せ */
+    .jis-table tbody td {
+      text-align: center;
+      vertical-align: middle; /* 行の上下中央に揃えるならこれも推奨 */
+    }
+
+    .jis-section {
+      margin: 4px 0;
+    }
+
+    /* ボックス自体をラベル用に少し上を空ける */
+    .jis-multiline-box {
+      position: relative; 
+      min-height: 70px;
+      padding: 16px 6px 4px; 
+      border: 0.5px solid #000000;
+      background: #ffffff;
+      font-size: 11px;
+    }
+
+    /* 中の span は普通に本文として下側に表示 */
+    .jis-multiline-box span {
+      display: block;
+    }
+
+    /* ▼ 志望動機のラベル（常時表示） */
+    .jis-multiline-box.pr::before {
+      content: "志望動機・特技・アピールポイントなど";
+      position: absolute;
+      top: 4px;          /* -18px → 4px（枠の内側に） */
+      left: 6px;         /* 0 → 6px（枠の内側に合わせる） */
+      font-size: 8px;
+      color: #555;
+      letter-spacing: 0.5px;
+    }
+
+    /* ▼ 本人希望欄のラベル（常時表示） */
+    .jis-multiline-box.hope::before {
+      content: "本人希望欄（給料・職種・勤務時間・勤務地・その他）";
+      position: absolute;
+      top: 4px;          /* 同じく枠の内側 */
+      left: 6px;
+      font-size: 8px;
+      color: #555;
+      letter-spacing: 0.5px;
     }
 
     /* ───────── 9. FORM STYLES ───────── */
@@ -620,124 +979,166 @@
             このプレビューとほぼ同じレイアウトでPDFが作成されます。
           </div>
 
-          <!-- ここから JIS 履歴書レイアウト -->
-          <div class="jis-header">
-            <div class="jis-title">履　歴　書</div>
-            <div class="jis-date" id="pv-date"></div>
-          </div>
-          <div class="jis-divider"></div>
+          <!-- ここから JIS レイアウト（見本サイト風） -->
+          <div class="preview-card-container">
+            <div class="preview-card preview">
+              <!-- 上部：タイトル / 氏名 / 生年月日・性別 ＋ 写真 -->
+              <div class="rirekisho-top">
+                <!-- ← 左側（タイトル＋氏名ブロック） -->
+                <div class="rirekisho-left">
+                  <!-- タイトル行：下線だけ -->
+                  <div class="rirekisho-header">
+                    <div class="title">履　歴　書</div>
+                    <div class="date"><span id="pv-date"></span></div>
+                  </div>
 
-          <!-- 上段：氏名など（右上に写真スペース） -->
-          <div class="jis-section">
-            <table class="jis-table">
-              <tr>
-                <th>ふりがな</th>
-                <td colspan="3">
-                  <span id="pv-furigana" class="preview-empty">未入力</span>
-                </td>
-                <td rowspan="4" class="jis-photo-cell">
-                  写真（4×3cm）
-                </td>
-              </tr>
-              <tr>
-                <th>氏名</th>
-                <td colspan="3">
-                  <span id="pv-name" class="preview-empty">未入力</span>
-                </td>
-              </tr>
-              <tr>
-                <th>生年月日</th>
-                <td colspan="3">
-                  <span id="pv-birth" class="preview-empty">未入力</span>
-                  ／ <span id="pv-gender" class="preview-empty">性別</span>
-                </td>
-              </tr>
-              <tr>
-                <th>住所</th>
-                <td colspan="3">
-                  <span id="pv-address" class="preview-empty">未入力</span>
-                </td>
-              </tr>
-              <tr>
-                <th>電話</th>
-                <td colspan="2">
-                  <span id="pv-phone" class="preview-empty">未入力</span>
-                </td>
-                <th>メール</th>
-                <td>
-                  <span id="pv-email" class="preview-empty">未入力</span>
-                </td>
-              </tr>
-            </table>
-          </div>
+                  <!-- 氏名～生年月日・性別の枠 -->
+                  <div class="rirekisho-box1">
+                    <div class="rirekisho-profile">
+                      <div class="ruby flex">
+                        <div class="label">ふりがな</div>
+                        <div id="pv-furigana" class="input preview-empty">未入力</div>
+                      </div>
+                      <div class="name flex">
+                        <div class="label">名前</div>
+                        <div id="pv-name" class="input preview-empty">未入力</div>
+                      </div>
+                      <div class="etc flex">
+                        <div id="pv-birth" class="birthday preview-empty">未入力</div>
+                        <div id="pv-gender" class="gender preview-empty">
+                          <span class="male">男</span><span>・</span><span class="female">女</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
 
-          <!-- 学歴・職歴 10行 -->
-          <div class="jis-section">
-            <div class="jis-section-heading">学歴・職歴</div>
-            <table class="jis-table">
-              <thead>
-                <tr>
-                  <th class="jis-col-year">年</th>
-                  <th class="jis-col-month">月</th>
-                  <th class="jis-col-text">学歴・職歴</th>
-                </tr>
-              </thead>
-              <tbody>
-                <% for (let i = 1; i <= 10; i++) { %>
-                <tr>
-                  <td id="pv-edu-year-<%= i %>"></td>
-                  <td id="pv-edu-month-<%= i %>"></td>
-                  <td id="pv-edu-text-<%= i %>" class="preview-empty"></td>
-                </tr>
-                <% } %>
-              </tbody>
-            </table>
-          </div>
+                <!-- 右側：写真 -->
+                <div class="rirekisho-photo">
+                  <div class="jis-photo-cell">
+                    写真（4×3cm）
+                  </div>
+                </div>
+              </div>
 
-          <!-- 免許・資格 6行 -->
-          <div class="jis-section">
-            <div class="jis-section-heading">免許・資格</div>
-            <table class="jis-table">
-              <thead>
-                <tr>
-                  <th class="jis-col-year">年</th>
-                  <th class="jis-col-month">月</th>
-                  <th class="jis-col-text">資格・検定など</th>
-                </tr>
-              </thead>
-              <tbody>
-                <% for (let i = 1; i <= 6; i++) { %>
-                <tr>
-                  <td id="pv-lic-year-<%= i %>"></td>
-                  <td id="pv-lic-month-<%= i %>"></td>
-                  <td id="pv-lic-text-<%= i %>" class="preview-empty"></td>
-                </tr>
-                <% } %>
-              </tbody>
-            </table>
-          </div>
+              <!-- 連絡先エリア（現住所／連絡先／電話／メール） -->
+              <div class="rirekisho-box2">
+                <!-- 現住所＋電話・メール -->
+                <div class="contact-information contact-main">
+                  <div class="contact-information-address">
+                    <div class="ruby">
+                      <div class="label">ふりがな</div>
+                      <div id="pv-address-kana-current" class="input preview-empty"></div>
+                    </div>
+                    <div class="address">
+                      <div class="label">現住所</div>
+                      <div class="input">
+                        <div id="pv-address" class="preview-empty">未入力</div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="contact-information-etc">
+                    <div class="tel">
+                      <div class="label">電話</div>
+                      <div id="pv-phone" class="input preview-empty"></div>
+                    </div>
+                    <div class="email">
+                      <div class="label">Email</div>
+                      <div id="pv-email" class="input preview-empty"></div>
+                    </div>
+                  </div>
+                </div>
 
-          <!-- 志望動機 -->
-          <div class="jis-section">
-            <div class="jis-section-heading">
-              志望動機・特技・アピールポイントなど
-            </div>
-            <div class="jis-multiline-box">
-              <span id="pv-prText" class="preview-empty">
-                （ここに志望動機が自動入力されます）
-              </span>
-            </div>
-          </div>
+                <!-- 連絡先（別住所）＋サブ電話／サブメール（空欄のままでもOK） -->
+                <div class="contact-information contact-sub">
+                  <div class="contact-information-address">
+                    <div class="ruby">
+                      <div class="label">ふりがな</div>
+                      <div id="pv-address-kana-contact" class="input preview-empty"></div>
+                    </div>
+                    <div class="address">
+                      <div class="label">連絡先</div>
+                      <div class="input">
+                        <div id="pv-contact-address" class="preview-empty">
+                          〒（現住所以外に連絡を希望する場合のみ入力）
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="contact-information-etc">
+                    <div class="tel">
+                      <div class="label">電話</div>
+                      <div class="input"></div>
+                    </div>
+                    <div class="email">
+                      <div class="label">Email</div>
+                      <div class="input"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
 
-          <!-- 本人希望欄 -->
-          <div class="jis-section">
-            <div class="jis-section-heading">
-              本人希望欄（特に給料・職種・勤務時間・勤務地・その他について希望があれば記入）
-            </div>
-            <div class="jis-multiline-box">
-              <span id="pv-hopeText" class="preview-empty">
-                （ここに本人希望欄の内容が入ります）
-              </span>
+              <!-- 学歴・職歴 10行（既存のテーブルをそのまま利用） -->
+              <div class="jis-section">
+                <table class="jis-table">
+                  <thead>
+                    <tr>
+                      <th class="jis-col-year">年</th>
+                      <th class="jis-col-month">月</th>
+                      <th class="jis-col-text">学歴・職歴</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <% for (let i = 1; i <= 10; i++) { %>
+                    <tr>
+                      <td id="pv-edu-year-<%= i %>"></td>
+                      <td id="pv-edu-month-<%= i %>"></td>
+                      <td id="pv-edu-text-<%= i %>" class="preview-empty"></td>
+                    </tr>
+                    <% } %>
+                  </tbody>
+                </table>
+              </div>
+
+              <!-- 免許・資格 6行 -->
+              <div class="jis-section">
+                <table class="jis-table">
+                  <thead>
+                    <tr>
+                      <th class="jis-col-year">年</th>
+                      <th class="jis-col-month">月</th>
+                      <th class="jis-col-text">免許・資格</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <% for (let i = 1; i <= 6; i++) { %>
+                    <tr>
+                      <td id="pv-lic-year-<%= i %>"></td>
+                      <td id="pv-lic-month-<%= i %>"></td>
+                      <td id="pv-lic-text-<%= i %>" class="preview-empty"></td>
+                    </tr>
+                    <% } %>
+                  </tbody>
+                </table>
+              </div>
+
+              <!-- 志望動機 -->
+              <div class="jis-section">
+                <div class="jis-multiline-box pr">
+                  <span id="pv-prText" class="preview-empty">
+                    （ここに志望動機が自動入力されます）
+                  </span>
+                </div>
+              </div>
+
+              <!-- 本人希望欄 -->
+              <div class="jis-section">
+                <div class="jis-multiline-box hope">
+                  <span id="pv-hopeText" class="preview-empty">
+                    （ここに本人希望欄の内容が入ります）
+                  </span>
+                </div>
+              </div>
             </div>
           </div>
           <!-- ここまで JIS レイアウト -->
@@ -778,51 +1179,131 @@
                 </label>
               </div>
 
-              <div class="field">
-                <label>住所</label>
-                <input
-                  type="text"
-                  id="addressPref"
-                  placeholder="都道府県（例：東京都）"
-                  style="margin-bottom:6px;"
-                />
-                <input
-                  type="text"
-                  id="addressCity"
-                  placeholder="市区町村（例：新宿区）"
-                  style="margin-bottom:6px;"
-                />
-                <input
-                  type="text"
-                  id="address1"
-                  placeholder="住所1（番地）"
-                  style="margin-bottom:6px;"
-                />
-                <input
-                  type="text"
-                  id="address2"
-                  placeholder="住所2（建物名・部屋番号など）"
-                />
-                <!-- 結合した住所をサーバーに送る用 -->
-                <input type="hidden" id="address-hidden" name="address" />
+            <!-- 現住所 -->
+            <div class="field">
+              <label>現住所</label>
+
+              <!-- ふりがな -->
+              <input
+                type="text"
+                id="addressKanaCurrent"
+                placeholder="ふりがな（例：とうきょうとしんじゅくく〜）"
+                style="margin-bottom:6px;"
+              />
+
+              <!-- 郵便番号 -->
+              <input
+                type="text"
+                id="addressZipCurrent"
+                placeholder="郵便番号（例：123-4567）"
+                style="margin-bottom:6px;"
+              />
+
+              <!-- 都道府県〜住所 -->
+              <input
+                type="text"
+                id="addressPrefCurrent"
+                placeholder="都道府県（例：東京都）"
+                style="margin-bottom:6px;"
+              />
+              <input
+                type="text"
+                id="addressCityCurrent"
+                placeholder="市区町村（例：新宿区）"
+                style="margin-bottom:6px;"
+              />
+              <input
+                type="text"
+                id="address1Current"
+                placeholder="住所1（番地）"
+                style="margin-bottom:6px;"
+              />
+              <input
+                type="text"
+                id="address2Current"
+                placeholder="住所2（建物名・部屋番号など）"
+              />
+
+              <!-- サーバー送信用（結合済み） -->
+              <input type="hidden" id="address-current-hidden" name="addressCurrent" />
+            </div>
+
+            <!-- 連絡先 -->
+            <div class="field">
+              <div
+                style="display:flex;justify-content:space-between;align-items:center;gap:8px;"
+              >
+                <label style="margin-bottom:0;">連絡先（現住所と異なる場合のみ）</label>
+                <label
+                  style="font-size:12px;display:flex;align-items:center;gap:4px;cursor:pointer;"
+                >
+                  <input type="checkbox" id="contactSameAsCurrent" />
+                  現住所と同一
+                </label>
               </div>
 
-              <div class="field">
-                <label for="phone">電話番号</label>
-                <input type="tel" id="phone" name="phone" />
-              </div>
+              <!-- ふりがな -->
+              <input
+                type="text"
+                id="addressKanaContact"
+                placeholder="ふりがな（例：とうきょうとしんじゅくく〜）"
+                style="margin:6px 0;"
+              />
 
-              <div class="field">
-                <label for="email">メールアドレス</label>
-                <input type="email" id="email" name="email" />
-              </div>
+              <!-- 郵便番号 -->
+              <input
+                type="text"
+                id="addressZipContact"
+                placeholder="郵便番号（例：123-4567）"
+                style="margin-bottom:6px;"
+              />
+
+              <!-- 都道府県〜住所 -->
+              <input
+                type="text"
+                id="addressPrefContact"
+                placeholder="都道府県（例：東京都）"
+                style="margin-bottom:6px;"
+              />
+              <input
+                type="text"
+                id="addressCityContact"
+                placeholder="市区町村（例：新宿区）"
+                style="margin-bottom:6px;"
+              />
+              <input
+                type="text"
+                id="address1Contact"
+                placeholder="住所1（番地）"
+                style="margin-bottom:6px;"
+              />
+              <input
+                type="text"
+                id="address2Contact"
+                placeholder="住所2（建物名・部屋番号など）"
+              />
+
+              <!-- サーバー送信用（結合済み） -->
+              <input type="hidden" id="address-contact-hidden" name="addressContact" />
+            </div>
+
+            <!-- 電話・メール -->
+            <div class="field">
+              <label for="phone">電話番号</label>
+              <input type="tel" id="phone" name="phone" />
             </div>
 
             <div class="field">
-              <label for="photo">写真（4×3cm 推奨）</label>
-              <input type="file" id="photo" accept="image/*" />
+              <label for="email">メールアドレス</label>
+              <input type="email" id="email" name="email" />
             </div>
 
+
+              <div class="field">
+                <label for="photo">写真（4×3cm 推奨）</label>
+                <input type="file" id="photo" accept="image/*" />
+              </div>
+            </div>
 
             <!-- STEP 2: 学歴・職歴 -->
             <div class="step-section" data-step="2">
@@ -1154,88 +1635,351 @@
         bindText('phone', 'pv-phone');
         bindText('email', 'pv-email');
 
-        // 生年月日 + 性別
-        const birthInput = document.getElementById('birth');
-        const genderRadios = document.querySelectorAll('input[name="gender"]');
-        const pvBirth = document.getElementById('pv-birth');
-        const pvGender = document.getElementById('pv-gender');
+      // ───────── 生年月日 ＋ 性別（プレビュー）─────────
+      const birthInput = document.getElementById('birth');
+      const genderRadios = document.querySelectorAll('input[name="gender"]');
+      const pvBirth = document.getElementById('pv-birth');
+      const pvGender = document.getElementById('pv-gender');
 
-        function updateBirthGender() {
-          if (!pvBirth || !pvGender) return;
+      // 満年齢を計算する関数
+      function calcAge(dateStr) {
+        const birth = new Date(dateStr);
+        if (isNaN(birth.getTime())) return null;
 
-          // 生年月日
-          if (birthInput && birthInput.value) {
-            const d = new Date(birthInput.value);
-            if (!isNaN(d.getTime())) {
-              const y = d.getFullYear();
-              const m = d.getMonth() + 1;
-              const day = d.getDate();
-              pvBirth.textContent = `${y}年${m}月${day}日生`;
-              pvBirth.classList.remove('preview-empty');
-            } else {
-              pvBirth.textContent = birthInput.value;
-              pvBirth.classList.remove('preview-empty');
+        const today = new Date();
+        let age = today.getFullYear() - birth.getFullYear();
+
+        const m = today.getMonth() - birth.getMonth();
+        if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) {
+          age--;
+        }
+        return age;
+      }
+
+      // 生年月日 + （満○歳）のプレビュー
+      function updateBirthPreview() {
+        if (!pvBirth) return;
+
+        if (birthInput && birthInput.value) {
+          const d = new Date(birthInput.value);
+          let ageText = '（満○歳）';
+
+          if (!isNaN(d.getTime())) {
+            const y = d.getFullYear();
+            const m = d.getMonth() + 1;
+            const day = d.getDate();
+
+            const age = calcAge(birthInput.value);
+            if (age !== null) {
+              ageText = `（満${age}歳）`;
             }
-          } else {
-            pvBirth.textContent = '未入力';
-            pvBirth.classList.add('preview-empty');
-          }
 
-          // 性別
-          let genderValue = '';
-          genderRadios.forEach((r) => {
-            if (r.checked) genderValue = r.value;
-          });
-          if (genderValue) {
-            pvGender.textContent = genderValue;
-            pvGender.classList.remove('preview-empty');
+            pvBirth.textContent = `${y}年${m}月${day}日生${ageText}`;
+            pvBirth.classList.remove('preview-empty');
           } else {
-            pvGender.textContent = '性別';
-            pvGender.classList.add('preview-empty');
+            // 変な値が入ったときはそのまま + 満○歳
+            pvBirth.textContent = `${birthInput.value}（満○歳）`;
+            pvBirth.classList.remove('preview-empty');
           }
+        } else {
+          pvBirth.textContent = '未入力（満○歳）';
+          pvBirth.classList.add('preview-empty');
+        }
+      }
+
+      // 性別プレビュー（「男・女」を常に表示して、選択だけ丸で囲む）
+      function updateGenderPreview() {
+        if (!pvGender || genderRadios.length < 2) return;
+
+        // ベース表示を毎回リセット
+        pvGender.innerHTML =
+          '<span class="male">男</span><span>・</span><span class="female">女</span>';
+
+        const maleSpan = pvGender.querySelector('.male');
+        const femaleSpan = pvGender.querySelector('.female');
+
+        // ラジオ 1個目＝男, 2個目＝女 として扱う
+        const maleChecked = genderRadios[0].checked;
+        const femaleChecked = genderRadios[1].checked;
+
+        if (maleChecked) {
+          maleSpan.classList.add('circle');
+        }
+        if (femaleChecked) {
+          femaleSpan.classList.add('circle');
         }
 
-        if (birthInput) birthInput.addEventListener('input', updateBirthGender);
-        genderRadios.forEach((r) =>
-          r.addEventListener('change', updateBirthGender)
-        );
-        updateBirthGender();
-
-        // 住所（4つの入力を結合）
-        const addressInputs = [
-          'addressPref',
-          'addressCity',
-          'address1',
-          'address2',
-        ].map((id) => document.getElementById(id));
-        const addressHidden = document.getElementById('address-hidden');
-        const pvAddress = document.getElementById('pv-address');
-
-        function updateAddress() {
-          if (!pvAddress) return;
-
-          const parts = addressInputs
-            .map((el) => (el && el.value.trim()) || '')
-            .filter((v) => v);
-
-          const fullAddress = parts.join('');
-          if (addressHidden) addressHidden.value = fullAddress;
-
-          if (fullAddress) {
-            pvAddress.textContent = fullAddress;
-            pvAddress.classList.remove('preview-empty');
-          } else {
-            pvAddress.textContent = '未入力';
-            pvAddress.classList.add('preview-empty');
-          }
+        if (!maleChecked && !femaleChecked) {
+          pvGender.classList.add('preview-empty');
+        } else {
+          pvGender.classList.remove('preview-empty');
         }
+      }
 
-        addressInputs.forEach((el) => {
-          if (!el) return;
-          el.addEventListener('input', updateAddress);
-        });
-        updateAddress();
-      })();
+      // 両方まとめて更新
+      function updateBirthGenderPreview() {
+        updateBirthPreview();
+        updateGenderPreview();
+      }
+
+      if (birthInput) {
+        birthInput.addEventListener('input', updateBirthGenderPreview);
+      }
+      genderRadios.forEach((r) => {
+        r.addEventListener('change', updateBirthGenderPreview);
+      });
+
+      // 初期表示
+      updateBirthGenderPreview();
+
+
+
+/* ============================
+   郵便番号フォーマット
+   ============================ */
+function formatZip(value) {
+  const digits = value.replace(/\D/g, '').slice(0, 7); // 数字7桁まで
+  if (digits.length <= 3) return digits;
+  return digits.slice(0, 3) + '-' + digits.slice(3);
+}
+
+/* ============================
+   フル住所を結合するヘルパー
+   ============================ */
+function buildAddress(zip, pref, city, addr1, addr2) {
+  let result = '';
+
+  if (zip) result += `〒${zip} `;
+  if (pref) result += pref;
+  if (city) result += city;
+  if (addr1) result += addr1;
+  if (addr2) result += ' ' + addr2;
+
+  return result.trim();
+}
+
+/* ============================
+   現住所 → プレビュー
+   ============================ */
+function updateCurrentAddressPreview() {
+  const zip = document.getElementById('addressZipCurrent').value;
+  const pref = document.getElementById('addressPrefCurrent').value;
+  const city = document.getElementById('addressCityCurrent').value;
+  const addr1 = document.getElementById('address1Current').value;
+  const addr2 = document.getElementById('address2Current').value;
+  const kana = document.getElementById('addressKanaCurrent').value;
+
+  const full = buildAddress(zip, pref, city, addr1, addr2);
+
+  // hidden（サーバー用）
+  const hidden = document.getElementById('address-current-hidden');
+  if (hidden) hidden.value = full;
+
+  // 住所プレビュー
+  const pvAddr = document.getElementById('pv-address');
+  if (pvAddr) {
+    if (full) {
+      pvAddr.textContent = full;
+      pvAddr.classList.remove('preview-empty');
+    } else {
+      pvAddr.textContent = '未入力';
+      pvAddr.classList.add('preview-empty');
+    }
+  }
+
+  // 住所ふりがなプレビュー
+  const pvKana = document.getElementById('pv-address-kana-current');
+  if (pvKana) {
+    if (kana) {
+      pvKana.textContent = kana;
+      pvKana.classList.remove('preview-empty');
+    } else {
+      pvKana.textContent = '';
+      pvKana.classList.add('preview-empty');
+    }
+  }
+}
+
+/* ============================
+   連絡先 → hidden & プレビュー
+   ============================ */
+function updateContactAddress() {
+  const same = document.getElementById('contactSameAsCurrent').checked;
+  const pvContactAddr = document.getElementById('pv-contact-address');
+  const pvContactKana = document.getElementById('pv-address-kana-contact');
+
+  // 「現住所と同一」のときは JS 側では「同上」固定
+  if (same) {
+    if (pvContactAddr) {
+      pvContactAddr.textContent = '同上';
+      pvContactAddr.classList.remove('preview-empty');
+    }
+    if (pvContactKana) {
+      pvContactKana.textContent = '';
+      pvContactKana.classList.add('preview-empty');
+    }
+    const hidden = document.getElementById('address-contact-hidden');
+    if (hidden) hidden.value = document.getElementById('address-current-hidden').value || '';
+    return;
+  }
+
+  // 同一じゃないときは普通に連絡先住所を組み立て
+  const zip = document.getElementById('addressZipContact').value;
+  const pref = document.getElementById('addressPrefContact').value;
+  const city = document.getElementById('addressCityContact').value;
+  const addr1 = document.getElementById('address1Contact').value;
+  const addr2 = document.getElementById('address2Contact').value;
+  const kana = document.getElementById('addressKanaContact').value;
+
+  const full = buildAddress(zip, pref, city, addr1, addr2);
+
+  // hidden
+  const hidden = document.getElementById('address-contact-hidden');
+  if (hidden) hidden.value = full;
+
+  // 住所プレビュー
+  if (pvContactAddr) {
+    if (full) {
+      pvContactAddr.textContent = full;
+      pvContactAddr.classList.remove('preview-empty');
+    } else {
+      pvContactAddr.textContent = '〒（現住所以外に連絡を希望する場合のみ入力）';
+      pvContactAddr.classList.add('preview-empty');
+    }
+  }
+
+  // ふりがなプレビュー
+  if (pvContactKana) {
+    if (kana) {
+      pvContactKana.textContent = kana;
+      pvContactKana.classList.remove('preview-empty');
+    } else {
+      pvContactKana.textContent = '';
+      pvContactKana.classList.add('preview-empty');
+    }
+  }
+}
+
+/* ============================
+   「現住所と同一」チェック
+   ============================ */
+function initAddressSync() {
+  const check = document.getElementById('contactSameAsCurrent');
+  if (!check) return;
+
+  check.addEventListener('change', () => {
+    const ids = [
+      'addressKanaContact',
+      'addressZipContact',
+      'addressPrefContact',
+      'addressCityContact',
+      'address1Contact',
+      'address2Contact',
+    ];
+
+    if (check.checked) {
+      // 現住所からコピー
+      document.getElementById('addressKanaContact').value =
+        document.getElementById('addressKanaCurrent').value;
+      document.getElementById('addressZipContact').value =
+        document.getElementById('addressZipCurrent').value;
+      document.getElementById('addressPrefContact').value =
+        document.getElementById('addressPrefCurrent').value;
+      document.getElementById('addressCityContact').value =
+        document.getElementById('addressCityCurrent').value;
+      document.getElementById('address1Contact').value =
+        document.getElementById('address1Current').value;
+      document.getElementById('address2Contact').value =
+        document.getElementById('address2Current').value;
+
+      // 入力ロック
+      ids.forEach((id) => {
+        document.getElementById(id).readOnly = true;
+      });
+    } else {
+      // ロック解除（値はそのままにしておく）
+      ids.forEach((id) => {
+        document.getElementById(id).readOnly = false;
+      });
+    }
+
+    // プレビュー更新
+    updateContactAddress();
+  });
+}
+
+/* ============================
+   電話・メール → プレビュー
+   ============================ */
+function updatePhonePreview() {
+  const val = document.getElementById('phone').value;
+  const pv = document.getElementById('pv-phone');
+  if (!pv) return;
+
+  if (val) {
+    pv.textContent = val;
+    pv.classList.remove('preview-empty');
+  } else {
+    pv.textContent = '';
+    pv.classList.add('preview-empty');
+  }
+}
+
+function updateEmailPreview() {
+  const val = document.getElementById('email').value;
+  const pv = document.getElementById('pv-email');
+  if (!pv) return;
+
+  if (val) {
+    pv.textContent = val;
+    pv.classList.remove('preview-empty');
+  } else {
+    pv.textContent = '';
+    pv.classList.add('preview-empty');
+  }
+}
+
+/* ============================
+   入力イベントまとめて捕まえる
+   ============================ */
+document.addEventListener('input', (e) => {
+  const id = e.target.id;
+
+  // 郵便番号 自動ハイフン
+  if (id === 'addressZipCurrent' || id === 'addressZipContact') {
+    e.target.value = formatZip(e.target.value);
+  }
+
+  // 現住所系
+  if (id.startsWith('address') && id.includes('Current')) {
+    updateCurrentAddressPreview();
+
+    // 「現住所と同一」がONなら、連絡先側も追従
+    const check = document.getElementById('contactSameAsCurrent');
+    if (check && check.checked) {
+      updateContactAddress();
+    }
+  }
+
+  // 連絡先系
+  if (id.startsWith('address') && id.includes('Contact')) {
+    updateContactAddress();
+  }
+
+  if (id === 'phone') updatePhonePreview();
+  if (id === 'email') updateEmailPreview();
+});
+
+/* ============================
+   初期化
+   ============================ */
+initAddressSync();
+updateCurrentAddressPreview();
+updateContactAddress();
+updatePhonePreview();
+updateEmailPreview();
+
+})();
 
       // ─────────────────────────
       // 学歴・職歴（10行） → プレビュー
