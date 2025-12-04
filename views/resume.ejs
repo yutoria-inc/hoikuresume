@@ -1155,7 +1155,7 @@
 
         <!-- 右：入力フォーム -->
         <div class="form-pane">
-          <form method="post" action="/career/preview">
+          <form id="resume-form" method="post" action="/career/preview">
 
             <!-- STEP 1: 基本情報 -->
             <div class="step-section is-active" data-step="1">
@@ -1506,26 +1506,14 @@
             <div class="submit-row">
               <button
                 type="button"
-                class="submit-button btn-prev"
-                id="btn-prev"
-              >
-                ‹ 前へ
-              </button>
+                class="btn-prev"
+                id="resume-prev"
+              >＜ 前へ</button>
 
-              <button
-                type="button"
-                class="submit-button btn-next"
-                id="btn-next"
-              >
-                次へ ›
-              </button>
-
-              <!-- script が 6 ステップ目でだけ表示に切り替える -->
               <button
                 type="submit"
-                class="submit-button btn-submit"
-                id="btn-submit"
-                style="display:none;"
+                class="btn-submit"
+                id="btn-submit-resume"
               >
                 PDFをダウンロード
               </button>
@@ -1769,405 +1757,403 @@
       updateBirthGenderPreview();
 
 
+      /* ============================
+        郵便番号フォーマット
+        ============================ */
+      function formatZip(value) {
+        const digits = value.replace(/\D/g, '').slice(0, 7); // 数字7桁まで
+        if (digits.length <= 3) return digits;
+        return digits.slice(0, 3) + '-' + digits.slice(3);
+      }
 
-/* ============================
-   郵便番号フォーマット
-   ============================ */
-function formatZip(value) {
-  const digits = value.replace(/\D/g, '').slice(0, 7); // 数字7桁まで
-  if (digits.length <= 3) return digits;
-  return digits.slice(0, 3) + '-' + digits.slice(3);
-}
+      /* ============================
+        フル住所を結合するヘルパー
+        ============================ */
+      function buildAddress(zip, pref, city, addr1, addr2) {
+        let result = '';
 
-/* ============================
-   フル住所を結合するヘルパー
-   ============================ */
-function buildAddress(zip, pref, city, addr1, addr2) {
-  let result = '';
+        if (zip) result += `〒${zip} `;
+        if (pref) result += pref;
+        if (city) result += city;
+        if (addr1) result += addr1;
+        if (addr2) result += ' ' + addr2;
 
-  if (zip) result += `〒${zip} `;
-  if (pref) result += pref;
-  if (city) result += city;
-  if (addr1) result += addr1;
-  if (addr2) result += ' ' + addr2;
+        return result.trim();
+      }
 
-  return result.trim();
-}
+      /* ============================
+        現住所 → プレビュー
+        ============================ */
+      function updateCurrentAddressPreview() {
+        const zip = document.getElementById('addressZipCurrent').value;
+        const pref = document.getElementById('addressPrefCurrent').value;
+        const city = document.getElementById('addressCityCurrent').value;
+        const addr1 = document.getElementById('address1Current').value;
+        const addr2 = document.getElementById('address2Current').value;
+        const kana = document.getElementById('addressKanaCurrent').value;
 
-/* ============================
-   現住所 → プレビュー
-   ============================ */
-function updateCurrentAddressPreview() {
-  const zip = document.getElementById('addressZipCurrent').value;
-  const pref = document.getElementById('addressPrefCurrent').value;
-  const city = document.getElementById('addressCityCurrent').value;
-  const addr1 = document.getElementById('address1Current').value;
-  const addr2 = document.getElementById('address2Current').value;
-  const kana = document.getElementById('addressKanaCurrent').value;
+        const full = buildAddress(zip, pref, city, addr1, addr2);
 
-  const full = buildAddress(zip, pref, city, addr1, addr2);
+        // hidden（サーバー用）
+        const hidden = document.getElementById('address-current-hidden');
+        if (hidden) hidden.value = full;
 
-  // hidden（サーバー用）
-  const hidden = document.getElementById('address-current-hidden');
-  if (hidden) hidden.value = full;
+        // 住所プレビュー
+        const pvAddr = document.getElementById('pv-address');
+        if (pvAddr) {
+          if (full) {
+            pvAddr.textContent = full;
+            pvAddr.classList.remove('preview-empty');
+          } else {
+            pvAddr.textContent = '未入力';
+            pvAddr.classList.add('preview-empty');
+          }
+        }
 
-  // 住所プレビュー
-  const pvAddr = document.getElementById('pv-address');
-  if (pvAddr) {
-    if (full) {
-      pvAddr.textContent = full;
-      pvAddr.classList.remove('preview-empty');
-    } else {
-      pvAddr.textContent = '未入力';
-      pvAddr.classList.add('preview-empty');
-    }
-  }
+        // 住所ふりがなプレビュー
+        const pvKana = document.getElementById('pv-address-kana-current');
+        if (pvKana) {
+          if (kana) {
+            pvKana.textContent = kana;
+            pvKana.classList.remove('preview-empty');
+          } else {
+            pvKana.textContent = '';
+            pvKana.classList.add('preview-empty');
+          }
+        }
+      }
 
-  // 住所ふりがなプレビュー
-  const pvKana = document.getElementById('pv-address-kana-current');
-  if (pvKana) {
-    if (kana) {
-      pvKana.textContent = kana;
-      pvKana.classList.remove('preview-empty');
-    } else {
-      pvKana.textContent = '';
-      pvKana.classList.add('preview-empty');
-    }
-  }
-}
+      /* ============================
+        連絡先 → hidden & プレビュー
+        ============================ */
+      function updateContactAddress() {
+        const same = document.getElementById('contactSameAsCurrent').checked;
+        const pvContactAddr = document.getElementById('pv-contact-address');
+        const pvContactKana = document.getElementById('pv-address-kana-contact');
 
-/* ============================
-   連絡先 → hidden & プレビュー
-   ============================ */
-function updateContactAddress() {
-  const same = document.getElementById('contactSameAsCurrent').checked;
-  const pvContactAddr = document.getElementById('pv-contact-address');
-  const pvContactKana = document.getElementById('pv-address-kana-contact');
+        // 「現住所と同一」のときは JS 側では「同上」固定
+        if (same) {
+          if (pvContactAddr) {
+            pvContactAddr.textContent = '同上';
+            pvContactAddr.classList.remove('preview-empty');
+          }
+          if (pvContactKana) {
+            pvContactKana.textContent = '';
+            pvContactKana.classList.add('preview-empty');
+          }
+          const hidden = document.getElementById('address-contact-hidden');
+          if (hidden) hidden.value = document.getElementById('address-current-hidden').value || '';
+          return;
+        }
 
-  // 「現住所と同一」のときは JS 側では「同上」固定
-  if (same) {
-    if (pvContactAddr) {
-      pvContactAddr.textContent = '同上';
-      pvContactAddr.classList.remove('preview-empty');
-    }
-    if (pvContactKana) {
-      pvContactKana.textContent = '';
-      pvContactKana.classList.add('preview-empty');
-    }
-    const hidden = document.getElementById('address-contact-hidden');
-    if (hidden) hidden.value = document.getElementById('address-current-hidden').value || '';
-    return;
-  }
+        // 同一じゃないときは普通に連絡先住所を組み立て
+        const zip = document.getElementById('addressZipContact').value;
+        const pref = document.getElementById('addressPrefContact').value;
+        const city = document.getElementById('addressCityContact').value;
+        const addr1 = document.getElementById('address1Contact').value;
+        const addr2 = document.getElementById('address2Contact').value;
+        const kana = document.getElementById('addressKanaContact').value;
 
-  // 同一じゃないときは普通に連絡先住所を組み立て
-  const zip = document.getElementById('addressZipContact').value;
-  const pref = document.getElementById('addressPrefContact').value;
-  const city = document.getElementById('addressCityContact').value;
-  const addr1 = document.getElementById('address1Contact').value;
-  const addr2 = document.getElementById('address2Contact').value;
-  const kana = document.getElementById('addressKanaContact').value;
+        const full = buildAddress(zip, pref, city, addr1, addr2);
 
-  const full = buildAddress(zip, pref, city, addr1, addr2);
+        // hidden
+        const hidden = document.getElementById('address-contact-hidden');
+        if (hidden) hidden.value = full;
 
-  // hidden
-  const hidden = document.getElementById('address-contact-hidden');
-  if (hidden) hidden.value = full;
+        // 住所プレビュー
+        if (pvContactAddr) {
+          if (full) {
+            pvContactAddr.textContent = full;
+            pvContactAddr.classList.remove('preview-empty');
+          } else {
+            pvContactAddr.textContent = '〒（現住所以外に連絡を希望する場合のみ入力）';
+            pvContactAddr.classList.add('preview-empty');
+          }
+        }
 
-  // 住所プレビュー
-  if (pvContactAddr) {
-    if (full) {
-      pvContactAddr.textContent = full;
-      pvContactAddr.classList.remove('preview-empty');
-    } else {
-      pvContactAddr.textContent = '〒（現住所以外に連絡を希望する場合のみ入力）';
-      pvContactAddr.classList.add('preview-empty');
-    }
-  }
+        // ふりがなプレビュー
+        if (pvContactKana) {
+          if (kana) {
+            pvContactKana.textContent = kana;
+            pvContactKana.classList.remove('preview-empty');
+          } else {
+            pvContactKana.textContent = '';
+            pvContactKana.classList.add('preview-empty');
+          }
+        }
+      }
 
-  // ふりがなプレビュー
-  if (pvContactKana) {
-    if (kana) {
-      pvContactKana.textContent = kana;
-      pvContactKana.classList.remove('preview-empty');
-    } else {
-      pvContactKana.textContent = '';
-      pvContactKana.classList.add('preview-empty');
-    }
-  }
-}
+      /* ============================
+        「現住所と同一」チェック
+        ============================ */
+      function initAddressSync() {
+        const check = document.getElementById('contactSameAsCurrent');
+        if (!check) return;
 
-/* ============================
-   「現住所と同一」チェック
-   ============================ */
-function initAddressSync() {
-  const check = document.getElementById('contactSameAsCurrent');
-  if (!check) return;
+        check.addEventListener('change', () => {
+          const ids = [
+            'addressKanaContact',
+            'addressZipContact',
+            'addressPrefContact',
+            'addressCityContact',
+            'address1Contact',
+            'address2Contact',
+          ];
 
-  check.addEventListener('change', () => {
-    const ids = [
-      'addressKanaContact',
-      'addressZipContact',
-      'addressPrefContact',
-      'addressCityContact',
-      'address1Contact',
-      'address2Contact',
-    ];
+          if (check.checked) {
+            // 現住所からコピー
+            document.getElementById('addressKanaContact').value =
+              document.getElementById('addressKanaCurrent').value;
+            document.getElementById('addressZipContact').value =
+              document.getElementById('addressZipCurrent').value;
+            document.getElementById('addressPrefContact').value =
+              document.getElementById('addressPrefCurrent').value;
+            document.getElementById('addressCityContact').value =
+              document.getElementById('addressCityCurrent').value;
+            document.getElementById('address1Contact').value =
+              document.getElementById('address1Current').value;
+            document.getElementById('address2Contact').value =
+              document.getElementById('address2Current').value;
 
-    if (check.checked) {
-      // 現住所からコピー
-      document.getElementById('addressKanaContact').value =
-        document.getElementById('addressKanaCurrent').value;
-      document.getElementById('addressZipContact').value =
-        document.getElementById('addressZipCurrent').value;
-      document.getElementById('addressPrefContact').value =
-        document.getElementById('addressPrefCurrent').value;
-      document.getElementById('addressCityContact').value =
-        document.getElementById('addressCityCurrent').value;
-      document.getElementById('address1Contact').value =
-        document.getElementById('address1Current').value;
-      document.getElementById('address2Contact').value =
-        document.getElementById('address2Current').value;
+            // 入力ロック
+            ids.forEach((id) => {
+              document.getElementById(id).readOnly = true;
+            });
+          } else {
+            // ロック解除（値はそのままにしておく）
+            ids.forEach((id) => {
+              document.getElementById(id).readOnly = false;
+            });
+          }
 
-      // 入力ロック
-      ids.forEach((id) => {
-        document.getElementById(id).readOnly = true;
+          // プレビュー更新
+          updateContactAddress();
+        });
+      }
+
+      /* ============================
+        電話・メール → プレビュー
+        ============================ */
+      function updatePhonePreview() {
+        const val = document.getElementById('phone').value;
+        const pv = document.getElementById('pv-phone');
+        if (!pv) return;
+
+        if (val) {
+          pv.textContent = val;
+          pv.classList.remove('preview-empty');
+        } else {
+          pv.textContent = '';
+          pv.classList.add('preview-empty');
+        }
+      }
+
+      function updateEmailPreview() {
+        const val = document.getElementById('email').value;
+        const pv = document.getElementById('pv-email');
+        if (!pv) return;
+
+        if (val) {
+          pv.textContent = val;
+          pv.classList.remove('preview-empty');
+        } else {
+          pv.textContent = '';
+          pv.classList.add('preview-empty');
+        }
+      }
+
+
+      function updatePhoneContactPreview() {
+        const val = document.getElementById('phoneContact').value;
+        const pv = document.getElementById('pv-phone-contact');
+        if (!pv) return;
+
+        if (val) {
+          pv.textContent = val;
+          pv.classList.remove('preview-empty');
+        } else {
+          pv.textContent = '';
+          pv.classList.add('preview-empty');
+        }
+      }
+
+      function updateEmailContactPreview() {
+        const val = document.getElementById('emailContact').value;
+        const pv = document.getElementById('pv-email-contact');
+        if (!pv) return;
+
+        if (val) {
+          pv.textContent = val;
+          pv.classList.remove('preview-empty');
+        } else {
+          pv.textContent = '';
+          pv.classList.add('preview-empty');
+        }
+      }
+
+
+      /* ============================
+        入力イベントまとめて捕まえる
+        ============================ */
+      document.addEventListener('input', (e) => {
+        const id = e.target.id;
+
+        // 郵便番号 自動ハイフン
+        if (id === 'addressZipCurrent' || id === 'addressZipContact') {
+          e.target.value = formatZip(e.target.value);
+        }
+
+        // 現住所系
+        if (id.startsWith('address') && id.includes('Current')) {
+          updateCurrentAddressPreview();
+
+          // 「現住所と同一」がONなら、連絡先側も追従
+          const check = document.getElementById('contactSameAsCurrent');
+          if (check && check.checked) {
+            updateContactAddress();
+          }
+        }
+
+        // 連絡先系
+        if (id.startsWith('address') && id.includes('Contact')) {
+          updateContactAddress();
+        }
+
+        if (id === 'phone') updatePhonePreview();
+        if (id === 'email') updateEmailPreview();
+        if (id === 'phoneContact') updatePhoneContactPreview();
+        if (id === 'emailContact') updateEmailContactPreview();
       });
-    } else {
-      // ロック解除（値はそのままにしておく）
-      ids.forEach((id) => {
-        document.getElementById(id).readOnly = false;
-      });
-    }
 
-    // プレビュー更新
-    updateContactAddress();
-  });
-}
-
-/* ============================
-   電話・メール → プレビュー
-   ============================ */
-function updatePhonePreview() {
-  const val = document.getElementById('phone').value;
-  const pv = document.getElementById('pv-phone');
-  if (!pv) return;
-
-  if (val) {
-    pv.textContent = val;
-    pv.classList.remove('preview-empty');
-  } else {
-    pv.textContent = '';
-    pv.classList.add('preview-empty');
-  }
-}
-
-function updateEmailPreview() {
-  const val = document.getElementById('email').value;
-  const pv = document.getElementById('pv-email');
-  if (!pv) return;
-
-  if (val) {
-    pv.textContent = val;
-    pv.classList.remove('preview-empty');
-  } else {
-    pv.textContent = '';
-    pv.classList.add('preview-empty');
-  }
-}
-
-
-function updatePhoneContactPreview() {
-  const val = document.getElementById('phoneContact').value;
-  const pv = document.getElementById('pv-phone-contact');
-  if (!pv) return;
-
-  if (val) {
-    pv.textContent = val;
-    pv.classList.remove('preview-empty');
-  } else {
-    pv.textContent = '';
-    pv.classList.add('preview-empty');
-  }
-}
-
-function updateEmailContactPreview() {
-  const val = document.getElementById('emailContact').value;
-  const pv = document.getElementById('pv-email-contact');
-  if (!pv) return;
-
-  if (val) {
-    pv.textContent = val;
-    pv.classList.remove('preview-empty');
-  } else {
-    pv.textContent = '';
-    pv.classList.add('preview-empty');
-  }
-}
-
-
-/* ============================
-   入力イベントまとめて捕まえる
-   ============================ */
-document.addEventListener('input', (e) => {
-  const id = e.target.id;
-
-  // 郵便番号 自動ハイフン
-  if (id === 'addressZipCurrent' || id === 'addressZipContact') {
-    e.target.value = formatZip(e.target.value);
-  }
-
-  // 現住所系
-  if (id.startsWith('address') && id.includes('Current')) {
-    updateCurrentAddressPreview();
-
-    // 「現住所と同一」がONなら、連絡先側も追従
-    const check = document.getElementById('contactSameAsCurrent');
-    if (check && check.checked) {
+      /* ============================
+        初期化
+        ============================ */
+      initAddressSync();
+      updateCurrentAddressPreview();
       updateContactAddress();
-    }
-  }
+      updatePhonePreview();
+      updateEmailPreview();
+      updatePhoneContactPreview();
+      updateEmailContactPreview();
 
-  // 連絡先系
-  if (id.startsWith('address') && id.includes('Contact')) {
-    updateContactAddress();
-  }
+      })();
 
-  if (id === 'phone') updatePhonePreview();
-  if (id === 'email') updateEmailPreview();
-  if (id === 'phoneContact') updatePhoneContactPreview();
-  if (id === 'emailContact') updateEmailContactPreview();
-});
-
-/* ============================
-   初期化
-   ============================ */
-initAddressSync();
-updateCurrentAddressPreview();
-updateContactAddress();
-updatePhonePreview();
-updateEmailPreview();
-updatePhoneContactPreview();
-updateEmailContactPreview();
-
-})();
-
+            // ─────────────────────────
       // ─────────────────────────
-// ─────────────────────────
-// 学歴・職歴（無制限） → プレビュー
-// ─────────────────────────
-(function () {
-  const eduContainer = document.getElementById('edu-container');
-  const eduTemplate = document.getElementById('edu-template');
-  const eduPreviewBody = document.getElementById('edu-preview-body');
-  const addEduBtn = document.getElementById('add-edu-btn');
+      // 学歴・職歴（無制限） → プレビュー
+      // ─────────────────────────
+      (function () {
+        const eduContainer = document.getElementById('edu-container');
+        const eduTemplate = document.getElementById('edu-template');
+        const eduPreviewBody = document.getElementById('edu-preview-body');
+        const addEduBtn = document.getElementById('add-edu-btn');
 
-  if (!eduContainer || !eduTemplate || !eduPreviewBody || !addEduBtn) return;
+        if (!eduContainer || !eduTemplate || !eduPreviewBody || !addEduBtn) return;
 
-  function syncEduPreview() {
-    eduPreviewBody.innerHTML = '';
+        function syncEduPreview() {
+          eduPreviewBody.innerHTML = '';
 
-    const rows = eduContainer.querySelectorAll('.edu-row');
-    rows.forEach((row) => {
-      const year = row.querySelector('.edu-year')?.value.trim() || '';
-      const month = row.querySelector('.edu-month')?.value.trim() || '';
-      const text = row.querySelector('.edu-text')?.value.trim() || '';
+          const rows = eduContainer.querySelectorAll('.edu-row');
+          rows.forEach((row) => {
+            const year = row.querySelector('.edu-year')?.value.trim() || '';
+            const month = row.querySelector('.edu-month')?.value.trim() || '';
+            const text = row.querySelector('.edu-text')?.value.trim() || '';
 
-      // 何も書いてない行はスキップしてもOK（必要ならコメントアウト）
-      if (!year && !month && !text) return;
+            // 何も書いてない行はスキップしてもOK（必要ならコメントアウト）
+            if (!year && !month && !text) return;
 
-      const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td>${year}</td>
-        <td>${month}</td>
-        <td>${text}</td>
-      `;
-      eduPreviewBody.appendChild(tr);
-    });
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+              <td>${year}</td>
+              <td>${month}</td>
+              <td>${text}</td>
+            `;
+            eduPreviewBody.appendChild(tr);
+          });
 
-    // 全部空なら、1行だけ空行を出しておく（なくてもよければこの if ごと消してOK）
-    if (!eduPreviewBody.children.length) {
-      const tr = document.createElement('tr');
-      tr.innerHTML = `<td></td><td></td><td class="preview-empty"></td>`;
-      eduPreviewBody.appendChild(tr);
-    }
-  }
+          // 全部空なら、1行だけ空行を出しておく（なくてもよければこの if ごと消してOK）
+          if (!eduPreviewBody.children.length) {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `<td></td><td></td><td class="preview-empty"></td>`;
+            eduPreviewBody.appendChild(tr);
+          }
+        }
 
-  function addEduRow() {
-    const frag = eduTemplate.content.cloneNode(true);
-    eduContainer.appendChild(frag);
-    syncEduPreview();
-  }
+        function addEduRow() {
+          const frag = eduTemplate.content.cloneNode(true);
+          eduContainer.appendChild(frag);
+          syncEduPreview();
+        }
 
-  // 入力されたら都度プレビュー更新（イベント委譲）
-  eduContainer.addEventListener('input', (e) => {
-    if (e.target.matches('.edu-year, .edu-month, .edu-text')) {
-      syncEduPreview();
-    }
-  });
+        // 入力されたら都度プレビュー更新（イベント委譲）
+        eduContainer.addEventListener('input', (e) => {
+          if (e.target.matches('.edu-year, .edu-month, .edu-text')) {
+            syncEduPreview();
+          }
+        });
 
-  addEduBtn.addEventListener('click', addEduRow);
+        addEduBtn.addEventListener('click', addEduRow);
 
-  // 最初の1行
-  addEduRow();
-})();
+        // 最初の1行
+        addEduRow();
+      })();
 
 
       // ─────────────────────────
-// ─────────────────────────
-// 免許・資格（無制限） → プレビュー
-// ─────────────────────────
-(function () {
-  const licContainer = document.getElementById('lic-container');
-  const licTemplate = document.getElementById('lic-template');
-  const licPreviewBody = document.getElementById('lic-preview-body');
-  const addLicBtn = document.getElementById('add-lic-btn');
+      // 免許・資格（無制限） → プレビュー
+      // ─────────────────────────
+      (function () {
+        const licContainer = document.getElementById('lic-container');
+        const licTemplate = document.getElementById('lic-template');
+        const licPreviewBody = document.getElementById('lic-preview-body');
+        const addLicBtn = document.getElementById('add-lic-btn');
 
-  if (!licContainer || !licTemplate || !licPreviewBody || !addLicBtn) return;
+        if (!licContainer || !licTemplate || !licPreviewBody || !addLicBtn) return;
 
-  function syncLicPreview() {
-    licPreviewBody.innerHTML = '';
+        function syncLicPreview() {
+          licPreviewBody.innerHTML = '';
 
-    const rows = licContainer.querySelectorAll('.lic-row');
-    rows.forEach((row) => {
-      const year = row.querySelector('.lic-year')?.value.trim() || '';
-      const month = row.querySelector('.lic-month')?.value.trim() || '';
-      const text = row.querySelector('.lic-text')?.value.trim() || '';
+          const rows = licContainer.querySelectorAll('.lic-row');
+          rows.forEach((row) => {
+            const year = row.querySelector('.lic-year')?.value.trim() || '';
+            const month = row.querySelector('.lic-month')?.value.trim() || '';
+            const text = row.querySelector('.lic-text')?.value.trim() || '';
 
-      if (!year && !month && !text) return;
+            if (!year && !month && !text) return;
 
-      const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td>${year}</td>
-        <td>${month}</td>
-        <td>${text}</td>
-      `;
-      licPreviewBody.appendChild(tr);
-    });
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+              <td>${year}</td>
+              <td>${month}</td>
+              <td>${text}</td>
+            `;
+            licPreviewBody.appendChild(tr);
+          });
 
-    if (!licPreviewBody.children.length) {
-      const tr = document.createElement('tr');
-      tr.innerHTML = `<td></td><td></td><td class="preview-empty"></td>`;
-      licPreviewBody.appendChild(tr);
-    }
-  }
+          if (!licPreviewBody.children.length) {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `<td></td><td></td><td class="preview-empty"></td>`;
+            licPreviewBody.appendChild(tr);
+          }
+        }
 
-  function addLicRow() {
-    const frag = licTemplate.content.cloneNode(true);
-    licContainer.appendChild(frag);
-    syncLicPreview();
-  }
+        function addLicRow() {
+          const frag = licTemplate.content.cloneNode(true);
+          licContainer.appendChild(frag);
+          syncLicPreview();
+        }
 
-  licContainer.addEventListener('input', (e) => {
-    if (e.target.matches('.lic-year, .lic-month, .lic-text')) {
-      syncLicPreview();
-    }
-  });
+        licContainer.addEventListener('input', (e) => {
+          if (e.target.matches('.lic-year, .lic-month, .lic-text')) {
+            syncLicPreview();
+          }
+        });
 
-  addLicBtn.addEventListener('click', addLicRow);
+        addLicBtn.addEventListener('click', addLicRow);
 
-  // 最初の1行
-  addLicRow();
-})();
+        // 最初の1行
+        addLicRow();
+      })();
 
 
       // ─────────────────────────
@@ -2295,6 +2281,38 @@ updateEmailContactPreview();
         const day = d.getDate();
         dateEl.textContent = `${y}年${m}月${day}日現在`;
       })();
+
+      // ───── PDF ダウンロード（履歴書） ─────
+      const resumeForm = document.getElementById('resume-form');
+      const resumePdfButton = document.getElementById('btn-submit-resume');
+
+      if (resumeForm && resumePdfButton) {
+        resumeForm.addEventListener('submit', function (e) {
+          e.preventDefault(); // サーバー送信を止める
+
+          // JIS履歴書のA4プレビュー部分
+          const element = document.querySelector('.preview-card-container .preview-card.preview');
+
+          if (!element) {
+            alert('プレビューが見つかりません。');
+            return;
+          }
+
+          const opt = {
+            margin:       [5, 5, 5, 5],
+            filename:     'rirekisho.pdf',
+            image:        { type: 'jpeg', quality: 0.98 },
+            html2canvas:  { scale: 2, useCORS: true },
+            jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+          };
+
+          html2pdf().set(opt).from(element).save();
+        });
+      }
+
     </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js"></script>
+
   </body>
 </html>

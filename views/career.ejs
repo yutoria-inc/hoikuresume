@@ -951,6 +951,36 @@
           nextBtn.style.display = 'inline-block';
           submitBtn.style.display = 'none';
         }
+
+        // ───── PDF ダウンロード（職務経歴書） ─────
+        const careerForm = document.getElementById('career-form');
+        const careerPdfButton = document.getElementById('btn-submit');
+
+        if (careerForm && careerPdfButton) {
+          careerForm.addEventListener('submit', function (e) {
+            e.preventDefault(); // 通常のPOST送信を止める
+
+            // プレビュー側のJISレイアウト全体を取得
+            const element = document.querySelector('.preview-pane .preview-card');
+
+            if (!element) {
+              alert('プレビューが見つかりません。');
+              return;
+            }
+
+            const opt = {
+              margin:       [5, 5, 5, 5],             // mm
+              filename:     'shokumu-keirekisho.pdf',
+              image:        { type: 'jpeg', quality: 0.98 },
+              html2canvas:  { scale: 2, useCORS: true },
+              jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+
+            // モバイルでもPCレイアウトで出したい場合は、ここでクラスを一時変更するなどもできる
+            html2pdf().set(opt).from(element).save();
+          });
+        }
+
       }
 
       prevBtn.addEventListener('click', () => {
@@ -1194,5 +1224,8 @@
         dateEl.textContent = `${y}年${m}月${day}日現在`;
       }
     </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js"></script>
+
   </body>
 </html>
