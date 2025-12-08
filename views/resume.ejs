@@ -210,29 +210,79 @@
       }
     }
 
-    /* ───────── 7. LAYOUT (preview + form) ───────── */
+/* ───────── 7. LAYOUT (preview + form) ───────── */
 
-    .layout {
-      display: flex;
-      gap: 18px;
-      align-items: flex-start;
-    }
+.layout {
+  display: flex;
+  gap: 18px;
+  align-items: flex-start;
+}
 
-    .preview-pane,
-    .form-pane {
-      background: #fff;
-      border-radius: 16px;
-      padding: 16px 18px 18px;
-      box-shadow: 0 12px 30px rgba(15, 23, 42, 0.10);
-    }
+.preview-pane,
+.form-pane {
+  background: #fff;
+  border-radius: 16px;
+  padding: 16px 18px 18px;
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.10);
+  flex: 1;
+  min-width: 0;
+}
 
-    .preview-pane,
-    .form-pane {
-      flex: 1;
-      min-width: 0;
-    }
+/* ───────── 8. PREVIEW (JIS STYLE) ───────── */
 
-/* PC（幅900px以上）：プレビュー左・フォーム右 */
+/* 共通ユーティリティ */
+.flex {
+  display: flex;
+}
+
+/* A4プレビュー用カード（共通） */
+.preview-card {
+  font-weight: 400;
+  border: 1px solid #e2e2e2;
+  border-radius: 8px;
+  background: #fff;
+  color: #000;
+  font-size: 15px;
+  width: 100%;
+  max-width: 794px;      /* A4 横幅相当 */
+  /* min-height / aspect-ratio は使わない */
+  margin: 0 auto;
+  padding: 68px;
+  box-sizing: border-box;
+  word-wrap: break-word;
+}
+
+/* A4プレビューを包むコンテナ */
+.preview-card-container {
+  width: 100%;
+  overflow: visible;
+}
+
+/* 履歴書プレビュー用（フォントサイズだけ調整） */
+.preview-card.preview {
+  font-weight: 400;
+  background: #ffffff;
+  color: #000;
+  font-size: clamp(9px, 1.1vw, 11px);
+}
+
+/* 2ページ目以降との間隔（PC / モバイル共通） */
+.preview-card.preview + .preview-card.preview {
+  margin-top: 24px;   /* 好きな値に調整可。ピッタリにしたければ 16px とか */
+}
+
+.preview-title {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.preview-sub {
+  margin-bottom: 8px;
+}
+
+/* ───────── PC（幅900px以上）───────── */
+
 @media (min-width: 900px) {
   .layout {
     display: flex;
@@ -252,26 +302,13 @@
     max-width: 50%;
   }
 
-  /* プレビュー列 */
-  .preview-card-container {
-    width: 100%;
-    display: flex;
-    justify-content: flex-start;  /* ← 左寄せ */
-  }
-
-  .preview-card.preview {
-    position: relative;   /* 以前の absolute をリセット */
-    left: auto;
-    top: auto;
-    transform: none;      /* スケールも PC では使わない */
-    margin: 0;            /* auto で中央寄せされるのを防ぐ */
-    margin-right: auto;   /* 左に寄せる */
-    width: 100%;
-    max-width: 794px;     /* A4 横幅 */
+  .preview-pane {
+    padding: 12px 18px 12px;
   }
 }
 
-    /* ─ モバイル：JISプレビュー（縮小＋中央寄せ＋スクロール） ─ */
+/* ───────── モバイル（幅899px以下）───────── */
+
 @media (max-width: 899px) {
   /* レイアウト自体は縦並び */
   .layout {
@@ -292,101 +329,28 @@
   .layout.show-preview .form-pane {
     display: none;
   }
-}
 
-/* ========================
-   モバイル時のプレビュー拡大表示
-   ======================== */
-@media (max-width: 899px) {
-
-  /* PC用のスケール縮小を無効化 */
+  /* モバイル用に少しコンパクトに */
   .preview-card.preview {
-    position: relative;
-    left: 0;
-    transform: none !important;
-    width: 100% !important;
-    max-width: 100% !important;    /* ← 画面幅いっぱい */
-    padding: 24px !important;      /* ← モバイル用余白に調整しておく */
-    box-sizing: border-box;
+    width: 100%;
+    max-width: 100%;
+    padding: 24px;
+    margin: 0 auto;
   }
 
-  /* 包むコンテナは縮小モードを解除し、高さ固定も削除 */
   .preview-card-container {
-    height: auto !important;
-    overflow-y: auto !important;   /* ← スクロール可能に */
+    height: auto;
+    overflow-y: visible;
     overflow-x: hidden;
   }
 
-  /* 右ズレが起きないように */
   .preview-pane {
     padding: 0 12px;
   }
 }
 
 
-    /* ───────── 8. PREVIEW (JIS STYLE) ───────── */
-
-    .preview-title {
-      font-size: 14px;
-      font-weight: 600;
-      margin-bottom: 4px;
-    }
-
-    .preview-sub {
-      margin-bottom: 8px;
-    }
-
-    /* JISページ本体との距離を少し空ける */
-    .preview-pane .preview-card {
-      margin-top: 8px;
-    }
-
 /* ---- JIS履歴書の上部レイアウト（見本サイト準拠） ---- */
-
-/* 共通ユーティリティ */
-.flex {
-  display: flex;
-}
-
-/* A4プレビュー用カード（PC基準） */
-.preview-card {
-  font-weight: 400;
-  border: 1px solid #e2e2e2;
-  border-radius: 8px;
-  background: #fff;
-  color: #000;
-  font-size: 15px;
-  width: 100%;
-  max-width: 794px;       /* A4 横 */
-  min-height: 1123px;     /* A4 縦の目安 */
-  margin: 0 auto;
-  padding: 68px;
-  box-sizing: border-box;
-  word-wrap: break-word;
-}
-
-/* A4プレビューを包むコンテナ */
-.preview-card-container {
-  width: 100%;
-  overflow: visible;
-}
-
-.preview-card.preview {
-  font-weight: 400;
-  background: #ffffff;
-  color: #000;
-  font-size: clamp(9px, 1.1vw, 11px);
-  width: 100%;
-  max-width: 794px;
-  aspect-ratio: 210 / 297;
-  height: auto;
-  padding: 44px 56px;
-  margin: 0 auto;
-  box-sizing: border-box;
-  position: relative;
-}
-
-
 /* ─ 上部：氏名〜生年月日＋写真 ─ */
 
 .rirekisho-top {
@@ -468,7 +432,6 @@
 .rirekisho-profile .label {
   width: 64px;
   padding-left: 4px;
-  border-right: 1px solid #111;
   box-sizing: border-box;
 }
 
@@ -862,6 +825,113 @@
       to { opacity: 1; transform: translateY(0); }
     }
 
+
+    /* ───────── PDF 本番レイアウトのプレビュー ───────── */
+    .pdf-preview-wrapper {
+      margin-top: 18px;
+      padding: 12px 16px 16px;
+      border-radius: 12px;
+      border: 1px solid #e5e7eb;
+      background: #f9fafb;
+    }
+
+    .pdf-preview-heading {
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    /* PDFプレビュー枠はスクロールできるようにしておく（念のため） */
+    .pdf-preview-frame {
+      width: 100%;
+      height: 260px;
+      border-radius: 8px;
+      overflow: auto;          /* ← overflow: hidden になっていたらこれに変更 */
+      background: #f9fafb;
+      border: 1px solid #d1d5db;
+      margin-bottom: 8px;
+    }
+
+    /* 右側のプレビューだけ縮小表示する用 */
+    #pdf-root.is-preview .pdf-a3-page {
+      transform: scale(1.0);   /* まだ大きければ 0.5 くらいまで下げてもOK */
+      transform-origin: top left;
+    }
+
+    /* 中で #pdf-root のクローンを縮小表示する用 */
+    #pdf-preview-inner {
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+    }
+
+    #pdf-preview-inner .preview-card-container {
+      /* クローン側の横幅をちょっと縮小して全体を見渡せるように */
+      transform: scale(0.6);
+      transform-origin: top left;
+      width: 166.666%; /* 1/0.6 */
+    }
+
+    .pdf-preview-note {
+      font-size: 12px;
+      color: var(--text-sub);
+      line-height: 1.5;
+    }
+
+    .pdf-preview-note span {
+      font-weight: 600;
+    }
+
+    @media (min-width: 900px) {
+      .pdf-preview-frame {
+        height: 360px;             /* PCのときは少し大きく見せる */
+      }
+    }
+
+
+    /* ───────── A3 横 1 枚の PDF レイアウト ───────── */
+
+    /* ステップ6内のプレビュー全体 */
+    .pdf-a3-layout {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #f3f4f6;
+    }
+
+    /* 実際の A3 用紙（横長1枚分） */
+    .pdf-a3-page {
+      width: 100%;
+      max-width: 1000px;         /* 画面上での表示サイズ */
+      aspect-ratio: 420 / 297;   /* A3 横の比率 */
+      background: #ffffff;
+      border: 1px solid #d1d5db;
+      box-shadow: 0 0 0 1px rgba(0,0,0,0.04);
+      display: flex;             /* 左右に 1 ページずつ並べる */
+      overflow: hidden;
+    }
+
+    /* 左右の「半分」 */
+    .pdf-a3-left,
+    .pdf-a3-right {
+      flex: 1;
+      overflow: hidden;
+    }
+
+    /* 中の preview-card を A3 用に調整 */
+    .pdf-a3-left .preview-card,
+    .pdf-a3-right .preview-card {
+      width: 100%;
+      max-width: none;
+      margin: 0;
+      padding: 32px 24px;
+      border: none;
+      box-shadow: none;
+      box-sizing: border-box;
+    }
+
     /* ───────── 10. NAVIGATION BUTTONS ───────── */
 
     .submit-row {
@@ -943,7 +1013,7 @@
     
     <!-- ステップバー -->
     <div class="stepper-container">
-      <div class="stepper-title">保育士 転職履歴書</div>
+      <div class="stepper-title">保育士 履歴書</div>
       <div class="stepper" id="career-stepper">
         <div class="step step--active" data-step="1">
           <div class="step-circle">1</div>
@@ -1004,14 +1074,16 @@
             このプレビューとほぼ同じレイアウトでPDFが作成されます。
           </div>
 
-          <!-- ここから JIS レイアウト（見本サイト風） -->
-          <div class="preview-card-container">
-            <div class="preview-card preview">
+          <!-- ここから JIS レイアウト（2ページ構成） -->
+          <div class="preview-card-container" id="preview-root">
+
+            <!-- ===== 1ページ目：プロフィール + 学歴・職歴（15行） ===== -->
+            <div class="preview-card preview page-1">
               <!-- 上部：タイトル / 氏名 / 生年月日・性別 ＋ 写真 -->
               <div class="rirekisho-top">
-                <!-- ← 左側（タイトル＋氏名ブロック） -->
+                <!-- 左側：タイトル＋氏名ブロック -->
                 <div class="rirekisho-left">
-                  <!-- タイトル行：下線だけ -->
+                  <!-- タイトル行 -->
                   <div class="rirekisho-header">
                     <div class="title">履　歴　書</div>
                     <div class="date"><span id="pv-date"></span></div>
@@ -1025,7 +1097,7 @@
                         <div id="pv-furigana" class="input preview-empty">未入力</div>
                       </div>
                       <div class="name flex">
-                        <div class="label">名前</div>
+                        <div class="label">氏　名</div>
                         <div id="pv-name" class="input preview-empty">未入力</div>
                       </div>
                       <div class="etc flex">
@@ -1046,7 +1118,7 @@
                 </div>
               </div>
 
-              <!-- 連絡先エリア（現住所／連絡先／電話／メール） -->
+              <!-- 現住所・連絡先 -->
               <div class="rirekisho-box2">
                 <!-- 現住所＋電話・メール -->
                 <div class="contact-information contact-main">
@@ -1056,7 +1128,7 @@
                       <div id="pv-address-kana-current" class="input preview-empty">未入力</div>
                     </div>
                     <div class="address">
-                      <div class="label">現住所</div>
+                      <div class="label">現住所　〒</div>
                       <div class="input">
                         <div id="pv-address" class="preview-empty">未入力</div>
                       </div>
@@ -1074,7 +1146,7 @@
                   </div>
                 </div>
 
-                <!-- 連絡先（別住所）＋サブ電話／サブメール（空欄のままでもOK） -->
+                <!-- 連絡先（別住所） -->
                 <div class="contact-information contact-sub">
                   <div class="contact-information-address">
                     <div class="ruby">
@@ -1082,10 +1154,10 @@
                       <div id="pv-address-kana-contact" class="input preview-empty"></div>
                     </div>
                     <div class="address">
-                      <div class="label">連絡先</div>
+                      <div class="label">連絡先　〒</div>
                       <div class="input">
                         <div id="pv-contact-address" class="preview-empty">
-                          〒（現住所以外に連絡を希望する場合のみ入力）
+                          （現住所以外に連絡を希望する場合のみ記入）
                         </div>
                       </div>
                     </div>
@@ -1103,7 +1175,7 @@
                 </div>
               </div>
 
-              <!-- 学歴・職歴 -->
+              <!-- 学歴・職歴（1〜15行目） -->
               <div class="jis-section">
                 <table class="jis-table">
                   <thead>
@@ -1113,11 +1185,29 @@
                       <th class="jis-col-text">学歴・職歴</th>
                     </tr>
                   </thead>
-                  <tbody id="edu-preview-body"></tbody>
+                  <tbody id="edu-preview-body-page1"></tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- ===== 2ページ目：学歴・職歴（続き7行）+ 資格6行 + 志望動機 + 本人希望欄 ===== -->
+            <div class="preview-card preview page-2">
+
+              <!-- 学歴・職歴（続き 16〜22行目） -->
+              <div class="jis-section">
+                <table class="jis-table">
+                  <thead>
+                    <tr>
+                      <th class="jis-col-year">年</th>
+                      <th class="jis-col-month">月</th>
+                      <th class="jis-col-text">学歴・職歴</th>
+                    </tr>
+                  </thead>
+                  <tbody id="edu-preview-body-page2"></tbody>
                 </table>
               </div>
 
-              <!-- 免許・資格 -->
+              <!-- 免許・資格（6行） -->
               <div class="jis-section">
                 <table class="jis-table">
                   <thead>
@@ -1149,8 +1239,10 @@
                 </div>
               </div>
             </div>
+
           </div>
           <!-- ここまで JIS レイアウト -->
+
         </div>
 
         <!-- 右：入力フォーム -->
@@ -1161,14 +1253,52 @@
             <div class="step-section is-active" data-step="1">
               <h3>基本情報を入力</h3>
 
+              <!-- ふりがな（姓・名） -->
               <div class="field">
-                <label for="furigana">ふりがな</label>
-                <input type="text" id="furigana" name="furigana" />
+                <label>ふりがな</label>
+                <div style="display:flex; gap:8px;">
+                  <input
+                    type="text"
+                    id="furiganaLast"
+                    name="furiganaLast"
+                    placeholder="せい"
+                    style="flex:1;"
+                  />
+                  <input
+                    type="text"
+                    id="furiganaFirst"
+                    name="furiganaFirst"
+                    placeholder="めい"
+                    style="flex:1;"
+                  />
+                </div>
+                <!-- サーバー送信用（結合済み） -->
+                <input type="hidden" id="furigana" name="furigana" />
               </div>
 
+              <!-- 氏名（漢字：姓・名） -->
               <div class="field">
-                <label for="name">氏名（漢字）</label>
-                <input type="text" id="name" name="name" required />
+                <label>氏名（漢字）</label>
+                <div style="display:flex; gap:8px;">
+                  <input
+                    type="text"
+                    id="nameLast"
+                    name="nameLast"
+                    placeholder="姓"
+                    style="flex:1;"
+                    required
+                  />
+                  <input
+                    type="text"
+                    id="nameFirst"
+                    name="nameFirst"
+                    placeholder="名"
+                    style="flex:1;"
+                    required
+                  />
+                </div>
+                <!-- サーバー送信用（結合済み） -->
+                <input type="hidden" id="name" name="name" />
               </div>
 
               <div class="field">
@@ -1549,6 +1679,43 @@
         });
       })();
 
+      // A3 横 1 枚 PDF レイアウト用 DOM を作る
+      // forPreview: true のときは右側プレビュー用（縮小表示）にする
+      function buildPdfLayout(forPreview = false) {
+        const pdfRoot = document.getElementById('pdf-root');
+        const page1 = document.querySelector('#preview-root .preview-card.preview.page-1');
+        const page2 = document.querySelector('#preview-root .preview-card.preview.page-2');
+
+        if (!pdfRoot || !page1 || !page2) return null;
+
+        // 中身をリセット
+        pdfRoot.innerHTML = '';
+
+        // プレビュー用フラグでクラス切り替え
+        pdfRoot.classList.toggle('is-preview', !!forPreview);
+
+        // A3 横 1 枚の枠
+        const wrapper = document.createElement('div');
+        wrapper.className = 'pdf-a3-page';
+
+        const left = document.createElement('div');
+        left.className = 'pdf-a3-left';
+
+        const right = document.createElement('div');
+        right.className = 'pdf-a3-right';
+
+        // プレビューの page-1 / page-2 をクローンして左右に並べる
+        left.appendChild(page1.cloneNode(true));
+        right.appendChild(page2.cloneNode(true));
+
+        wrapper.appendChild(left);
+        wrapper.appendChild(right);
+        pdfRoot.appendChild(wrapper);
+
+        return pdfRoot;
+      }
+
+
       // ─────────────────────────
       // ステップ制ロジック（6ステップ）
       // ─────────────────────────
@@ -1583,6 +1750,11 @@
               el.classList.add('step--active');
             }
           });
+
+          // ステップ6を表示するタイミングで A3 レイアウトを再生成
+          if (currentStep === 6) {
+            buildPdfLayout(true);
+          }
 
           // 前へボタン
           if (prevBtn) prevBtn.disabled = currentStep === 1;
@@ -1653,11 +1825,69 @@
       // 基本情報 → プレビュー
       // ─────────────────────────
       (function () {
-        // 氏名 / ふりがな / 電話 / メール
-        bindText('name', 'pv-name');
-        bindText('furigana', 'pv-furigana');
         bindText('phone', 'pv-phone');
         bindText('email', 'pv-email');
+
+        // ▼ ここから追加：姓・名を分けて入力 → スペース結合でプレビュー更新
+        (function () {
+          const furiganaLast  = document.getElementById('furiganaLast');
+          const furiganaFirst = document.getElementById('furiganaFirst');
+          const nameLast      = document.getElementById('nameLast');
+          const nameFirst     = document.getElementById('nameFirst');
+
+          const pvFurigana = document.getElementById('pv-furigana');
+          const pvName     = document.getElementById('pv-name');
+
+          const hiddenFurigana = document.getElementById('furigana'); // hidden
+          const hiddenName     = document.getElementById('name');     // hidden
+
+          if (!pvFurigana || !pvName) return;
+
+          const defaultFurigana = '未入力';
+          const defaultName     = '未入力';
+
+          function updateNamePreview() {
+            const fLast  = (furiganaLast?.value  || '').trim();
+            const fFirst = (furiganaFirst?.value || '').trim();
+            const nLast  = (nameLast?.value      || '').trim();
+            const nFirst = (nameFirst?.value     || '').trim();
+
+            const fullFurigana = [fLast, fFirst].filter(Boolean).join(' ');
+            const fullName     = [nLast, nFirst].filter(Boolean).join(' ');
+
+            // プレビュー更新（ふりがな）
+            if (fullFurigana) {
+              pvFurigana.textContent = fullFurigana;
+              pvFurigana.classList.remove('preview-empty');
+            } else {
+              pvFurigana.textContent = defaultFurigana;
+              pvFurigana.classList.add('preview-empty');
+            }
+
+            // プレビュー更新（漢字氏名）
+            if (fullName) {
+              pvName.textContent = fullName;
+              pvName.classList.remove('preview-empty');
+            } else {
+              pvName.textContent = defaultName;
+              pvName.classList.add('preview-empty');
+            }
+
+            // hidden にも結合した値を入れておく（サーバー送信用）
+            if (hiddenFurigana) hiddenFurigana.value = fullFurigana;
+            if (hiddenName)     hiddenName.value     = fullName;
+          }
+
+          // 4つの入力欄にイベントを貼る
+          [furiganaLast, furiganaFirst, nameLast, nameFirst].forEach((el) => {
+            if (!el) return;
+            el.addEventListener('input', updateNamePreview);
+          });
+
+          // 初期表示
+          updateNamePreview();
+        })();
+
 
       // ───────── 生年月日 ＋ 性別（プレビュー）─────────
       const birthInput = document.getElementById('birth');
@@ -2038,44 +2268,56 @@
 
       })();
 
-            // ─────────────────────────
       // ─────────────────────────
-      // 学歴・職歴（無制限） → プレビュー
+      // 学歴・職歴 → プレビュー（1ページ目15行 + 2ページ目7行）
       // ─────────────────────────
       (function () {
         const eduContainer = document.getElementById('edu-container');
         const eduTemplate = document.getElementById('edu-template');
-        const eduPreviewBody = document.getElementById('edu-preview-body');
+        const eduPreviewBody1 = document.getElementById('edu-preview-body-page1'); // 1〜15行
+        const eduPreviewBody2 = document.getElementById('edu-preview-body-page2'); // 16〜22行
         const addEduBtn = document.getElementById('add-edu-btn');
 
-        if (!eduContainer || !eduTemplate || !eduPreviewBody || !addEduBtn) return;
+        if (!eduContainer || !eduTemplate || !eduPreviewBody1 || !eduPreviewBody2 || !addEduBtn) return;
 
         function syncEduPreview() {
-          eduPreviewBody.innerHTML = '';
+          eduPreviewBody1.innerHTML = '';
+          eduPreviewBody2.innerHTML = '';
 
+          // 入力された行を配列に
+          const allRows = [];
           const rows = eduContainer.querySelectorAll('.edu-row');
           rows.forEach((row) => {
             const year = row.querySelector('.edu-year')?.value.trim() || '';
             const month = row.querySelector('.edu-month')?.value.trim() || '';
             const text = row.querySelector('.edu-text')?.value.trim() || '';
-
-            // 何も書いてない行はスキップしてもOK（必要ならコメントアウト）
-            if (!year && !month && !text) return;
-
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-              <td>${year}</td>
-              <td>${month}</td>
-              <td>${text}</td>
-            `;
-            eduPreviewBody.appendChild(tr);
+            if (year || month || text) {
+              allRows.push({ year, month, text });
+            }
           });
 
-          // 全部空なら、1行だけ空行を出しておく（なくてもよければこの if ごと消してOK）
-          if (!eduPreviewBody.children.length) {
+          // 1ページ目：0〜14番（15行）
+          for (let i = 0; i < 15; i++) {
+            const data = allRows[i] || { year: '', month: '', text: '' };
             const tr = document.createElement('tr');
-            tr.innerHTML = `<td></td><td></td><td class="preview-empty"></td>`;
-            eduPreviewBody.appendChild(tr);
+            tr.innerHTML = `
+              <td>${data.year}</td>
+              <td>${data.month}</td>
+              <td>${data.text}</td>
+            `;
+            eduPreviewBody1.appendChild(tr);
+          }
+
+          // 2ページ目：15〜21番（7行）
+          for (let i = 15; i < 22; i++) {
+            const data = allRows[i] || { year: '', month: '', text: '' };
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+              <td>${data.year}</td>
+              <td>${data.month}</td>
+              <td>${data.text}</td>
+            `;
+            eduPreviewBody2.appendChild(tr);
           }
         }
 
@@ -2100,7 +2342,7 @@
 
 
       // ─────────────────────────
-      // 免許・資格（無制限） → プレビュー
+      // 免許・資格 → プレビュー（6行固定）
       // ─────────────────────────
       (function () {
         const licContainer = document.getElementById('lic-container');
@@ -2113,26 +2355,26 @@
         function syncLicPreview() {
           licPreviewBody.innerHTML = '';
 
+          const allRows = [];
           const rows = licContainer.querySelectorAll('.lic-row');
           rows.forEach((row) => {
             const year = row.querySelector('.lic-year')?.value.trim() || '';
             const month = row.querySelector('.lic-month')?.value.trim() || '';
             const text = row.querySelector('.lic-text')?.value.trim() || '';
-
-            if (!year && !month && !text) return;
-
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-              <td>${year}</td>
-              <td>${month}</td>
-              <td>${text}</td>
-            `;
-            licPreviewBody.appendChild(tr);
+            if (year || month || text) {
+              allRows.push({ year, month, text });
+            }
           });
 
-          if (!licPreviewBody.children.length) {
+          // 6行分だけ描画（足りない分は空行）
+          for (let i = 0; i < 6; i++) {
+            const data = allRows[i] || { year: '', month: '', text: '' };
             const tr = document.createElement('tr');
-            tr.innerHTML = `<td></td><td></td><td class="preview-empty"></td>`;
+            tr.innerHTML = `
+              <td>${data.year}</td>
+              <td>${data.month}</td>
+              <td>${data.text}</td>
+            `;
             licPreviewBody.appendChild(tr);
           }
         }
@@ -2154,6 +2396,7 @@
         // 最初の1行
         addLicRow();
       })();
+
 
 
       // ─────────────────────────
@@ -2290,26 +2533,36 @@
         resumeForm.addEventListener('submit', function (e) {
           e.preventDefault(); // サーバー送信を止める
 
-          // JIS履歴書のA4プレビュー部分
-          const element = document.querySelector('.preview-card-container .preview-card.preview');
-
-          if (!element) {
-            alert('プレビューが見つかりません。');
+          // 1) PDF用の等倍レイアウトを作る（forPreview = false）
+          const pdfRoot = buildPdfLayout(false);
+          if (!pdfRoot) {
+            alert('PDFレイアウトの生成に失敗しました。');
             return;
           }
 
           const opt = {
-            margin:       [5, 5, 5, 5],
-            filename:     'rirekisho.pdf',
-            image:        { type: 'jpeg', quality: 0.98 },
+            margin:       0,
+            filename:     'rirekisyo.pdf',
+            image:        { type: 'jpeg', quality: 0.95 },
             html2canvas:  { scale: 2, useCORS: true },
-            jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            jsPDF: {
+              unit: 'pt',
+              format: [1190.52, 841.92], // A3横
+              orientation: 'landscape'
+            },
           };
 
-          html2pdf().set(opt).from(element).save();
+          // 2) PDF作成 → 終わったらまたプレビュー用に縮小し直す
+          html2pdf()
+            .from(pdfRoot)
+            .set(opt)
+            .save()
+            .then(() => {
+              // 右側プレビューを元の縮小版に戻す
+              buildPdfLayout(true);
+            });
         });
       }
-
     </script>
 
     <script src="https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js"></script>
