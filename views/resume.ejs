@@ -1641,13 +1641,21 @@
               >＜ 前へ</button>
 
               <button
+                type="button"
+                class="btn-next"
+                id="resume-next"
+              >次へ ＞</button>
+
+              <button
                 type="submit"
                 class="btn-submit"
                 id="btn-submit-resume"
+                style="display:none;"
               >
                 PDFをダウンロード
               </button>
             </div>
+
           </form>
         </div>
       </div>
@@ -1725,9 +1733,9 @@
 
         const stepSections = document.querySelectorAll('.step-section');
         const stepElems = document.querySelectorAll('#career-stepper .step');
-        const prevBtn = document.getElementById('btn-prev');
-        const nextBtn = document.getElementById('btn-next');
-        const submitBtn = document.getElementById('btn-submit');
+        const prevBtn = document.getElementById('resume-prev');
+        const nextBtn = document.getElementById('resume-next');
+        const submitBtn = document.getElementById('btn-submit-resume');
 
         if (!stepSections.length) return;
 
@@ -2564,8 +2572,12 @@
         });
       }
     </script>
-
+    
     <script src="https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js"></script>
+
+    
+    <!-- PDF生成用の見えないコンテナ -->
+    <div id="pdf-root" style="position:fixed; left:-9999px; top:-9999px;"></div>
 
   </body>
 </html>
