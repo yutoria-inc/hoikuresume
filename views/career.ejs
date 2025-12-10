@@ -28,7 +28,6 @@
       body {
         font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI',
           sans-serif;
-        max-width: 1100px;
         margin: 0 auto;
         padding: 24px 16px 40px;
         background: radial-gradient(circle at top left, #eef2ff 0, #f3f4f6 40%, #f9fafb 100%);
@@ -66,6 +65,8 @@
       box-shadow:
         0 20px 45px rgba(15, 23, 42, 0.10),
         0 1px 0 rgba(255, 255, 255, 0.6) inset;
+      max-width: 1200px;   /* ★ ここを追加（お好みで 1200〜1300 くらい） */
+      margin: 0 auto;  
     }
 
     .page-title {
@@ -219,7 +220,7 @@
 
       @media (min-width: 900px) {
         .preview-pane {
-          flex: 1;
+          flex: 2;
           min-width: 0;
         }
         .form-pane {
@@ -258,6 +259,48 @@
       }
 
       /* ───────── 職務経歴書プレビュー ───────── */
+      .preview-card-wrapper {
+        border: 1px solid #e2e2e2;
+        border-radius: 8px;
+        background: #ffffff;
+        position: relative;
+        overflow: hidden;
+
+        /* ★ A4縦の比率：幅 : 高さ = 1 : √2 ≒ 1 : 1.414 */
+        aspect-ratio: 1 / 1.4142;
+      }
+
+      /* ★ モバイル用：A4固定サイズ + スクロール表示 */
+      @media (max-width: 899px) {
+        .preview-pane {
+          /* プレビュー領域にスクロールバーを出す */
+          overflow: auto;
+        }
+
+        .preview-card-wrapper {
+          /* A4 相当サイズ（px は好みで調整OK） */
+          width: 794px;                 /* おおよそ A4 の幅 */
+          height: calc(794px * 1.4142); /* A4 縦：1 : √2 */
+          max-width: none;
+
+          /* もともとの aspect-ratio を無効にする */
+          aspect-ratio: auto;
+
+          margin: 0 auto 0;             /* 中央寄せしたければ */
+        }
+      }
+
+      /* こっちが中身（本文） */
+      .preview-card {
+        position: absolute;
+        inset: 18px 20px;  /* もともとの padding 相当 */
+        font-size: 12px;
+        line-height: 1.6;
+        overflow: auto;    /* ★ 中身がはみ出すときはスクロール */
+        box-sizing: border-box;
+        border: none;
+        background: transparent;
+      }
 
       .preview-title {
         font-size: 16px;
@@ -268,14 +311,6 @@
         font-size: 11px;
         color: var(--text-sub);
         margin-bottom: 12px;
-      }
-      .preview-card {
-        border: 1px solid #e2e2e2;
-        border-radius: 8px;
-        padding: 18px 20px;
-        background: #ffffff;
-        font-size: 12px;
-        line-height: 1.6;
       }
 
       .jis-header {
@@ -521,6 +556,20 @@
       .generate-pr-btn:hover {
         opacity: 0.85;
       }
+
+      /* PDF生成中だけ A4比率制約を外す */
+      body.pdf-mode .preview-card-wrapper {
+        aspect-ratio: auto;
+        height: auto;
+      }
+
+      body.pdf-mode .preview-card {
+        position: static;
+        inset: auto;
+        height: auto;
+        overflow: visible;
+      }
+
     </style>
   </head>
   <body>
@@ -588,54 +637,58 @@
         <div class="preview-title">職務経歴書プレビュー</div>
         <div class="preview-sub">
           このプレビューとほぼ同じレイアウトでPDFが作成されます。
+          <span id="page-count-indicator" style="margin-left:8px;"></span>
         </div>
 
-        <div class="preview-card">
-          <div class="jis-header">
-            <div class="jis-title">職務経歴書</div>
-          </div>
-
-          <div class="jis-divider"></div>
-
-          <div class="jis-meta">
-            <div id="pv-date"></div>
-            <div id="pv-name-top"></div>
-          </div>
-
-          <div class="jis-section">
-            <div class="jis-section-heading">職務要約</div>
-            <div class="jis-multiline-box">
-              <span id="pv-summary" class="preview-empty">
-                （ここに経歴要約が入ります）
-              </span>
+        <div class="preview-card-wrapper">
+          <div class="preview-card">
+            <div class="jis-header">
+              <div class="jis-title">職務経歴書</div>
             </div>
-          </div>
 
-          <div class="jis-section">
-            <div class="jis-section-heading">活かせるスキル・経験</div>
+            <div class="jis-divider"></div>
 
-            <div class="jis-multiline-box">
-              <div id="pv-skill-wrapper">
-                <span class="preview-empty">（未入力）</span>
+            <div class="jis-meta">
+              <div id="pv-date"></div>
+              <div id="pv-name-top"></div>
+            </div>
+
+            <div class="jis-section">
+              <div class="jis-section-heading">職務要約</div>
+              <div class="jis-multiline-box">
+                <span id="pv-summary" class="preview-empty">
+                  （ここに経歴要約が入ります）
+                </span>
+              </div>
+            </div>
+
+            <div class="jis-section">
+              <div class="jis-section-heading">資格・スキル</div>
+
+              <div class="jis-multiline-box">
+                <div id="pv-skill-wrapper">
+                  <span class="preview-empty">（未入力）</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="jis-section">
+              <div class="jis-section-heading">職務経歴</div>
+
+              <div id="pv-career-wrapper"></div>
+            </div>
+
+            <div class="jis-section">
+              <div class="jis-section-heading">自己PR</div>
+              <div class="jis-multiline-box">
+                <span id="pv-prText" class="preview-empty">
+                  （ここに自己PR・志望動機が入ります）
+                </span>
               </div>
             </div>
           </div>
-
-          <div class="jis-section">
-            <div class="jis-section-heading">職務経歴</div>
-
-            <div id="pv-career-wrapper"></div>
-          </div>
-
-          <div class="jis-section">
-            <div class="jis-section-heading">自己PR</div>
-            <div class="jis-multiline-box">
-              <span id="pv-prText" class="preview-empty">
-                （ここに自己PR・志望動機が入ります）
-              </span>
-            </div>
-          </div>
         </div>
+
       </div>
 
       <!-- 入力フォーム -->
@@ -648,12 +701,120 @@
           <!-- STEP 1: 経歴要約 -->
           <div class="step-section is-active" data-step="1">
             <div class="field">
-              <label for="name">氏名</label>
-              <input type="text" id="name" name="name" required />
+              <label>氏名</label>
+              <div style="display:flex; gap:8px;">
+                <div style="flex:1;">
+                  <input
+                    type="text"
+                    id="lastName"
+                    name="lastName"
+                    placeholder="姓"
+                    required
+                  />
+                </div>
+                <div style="flex:1;">
+                  <input
+                    type="text"
+                    id="firstName"
+                    name="firstName"
+                    placeholder="名"
+                    required
+                  />
+                </div>
+              </div>
+              <!-- バックエンド用にフルネームを hidden で保持 -->
+              <input type="hidden" id="name" name="name" />
             </div>
 
+            <!-- 経歴要約：選択肢＋自動生成 -->
             <div class="field">
-              <label for="summary">経歴要約</label>
+              <label for="summary">経歴要約（ご自由に書き換えて下さい）</label>
+
+              <p class="note">
+                当てはまる項目を選択すると、自動で経歴要約文を作成できます。（あとから自由に編集できます）
+              </p>
+
+              <div class="pr-checkbox-group" style="margin-bottom:8px;">
+                <!-- 経験年数・働き方 -->
+                <label>
+                  <input
+                    type="checkbox"
+                    class="summary-option"
+                    value="保育士として複数の園で勤務し、乳児から幼児まで幅広い年齢の子どもたちを担当してきました。"
+                  />
+                  複数園・幅広い年齢を担当
+                </label>
+                <label>
+                  <input
+                    type="checkbox"
+                    class="summary-option"
+                    value="主に0〜2歳児クラスを担当し、基本的生活習慣の自立と情緒の安定を大切にした保育を行ってきました。"
+                  />
+                  0〜2歳児クラス中心
+                </label>
+                <label>
+                  <input
+                    type="checkbox"
+                    class="summary-option"
+                    value="3〜5歳児クラスを中心に担任として勤務し、集団生活のなかでの主体性・協調性を育む保育に取り組んできました。"
+                  />
+                  3〜5歳児クラス中心
+                </label>
+
+                <!-- 役割・ポジション -->
+                <label>
+                  <input
+                    type="checkbox"
+                    class="summary-option"
+                    value="クラス担任として日常保育に加え、行事運営や書類作成、保護者対応まで一貫して担当してきました。"
+                  />
+                  クラス担任経験あり
+                </label>
+                <label>
+                  <input
+                    type="checkbox"
+                    class="summary-option"
+                    value="フリー保育士として複数クラスのサポートに入り、職員同士で協力しながら保育環境の安定に努めてきました。"
+                  />
+                  フリー保育士としての経験
+                </label>
+
+                <!-- 強みの方向性 -->
+                <label>
+                  <input
+                    type="checkbox"
+                    class="summary-option"
+                    value="保護者との連絡帳や面談を通じて丁寧なコミュニケーションを心がけ、信頼関係の構築に力を入れてきました。"
+                  />
+                  保護者対応が得意
+                </label>
+                <label>
+                  <input
+                    type="checkbox"
+                    class="summary-option"
+                    value="年間行事や制作活動の企画・準備・当日運営に主体的に携わり、チームでの行事運営を経験してきました。"
+                  />
+                  行事・制作が得意
+                </label>
+                <label>
+                  <input
+                    type="checkbox"
+                    class="summary-option"
+                    value="加配児・支援児の担当も経験し、一人ひとりの特性に合わせた関わり方を意識して保育を行ってきました。"
+                  />
+                  加配・支援児の経験あり
+                </label>
+              </div>
+
+              <button
+                type="button"
+                id="generateSummary"
+                class="generate-pr-btn"
+                style="margin-bottom:8px;"
+              >
+                選択内容から経歴要約を自動生成する
+              </button>
+
               <textarea
                 id="summary"
                 name="summary"
@@ -687,11 +848,37 @@
                 <div style="margin-top:8px; padding-left:22px; font-size:13px;">
                   <div style="margin-bottom:6px;">
                     取得年月：
-                    <input
-                      type="month"
-                      id="q-hoikushi-date"
-                      style="max-width:160px; font-size:13px;"
-                    />
+                    <div style="display:flex; gap:6px; align-items:center;">
+                      <input
+                        type="number"
+                        id="q-hoikushi-year"
+                        placeholder="年"
+                        min="1950"
+                        max="2100"
+                        style="width:80px; font-size:13px;"
+                      />
+                      <span>年</span>
+
+                      <select
+                        id="q-hoikushi-month"
+                        style="font-size:13px;"
+                      >
+                        <option value="">月</option>
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                        <option value="6">6</option>
+                        <option value="7">7</option>
+                        <option value="8">8</option>
+                        <option value="9">9</option>
+                        <option value="10">10</option>
+                        <option value="11">11</option>
+                        <option value="12">12</option>
+                      </select>
+                      <span>月</span>
+                    </div>
                   </div>
 
                   <div style="display:flex; flex-direction:column; gap:3px;">
@@ -879,12 +1066,66 @@
                 <div class="field career-period-row">
                   <div>
                     <label>入職年月</label>
-                    <input type="month" name="period_start[]" class="career-start" />
+                    <div style="display:flex; gap:6px; align-items:center;">
+                      <input
+                        type="number"
+                        class="career-start-year"
+                        placeholder="年"
+                        min="1950"
+                        max="2100"
+                        style="width:80px;"
+                      />
+                      <span>年</span>
+
+                      <select class="career-start-month">
+                        <option value="">月</option>
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                        <option value="6">6</option>
+                        <option value="7">7</option>
+                        <option value="8">8</option>
+                        <option value="9">9</option>
+                        <option value="10">10</option>
+                        <option value="11">11</option>
+                        <option value="12">12</option>
+                      </select>
+                      <span>月</span>
+                    </div>
                   </div>
 
                   <div>
                     <label>退職年月</label>
-                    <input type="month" name="period_end[]" class="career-end" />
+                      <div style="display:flex; gap:6px; align-items:center;">
+                        <input
+                          type="number"
+                          class="career-end-year"
+                          placeholder="年"
+                          min="1950"
+                          max="2100"
+                          style="width:80px;"
+                        />
+                        <span>年</span>
+
+                        <select class="career-end-month">
+                          <option value="">月</option>
+                          <option value="1">1</option>
+                          <option value="2">2</option>
+                          <option value="3">3</option>
+                          <option value="4">4</option>
+                          <option value="5">5</option>
+                          <option value="6">6</option>
+                          <option value="7">7</option>
+                          <option value="8">8</option>
+                          <option value="9">9</option>
+                          <option value="10">10</option>
+                          <option value="11">11</option>
+                          <option value="12">12</option>
+                        </select>
+                        <span>月</span>
+                      </div>
                   </div>
 
                   <div style="display:flex; align-items:center; gap:6px;">
@@ -941,18 +1182,109 @@
 
                 <!-- 担当業務 -->
                 <div class="field">
-                  <label>担当業務</label>
+                  <label>担当業務（ご自由に書き換えて下さい）</label>
+
+                  <div class="pr-checkbox-group responsibility-checkbox-group">
+                    <!-- クラス・年齢 -->
+                    <label>
+                      <input
+                        type="checkbox"
+                        class="responsibility-option"
+                        data-text="0〜2歳児クラスの担任"
+                      />
+                      0〜2歳児クラスの担任
+                    </label>
+                    <label>
+                      <input
+                        type="checkbox"
+                        class="responsibility-option"
+                        data-text="3〜5歳児クラスの担任"
+                      />
+                      3〜5歳児クラスの担任
+                    </label>
+                    <label>
+                      <input
+                        type="checkbox"
+                        class="responsibility-option"
+                        data-text="複数クラスへのフリー保育士としてのサポート"
+                      />
+                      フリー保育士として複数クラスをサポート
+                    </label>
+
+                    <!-- シフト・生活面 -->
+                    <label>
+                      <input
+                        type="checkbox"
+                        class="responsibility-option"
+                        data-text="早番・遅番シフト対応"
+                      />
+                      早番・遅番シフト対応
+                    </label>
+                    <label>
+                      <input
+                        type="checkbox"
+                        class="responsibility-option"
+                        data-text="午睡・食事・排泄など基本的生活習慣の援助"
+                      />
+                      午睡・食事・排泄など生活面の援助
+                    </label>
+
+                    <!-- 書類・保護者 -->
+                    <label>
+                      <input
+                        type="checkbox"
+                        class="responsibility-option"
+                        data-text="連絡帳・おたより・園だより等の作成"
+                      />
+                      連絡帳・おたより等の作成
+                    </label>
+                    <label>
+                      <input
+                        type="checkbox"
+                        class="responsibility-option"
+                        data-text="保護者との連絡・面談対応"
+                      />
+                      保護者との連絡・面談対応
+                    </label>
+
+                    <!-- その他 -->
+                    <label>
+                      <input
+                        type="checkbox"
+                        class="responsibility-option"
+                        data-text="行事準備や制作物の準備・片付け"
+                      />
+                      行事準備・制作物の準備
+                    </label>
+                    <label>
+                      <input
+                        type="checkbox"
+                        class="responsibility-option"
+                        data-text="園内環境整備や安全点検"
+                      />
+                      園内環境整備・安全点検
+                    </label>
+                  </div>
+
+                  <button type="button" class="generate-pr-btn generate-responsibility-btn">
+                    選択内容から担当業務を自動生成
+                  </button>
+
                   <textarea
                     name="responsibility[]"
                     rows="3"
                     class="career-responsibility"
-                    placeholder="例：1・3歳児クラスの担任／早番・遅番シフト／連絡帳・おたより作成 など"
+                    placeholder="例：
+  ・0〜2歳児クラスの担任
+  ・早番・遅番シフト対応
+  ・連絡帳・おたより作成 など"
                   ></textarea>
                 </div>
 
+
                 <!-- 職務内容（カテゴリ＋自動生成） -->
                 <div class="field">
-                  <label>職務内容（カテゴリ選択から自動生成可）</label>
+                  <label>職務内容（ご自由に書き換えて下さい）</label>
 
                   <div class="career-category-group" style="font-size:13px; margin-bottom:6px;">
                     <label><input type="checkbox" class="duty-category" data-text="日々の保育実践（基本的生活習慣の援助や遊びの見守りなど）"> 日常保育</label>
@@ -972,13 +1304,68 @@
                     name="duty_detail[]"
                     rows="4"
                     class="career-duty-detail"
-                    placeholder="例：日々の保育実践に加え、行事でのピアノ演奏・リトミック指導、各種書類作成などを担当。"
+                    placeholder="例：
+  ・日々の保育実践に加え
+  ・行事でのピアノ演奏
+  ・リトミック指導
+  ・各種書類作成"
                   ></textarea>
                 </div>
 
                 <!-- 退職理由 -->
                 <div class="field">
-                  <label>退職理由</label>
+                  <label>退職理由（任意）（ご自由に書き換えて下さい）</label>
+                  <p class="note">
+                    当てはまる項目を選択すると、退職理由文を自動で作成できます。（あとから自由に書き換えOK）
+                  </p>
+
+                  <div class="pr-checkbox-group retire-checkbox-group">
+                    <label>
+                      <input
+                        type="checkbox"
+                        class="retire-option"
+                        data-text="家庭の事情による転居のため、やむを得ず退職いたしました。"
+                      />
+                      実家・配偶者の転居のため
+                    </label>
+                    <label>
+                      <input
+                        type="checkbox"
+                        class="retire-option"
+                        data-text="契約期間の満了に伴い、退職いたしました。"
+                      />
+                      契約満了のため
+                    </label>
+                    <label>
+                      <input
+                        type="checkbox"
+                        class="retire-option"
+                        data-text="新たな環境で経験の幅を広げたいと考え、退職いたしました。"
+                      />
+                      スキルアップ・環境を変えるため
+                    </label>
+                    <label>
+                      <input
+                        type="checkbox"
+                        class="retire-option"
+                        data-text="体調面を優先する必要があり、一度退職という形を選択いたしました。"
+                      />
+                      体調・家庭事情を優先するため
+                    </label>
+                    <label>
+                      <input
+                        type="checkbox"
+                        class="retire-option"
+                        data-text="園の方針とは尊重し合いながらも、目指す保育観に違いを感じたため、退職いたしました。"
+                      />
+                      園の方針との違いを感じたため
+                    </label>
+                  </div>
+
+                  <button type="button" class="generate-pr-btn generate-retire-btn">
+                    選択内容から退職理由を自動生成
+                  </button>
+
                   <textarea
                     name="reason[]"
                     rows="2"
@@ -1121,25 +1508,7 @@
     </main>
 
     <script>
-      // ───── モバイル：入力/プレビュー切り替え ─────
-      const layout = document.getElementById('layout');
-      const toggleButtons = document.querySelectorAll('.view-toggle-btn');
-      toggleButtons.forEach((btn) => {
-        btn.addEventListener('click', () => {
-          toggleButtons.forEach((b) => b.classList.remove('is-active'));
-          btn.classList.add('is-active');
-          const view = btn.dataset.view;
-          if (view === 'form') {
-            layout.classList.add('show-form');
-            layout.classList.remove('show-preview');
-          } else {
-            layout.classList.add('show-preview');
-            layout.classList.remove('show-form');
-          }
-        });
-      });
-
-      // ───── ステップ制ロジック（4ステップ） ─────
+      // ───── ステップ制ロジック ─────
       const totalSteps = 5;
       let currentStep = 1;
 
@@ -1152,7 +1521,7 @@
 
       const stepTitles = {
         1: '経歴要約（氏名・職務要約）を入力',
-        2: '活かせるスキル・経験を入力',
+        2: '資格・スキルを入力',
         3: '職務経歴（勤務先企業・職務内容）を入力',
         4: '自己PR・志望動機を入力',
         5: '内容確認・PDFダウンロード',
@@ -1190,36 +1559,6 @@
           nextBtn.style.display = 'inline-block';
           submitBtn.style.display = 'none';
         }
-
-        // ───── PDF ダウンロード（職務経歴書） ─────
-        const careerForm = document.getElementById('career-form');
-        const careerPdfButton = document.getElementById('btn-submit');
-
-        if (careerForm && careerPdfButton) {
-          careerForm.addEventListener('submit', function (e) {
-            e.preventDefault(); // 通常のPOST送信を止める
-
-            // プレビュー側のJISレイアウト全体を取得
-            const element = document.querySelector('.preview-pane .preview-card');
-
-            if (!element) {
-              alert('プレビューが見つかりません。');
-              return;
-            }
-
-            const opt = {
-              margin:       [5, 5, 5, 5],             // mm
-              filename:     'shokumu-keirekisho.pdf',
-              image:        { type: 'jpeg', quality: 0.98 },
-              html2canvas:  { scale: 2, useCORS: true },
-              jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
-            };
-
-            // モバイルでもPCレイアウトで出したい場合は、ここでクラスを一時変更するなどもできる
-            html2pdf().set(opt).from(element).save();
-          });
-        }
-
       }
 
       prevBtn.addEventListener('click', () => {
@@ -1235,6 +1574,77 @@
         });
       });
       showStep(1);
+
+      // ───── モバイル：入力 / プレビュー切り替え ─────
+      const layoutEl = document.getElementById('layout');
+      const viewToggleBtns = document.querySelectorAll('.view-toggle-btn');
+
+      viewToggleBtns.forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const view = btn.dataset.view; // 'form' or 'preview'
+
+          // ボタンの見た目を更新
+          viewToggleBtns.forEach((b) => b.classList.remove('is-active'));
+          btn.classList.add('is-active');
+
+          // レイアウトの表示を切り替え
+          if (view === 'form') {
+            layoutEl.classList.add('show-form');
+            layoutEl.classList.remove('show-preview');
+          } else if (view === 'preview') {
+            layoutEl.classList.add('show-preview');
+            layoutEl.classList.remove('show-form');
+          }
+        });
+      });
+
+
+      // ───── PDF ダウンロード（職務経歴書） ─────
+      const careerForm = document.getElementById('career-form');
+
+      if (careerForm) {
+        careerForm.addEventListener('submit', function (e) {
+          e.preventDefault(); // 通常のPOST送信を止める
+
+          const layout = document.getElementById('layout');
+          const element = document.querySelector('.preview-pane .preview-card-wrapper'); // ★ ここ変更
+
+          if (!element) {
+            alert('プレビューが見つかりません。');
+            return;
+          }
+
+          // モバイルの場合でもプレビューを確実に表示
+          if (layout) {
+            layout.classList.add('show-preview');
+            layout.classList.remove('show-form');
+          }
+
+          const opt = {
+            margin: [5, 5, 5, 5], // mm
+            filename: 'shokumu-keirekisho.pdf',
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2, useCORS: true },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+          };
+
+          // ★ PDFモードON
+          document.body.classList.add('pdf-mode');
+
+          html2pdf()
+            .set(opt)
+            .from(element)
+            .save()
+            .then(() => {
+              // ★ PDFモードOFF
+              document.body.classList.remove('pdf-mode');
+            })
+            .catch(() => {
+              document.body.classList.remove('pdf-mode');
+            });
+        });
+      }
+
 
       // ───── プレビューのリアルタイム反映 ─────
       function bindText(inputId, previewId, defaultText) {
@@ -1260,8 +1670,6 @@
         update();
       }
 
-      bindText('name', 'pv-name-top', '');
-      bindText('name', 'pv-name', '未入力');
       bindText('skill1-left', 'pv-skill1-left', '（未入力）');
       bindText('skill1-right', 'pv-skill1-right', '（未入力）');
       bindText('skill2-left', 'pv-skill2-left', '（未入力）');
@@ -1279,6 +1687,45 @@
         'pv-prText',
         '（ここに自己PR・志望動機が入ります）'
       );
+
+      // ───── 氏名（姓＋名）プレビュー反映 ─────
+      const lastInput = document.getElementById('lastName');
+      const firstInput = document.getElementById('firstName');
+      const hiddenName = document.getElementById('name');
+      const pvNameTop = document.getElementById('pv-name-top');
+
+      function updateNamePreview() {
+        if (!pvNameTop) return;
+
+        const last = (lastInput?.value || '').trim();
+        const first = (firstInput?.value || '').trim();
+
+        let display = '';
+        if (last && first) {
+          // ★姓と名の間に半角スペース 1 個
+          display = `${last} ${first}`;
+        } else if (last || first) {
+          display = last || first;
+        }
+
+        // hidden の name にも同じ値を入れておく（サーバー送信用）
+        if (hiddenName) {
+          hiddenName.value = display;
+        }
+
+        if (display) {
+          pvNameTop.textContent = display;
+          pvNameTop.classList.remove('preview-empty');
+        } else {
+          pvNameTop.textContent = '';
+          pvNameTop.classList.add('preview-empty');
+        }
+      }
+
+      if (lastInput) lastInput.addEventListener('input', updateNamePreview);
+      if (firstInput) firstInput.addEventListener('input', updateNamePreview);
+      updateNamePreview();
+
 
       // ───── 資格・スキル：プレビュー反映 ─────
 
@@ -1320,7 +1767,15 @@
         // 保育士
         const hoikushiCheckbox = document.getElementById("q-hoikushi");
         if (hoikushiCheckbox && hoikushiCheckbox.checked) {
-          const ym = document.getElementById("q-hoikushi-date")?.value || "";
+          const y = document.getElementById("q-hoikushi-year")?.value;
+          const m = document.getElementById("q-hoikushi-month")?.value;
+
+          // ★★ 保育士の取得年月は「西暦」で表示 ★★
+          let dateStr = "";
+          if (y && m) {
+            dateStr = `${y}年${m}月`;
+          }
+
           const status = document.querySelector(
             'input[name="q-hoikushi-status"]:checked'
           )?.value;
@@ -1328,23 +1783,20 @@
           let line = "";
 
           if (status === "done") {
-            const dateStr = ym ? toWareki(ym) : "";
-            line = dateStr
-              ? `${dateStr}　保育士資格 取得`
-              : "保育士資格 取得";
+            line = dateStr ? `${dateStr}　保育士資格 取得` : "保育士資格 取得";
           } else if (status === "plan") {
-            const dateStr = ym ? toWareki(ym) : "";
             line = dateStr
               ? `${dateStr}　保育士資格 取得見込み`
               : "保育士資格 取得見込み";
           } else if (status === "study") {
             line = "現在、保育士資格の取得に向けて勉強中です。";
           } else {
-            // 状態未選択の場合は、とりあえず取得予定の資格として表示
+            // 状態未選択の場合は、とりあえず資格名だけ
             line = "保育士資格";
           }
 
-          qualLines.push(line);
+          // ★ 資格も箇条書きにしたいので「・」を付けて push
+          qualLines.push(`・${line}`);
         }
 
         // その他資格（児童発達支援管理責任者だけ特別文章）
@@ -1355,11 +1807,9 @@
           const label = cb.dataset.label || "";
 
           if (cb.id === "q-jidou-hattatsu") {
-            qualLines.push(
-              "現在、児童発達支援管理責任者の資格取得に向けて勉強中です。"
-            );
+            qualLines.push("・現在、児童発達支援管理責任者の資格取得に向けて勉強中です。");
           } else if (label) {
-            qualLines.push(label);
+            qualLines.push(`・${label}`);
           }
         });
 
@@ -1413,16 +1863,18 @@
             wrapper.appendChild(div);
           });
         }
+        updatePageCountIndicator();
       }
 
-      // STEP2 の要素が変わったら都度プレビュー更新
+
       document.addEventListener("change", (e) => {
         const target = e.target;
         if (
           target.classList.contains("qual-checkbox") ||
           target.classList.contains("qual-radio") ||
           target.classList.contains("skill-checkbox") ||
-          target.id === "q-hoikushi-date"
+          target.id === "q-hoikushi-year" ||
+          target.id === "q-hoikushi-month"
         ) {
           updateSkillExperiencePreview();
         }
@@ -1430,6 +1882,33 @@
 
       // 初期表示
       updateSkillExperiencePreview();
+
+      // ───── 経歴要約：選択肢から自動生成 ─────
+      const generateSummaryBtn = document.getElementById('generateSummary');
+      const summaryTextarea = document.getElementById('summary');
+      const summaryOptions = document.querySelectorAll('.summary-option');
+
+      if (generateSummaryBtn && summaryTextarea) {
+        generateSummaryBtn.addEventListener('click', () => {
+          const checked = Array.from(summaryOptions).filter((o) => o.checked);
+
+          if (!checked.length) {
+            alert('まず当てはまる項目を1つ以上選択してください。');
+            return;
+          }
+
+          const parts = checked.map((o) => o.value);
+
+          const text =
+            '保育士としてのこれまでの経験では、' +
+            parts.join(' ') +
+            ' これらの経験を通じて、子ども一人ひとりに寄り添いながら、保護者・職員と協力して安心して過ごせる保育環境づくりに取り組んできました。';
+
+          summaryTextarea.value = text;
+          // プレビュー(pv-summary)を更新させる
+          summaryTextarea.dispatchEvent(new Event('input'));
+        });
+      }
 
 
       // ───── 自己PR：選択肢から自動生成 ─────
@@ -1505,12 +1984,79 @@
         const textarea = item.querySelector(".career-duty-detail");
         if (textarea) {
           textarea.value = text;
-          textarea.dispatchEvent(new Event("input"));
+
+          // ① inputイベントをバブリングさせる
+          textarea.dispatchEvent(new Event("input", { bubbles: true }));
+
+          // ② 念のためプレビュー関数を直叩き（どっちかだけでも動くけど安心のダブル）
+          updateCareerPreview();
         }
       });
 
-      // ※ toWareki(yyyy-mm) はステップ2で追加した関数をそのまま使い回し。
-      // まだ入れてなければ、さっきの回答の toWareki を <script> 内の上の方にコピペしておいて。
+      // ───── 担当業務：選択肢から自動生成 ─────
+      document.addEventListener("click", (e) => {
+        const btn = e.target;
+        if (!btn.classList.contains("generate-responsibility-btn")) return;
+
+        const item = btn.closest(".career-item");
+        if (!item) return;
+
+        const checked = item.querySelectorAll(".responsibility-option:checked");
+        if (!checked.length) {
+          alert("まず当てはまる項目を1つ以上選択してください。");
+          return;
+        }
+
+        const parts = Array.from(checked)
+          .map((c) => c.dataset.text || "")
+          .filter(Boolean);
+
+        // ★ 1行ずつ「・」から始まる箇条書きにする
+        const text = parts.map((p) => `・${p}`).join("\n");
+
+        const textarea = item.querySelector(".career-responsibility");
+        if (textarea) {
+          textarea.value = text;
+
+          // プレビュー更新用に input イベントをバブリングさせる
+          textarea.dispatchEvent(new Event("input", { bubbles: true }));
+
+          // 念のため直接も呼んでおく
+          updateCareerPreview();
+        }
+      });
+
+      // ───── 退職理由：選択肢から自動生成 ─────
+      document.addEventListener("click", (e) => {
+        const btn = e.target;
+        if (!btn.classList.contains("generate-retire-btn")) return;
+
+        const item = btn.closest(".career-item");
+        if (!item) return;
+
+        const checked = item.querySelectorAll(".retire-option:checked");
+        if (!checked.length) {
+          alert("まず当てはまる項目を1つ以上選択してください。");
+          return;
+        }
+
+        const parts = Array.from(checked)
+          .map((c) => c.dataset.text || "")
+          .filter(Boolean);
+
+        const text = parts.join(" ");
+
+        const textarea = item.querySelector(".career-reason");
+        if (textarea) {
+          textarea.value = text;
+
+          // 入力イベントをバブリングさせてプレビュー更新
+          textarea.dispatchEvent(new Event("input", { bubbles: true }));
+
+          // 念のため直接呼ぶ
+          updateCareerPreview();
+        }
+      });
 
       function updateCareerPreview() {
         const wrapper = document.getElementById("pv-career-wrapper");
@@ -1529,8 +2075,15 @@
 
         items.forEach((item) => {
           const company = item.querySelector(".career-company")?.value.trim();
-          const start = item.querySelector(".career-start")?.value;
-          const end = item.querySelector(".career-end")?.value;
+
+          const sy = item.querySelector(".career-start-year")?.value;
+          const sm = item.querySelector(".career-start-month")?.value;
+          const start = sy && sm ? `${sy}-${String(sm).padStart(2, "0")}` : "";
+
+          const ey = item.querySelector(".career-end-year")?.value;
+          const em = item.querySelector(".career-end-month")?.value;
+          const end = ey && em ? `${ey}-${String(em).padStart(2, "0")}` : "";
+
           const current = item.querySelector(".career-current")?.checked;
 
           const employment = item.querySelector(".career-employment")?.value;
@@ -1589,11 +2142,19 @@
             block.appendChild(line3);
           }
 
-          // <担当業務> ...
+          // <担当業務> 箇条書き
           if (responsibility) {
-            const line4 = document.createElement("div");
-            line4.textContent = `<担当業務> ${responsibility}`;
-            block.appendChild(line4);
+            const title = document.createElement("div");
+            title.textContent = "<担当業務>";
+            block.appendChild(title);
+
+            responsibility.split("\n").forEach((row) => {
+              if (!row.trim()) return;
+              const li = document.createElement("div");
+              li.textContent = row;          // 中身は「・〜」まで含めたテキスト
+              li.style.paddingLeft = "1em";  // 職務内容と同じくインデント
+              block.appendChild(li);
+            });
           }
 
           // <職務内容> 箇条書き
@@ -1626,6 +2187,8 @@
 
           wrapper.appendChild(block);
         });
+
+        updatePageCountIndicator();
       }
 
       // 入力イベントと紐づける
@@ -1640,6 +2203,7 @@
         const day = d.getDate();
         dateEl.textContent = `${y}年${m}月${day}日現在`;
       }
+
     </script>
 
     <script src="https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js"></script>
