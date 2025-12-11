@@ -2341,18 +2341,31 @@ function createA3LayoutForPdf() {
             schoolRows.forEach((r) => allRows.push({ ...r, header: false }));
           }
 
-          // ▼ 職歴が1つ以上あれば、その前に「職歴」ラベル行
+          // ▼ 職歴が1つ以上あれば、その前に「空白1行」＋「職歴」ラベル行
           if (workRows.length > 0) {
+            // 空白行（学歴と職歴の間を1行あけるため）
+            allRows.push({ spacer: true });
+
+            // 「職歴」ラベル行
             allRows.push({ header: true, text: '職歴' });
+
             workRows.forEach((r) => allRows.push({ ...r, header: false }));
           }
 
+
           // 1ページ目：0〜14番（15行）
           for (let i = 0; i < 15; i++) {
-            const data = allRows[i] || { year: '', month: '', text: '', header: false };
+            const data = allRows[i] || { year: '', month: '', text: '', header: false, spacer: false };
             const tr = document.createElement('tr');
 
-            if (data.header) {
+            if (data.spacer) {
+              // 空白行（年・月・内容すべて空）
+              tr.innerHTML = `
+                <td></td>
+                <td></td>
+                <td></td>
+              `;
+            } else if (data.header) {
               tr.classList.add('edu-header-row');
               tr.innerHTML = `
                 <td></td>
@@ -2369,13 +2382,19 @@ function createA3LayoutForPdf() {
 
             eduPreviewBody1.appendChild(tr);
           }
-
+          
           // 2ページ目：15〜21番（7行）
           for (let i = 15; i < 22; i++) {
-            const data = allRows[i] || { year: '', month: '', text: '', header: false };
+            const data = allRows[i] || { year: '', month: '', text: '', header: false, spacer: false };
             const tr = document.createElement('tr');
 
-            if (data.header) {
+            if (data.spacer) {
+              tr.innerHTML = `
+                <td></td>
+                <td></td>
+                <td></td>
+              `;
+            } else if (data.header) {
               tr.classList.add('edu-header-row');
               tr.innerHTML = `
                 <td></td>

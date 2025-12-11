@@ -880,85 +880,87 @@
               <div style="margin-bottom:8px; font-size:12px; color:var(--text-sub);">
                 ▼ 国家資格・公的資格
               </div>
+              <div class="pr-checkbox-group" style="margin-top:6px;">
 
-              <!-- 保育士 -->
-              <div style="border:1px solid #eee; border-radius:8px; padding:10px 12px; margin-bottom:10px;">
-                <label style="display:flex; align-items:center; gap:6px; font-size:14px;">
-                  <input type="checkbox" id="q-hoikushi" class="qual-checkbox" data-label="保育士" />
-                  保育士
-                </label>
-
-                <div style="margin-top:8px; padding-left:22px; font-size:13px;">
-                  <div style="margin-bottom:6px;">
-                    取得年月：
-                    <div style="display:flex; gap:6px; align-items:center;">
-                      <input
-                        type="number"
-                        id="q-hoikushi-year"
-                        placeholder="年"
-                        min="1950"
-                        max="2100"
-                        style="width:80px; font-size:13px;"
-                      />
-                      <span>年</span>
-
-                      <select
-                        id="q-hoikushi-month"
-                        style="font-size:13px;"
-                      >
-                        <option value="">月</option>
-                        <option value="1">1</option>
-                        <option value="2">2</option>
-                        <option value="3">3</option>
-                        <option value="4">4</option>
-                        <option value="5">5</option>
-                        <option value="6">6</option>
-                        <option value="7">7</option>
-                        <option value="8">8</option>
-                        <option value="9">9</option>
-                        <option value="10">10</option>
-                        <option value="11">11</option>
-                        <option value="12">12</option>
-                      </select>
-                      <span>月</span>
+                <!-- 保育士 -->
+                <div class="qual-item">
+                  <label>
+                    <input
+                      type="checkbox"
+                      class="qual-checkbox"
+                      data-label="保育士"
+                      data-status-name="q-hoikushi-status"
+                    />
+                    保育士
+                  </label>
+                  <div class="qual-sub">
+                        <div class="qual-date-row">
+                          取得年月：
+                          <div style="display:flex; gap:6px; align-items:center;">
+                            <input
+                              type="number"
+                              class="qual-year"
+                              placeholder="年"
+                              min="1950"
+                              max="2100"
+                              style="width:80px;"
+                              disabled
+                            />
+                            <span>年</span>
+                            <select class="qual-month" disabled>
+                              <option value="">月</option>
+                              <option value="1">1</option>
+                              <option value="2">2</option>
+                              <option value="3">3</option>
+                              <option value="4">4</option>
+                              <option value="5">5</option>
+                              <option value="6">6</option>
+                              <option value="7">7</option>
+                              <option value="8">8</option>
+                              <option value="9">9</option>
+                              <option value="10">10</option>
+                              <option value="11">11</option>
+                              <option value="12">12</option>
+                            </select>
+                            <span>月</span>
+                          </div>
+                        </div>
+                    <div class="qual-status-group">
+                      <label>
+                        <input
+                          type="radio"
+                          name="q-hoikushi-status"
+                          value="done"
+                          class="qual-radio"
+                        />
+                        取得済
+                      </label>
+                      <label>
+                        <input
+                          type="radio"
+                          name="q-hoikushi-status"
+                          value="plan"
+                          class="qual-radio"
+                        />
+                        取得見込み
+                      </label>
+                      <label>
+                        <input
+                          type="radio"
+                          name="q-hoikushi-status"
+                          value="study"
+                          class="qual-radio"
+                        />
+                        勉強中
+                      </label>
                     </div>
-                  </div>
-
-                  <div style="display:flex; flex-direction:column; gap:3px;">
-                    <span>状態：</span>
-                    <label>
-                      <input
-                        type="radio"
-                        name="q-hoikushi-status"
-                        value="done"
-                        class="qual-radio"
-                      />
-                      取得済
-                    </label>
-                    <label>
-                      <input
-                        type="radio"
-                        name="q-hoikushi-status"
-                        value="plan"
-                        class="qual-radio"
-                      />
-                      取得見込み（取得見込み年月は上記に入力）
-                    </label>
-                    <label>
-                      <input
-                        type="radio"
-                        name="q-hoikushi-status"
-                        value="study"
-                        class="qual-radio"
-                      />
-                      勉強中
-                    </label>
+                    <input
+                      type="text"
+                      class="qual-free"
+                      placeholder="自由記入欄（任意）例：新卒時に取得 など"
+                    />
                   </div>
                 </div>
-              </div>
-
-              <!-- その他の資格（取得ステータス＋自由記入付き） -->
-              <div class="pr-checkbox-group" style="margin-top:6px;">
 
                 <!-- 幼稚園教諭二種免許 -->
                 <div class="qual-item">
@@ -972,6 +974,38 @@
                     幼稚園教諭二種免許
                   </label>
                   <div class="qual-sub">
+                    <div class="qual-date-row">
+                      取得年月：
+                      <div style="display:flex; gap:6px; align-items:center;">
+                        <input
+                          type="number"
+                          class="qual-year"
+                          placeholder="年"
+                          min="1950"
+                          max="2100"
+                          style="width:80px;"
+                          disabled
+                        />
+                        <span>年</span>
+                        <select class="qual-month" disabled>
+                          <option value="">月</option>
+                          <option value="1">1</option>
+                          <option value="2">2</option>
+                          <option value="3">3</option>
+                          <option value="4">4</option>
+                          <option value="5">5</option>
+                          <option value="6">6</option>
+                          <option value="7">7</option>
+                          <option value="8">8</option>
+                          <option value="9">9</option>
+                          <option value="10">10</option>
+                          <option value="11">11</option>
+                          <option value="12">12</option>
+                        </select>
+                        <span>月</span>
+                      </div>
+                    </div>
+
                     <div class="qual-status-group">
                       <label>
                         <input
@@ -1021,6 +1055,37 @@
                     幼稚園教諭一種免許
                   </label>
                   <div class="qual-sub">
+                    <div class="qual-date-row">
+                      取得年月：
+                      <div style="display:flex; gap:6px; align-items:center;">
+                        <input
+                          type="number"
+                          class="qual-year"
+                          placeholder="年"
+                          min="1950"
+                          max="2100"
+                          style="width:80px;"
+                          disabled
+                        />
+                        <span>年</span>
+                        <select class="qual-month" disabled>
+                          <option value="">月</option>
+                          <option value="1">1</option>
+                          <option value="2">2</option>
+                          <option value="3">3</option>
+                          <option value="4">4</option>
+                          <option value="5">5</option>
+                          <option value="6">6</option>
+                          <option value="7">7</option>
+                          <option value="8">8</option>
+                          <option value="9">9</option>
+                          <option value="10">10</option>
+                          <option value="11">11</option>
+                          <option value="12">12</option>
+                        </select>
+                        <span>月</span>
+                      </div>
+                    </div>
                     <div class="qual-status-group">
                       <label>
                         <input
@@ -1070,6 +1135,37 @@
                     児童指導員
                   </label>
                   <div class="qual-sub">
+                    <div class="qual-date-row">
+                      取得年月：
+                      <div style="display:flex; gap:6px; align-items:center;">
+                        <input
+                          type="number"
+                          class="qual-year"
+                          placeholder="年"
+                          min="1950"
+                          max="2100"
+                          style="width:80px;"
+                          disabled
+                        />
+                        <span>年</span>
+                        <select class="qual-month" disabled>
+                          <option value="">月</option>
+                          <option value="1">1</option>
+                          <option value="2">2</option>
+                          <option value="3">3</option>
+                          <option value="4">4</option>
+                          <option value="5">5</option>
+                          <option value="6">6</option>
+                          <option value="7">7</option>
+                          <option value="8">8</option>
+                          <option value="9">9</option>
+                          <option value="10">10</option>
+                          <option value="11">11</option>
+                          <option value="12">12</option>
+                        </select>
+                        <span>月</span>
+                      </div>
+                    </div>
                     <div class="qual-status-group">
                       <label>
                         <input
@@ -1120,6 +1216,37 @@
                     児童発達支援管理責任者
                   </label>
                   <div class="qual-sub">
+                    <div class="qual-date-row">
+                      取得年月：
+                      <div style="display:flex; gap:6px; align-items:center;">
+                        <input
+                          type="number"
+                          class="qual-year"
+                          placeholder="年"
+                          min="1950"
+                          max="2100"
+                          style="width:80px;"
+                          disabled
+                        />
+                        <span>年</span>
+                        <select class="qual-month" disabled>
+                          <option value="">月</option>
+                          <option value="1">1</option>
+                          <option value="2">2</option>
+                          <option value="3">3</option>
+                          <option value="4">4</option>
+                          <option value="5">5</option>
+                          <option value="6">6</option>
+                          <option value="7">7</option>
+                          <option value="8">8</option>
+                          <option value="9">9</option>
+                          <option value="10">10</option>
+                          <option value="11">11</option>
+                          <option value="12">12</option>
+                        </select>
+                        <span>月</span>
+                      </div>
+                    </div>
                     <div class="qual-status-group">
                       <label>
                         <input
@@ -1169,6 +1296,37 @@
                     社会福祉士
                   </label>
                   <div class="qual-sub">
+                    <div class="qual-date-row">
+                      取得年月：
+                      <div style="display:flex; gap:6px; align-items:center;">
+                        <input
+                          type="number"
+                          class="qual-year"
+                          placeholder="年"
+                          min="1950"
+                          max="2100"
+                          style="width:80px;"
+                          disabled
+                        />
+                        <span>年</span>
+                        <select class="qual-month" disabled>
+                          <option value="">月</option>
+                          <option value="1">1</option>
+                          <option value="2">2</option>
+                          <option value="3">3</option>
+                          <option value="4">4</option>
+                          <option value="5">5</option>
+                          <option value="6">6</option>
+                          <option value="7">7</option>
+                          <option value="8">8</option>
+                          <option value="9">9</option>
+                          <option value="10">10</option>
+                          <option value="11">11</option>
+                          <option value="12">12</option>
+                        </select>
+                        <span>月</span>
+                      </div>
+                    </div>
                     <div class="qual-status-group">
                       <label>
                         <input
@@ -1218,6 +1376,37 @@
                     看護師
                   </label>
                   <div class="qual-sub">
+                    <div class="qual-date-row">
+                      取得年月：
+                      <div style="display:flex; gap:6px; align-items:center;">
+                        <input
+                          type="number"
+                          class="qual-year"
+                          placeholder="年"
+                          min="1950"
+                          max="2100"
+                          style="width:80px;"
+                          disabled
+                        />
+                        <span>年</span>
+                        <select class="qual-month" disabled>
+                          <option value="">月</option>
+                          <option value="1">1</option>
+                          <option value="2">2</option>
+                          <option value="3">3</option>
+                          <option value="4">4</option>
+                          <option value="5">5</option>
+                          <option value="6">6</option>
+                          <option value="7">7</option>
+                          <option value="8">8</option>
+                          <option value="9">9</option>
+                          <option value="10">10</option>
+                          <option value="11">11</option>
+                          <option value="12">12</option>
+                        </select>
+                        <span>月</span>
+                      </div>
+                    </div>
                     <div class="qual-status-group">
                       <label>
                         <input
@@ -1267,6 +1456,37 @@
                     栄養士
                   </label>
                   <div class="qual-sub">
+                    <div class="qual-date-row">
+                      取得年月：
+                      <div style="display:flex; gap:6px; align-items:center;">
+                        <input
+                          type="number"
+                          class="qual-year"
+                          placeholder="年"
+                          min="1950"
+                          max="2100"
+                          style="width:80px;"
+                          disabled
+                        />
+                        <span>年</span>
+                        <select class="qual-month" disabled>
+                          <option value="">月</option>
+                          <option value="1">1</option>
+                          <option value="2">2</option>
+                          <option value="3">3</option>
+                          <option value="4">4</option>
+                          <option value="5">5</option>
+                          <option value="6">6</option>
+                          <option value="7">7</option>
+                          <option value="8">8</option>
+                          <option value="9">9</option>
+                          <option value="10">10</option>
+                          <option value="11">11</option>
+                          <option value="12">12</option>
+                        </select>
+                        <span>月</span>
+                      </div>
+                    </div>
                     <div class="qual-status-group">
                       <label>
                         <input
@@ -2158,196 +2378,180 @@
         return `${era}${yearStr}年${m}月`;
       }
 
-// ───── 資格・スキル：プレビュー反映 ─────
+      // ───── 資格・スキル：プレビュー反映 ─────
+      function toWareki(ym) {
+        if (!ym) return "";
 
-// 西暦 → 和暦（ざっくり）に変換する関数（キャリア用）
-// ※このままでOK
-function toWareki(ym) {
-  if (!ym) return "";
+        const [yStr, mStr] = ym.split("-");
+        const y = parseInt(yStr, 10);
+        const m = parseInt(mStr, 10);
 
-  const [yStr, mStr] = ym.split("-");
-  const y = parseInt(yStr, 10);
-  const m = parseInt(mStr, 10);
+        let era = "";
+        let n = 0;
 
-  let era = "";
-  let n = 0;
+        if (y >= 2019) {
+          era = "令和";
+          n = y - 2018;
+        } else if (y >= 1989) {
+          era = "平成";
+          n = y - 1988;
+        } else {
+          // それ以前はとりあえず西暦表示
+          return `${y}年${m}月`;
+        }
 
-  if (y >= 2019) {
-    era = "令和";
-    n = y - 2018;
-  } else if (y >= 1989) {
-    era = "平成";
-    n = y - 1988;
-  } else {
-    // それ以前はとりあえず西暦表示
-    return `${y}年${m}月`;
-  }
+        const yearStr = n === 1 ? "元" : String(n);
+        return `${era}${yearStr}年${m}月`;
+      }
 
-  const yearStr = n === 1 ? "元" : String(n);
-  return `${era}${yearStr}年${m}月`;
-}
+            function updateSkillExperiencePreview() {
+        const wrapper = document.getElementById("pv-skill-wrapper");
+        if (!wrapper) return;
 
-    function updateSkillExperiencePreview() {
-  const wrapper = document.getElementById("pv-skill-wrapper");
-  if (!wrapper) return;
+        wrapper.innerHTML = "";
 
-  wrapper.innerHTML = "";
+        const qualLines = [];
+        const skillLines = [];
 
-  const qualLines = [];
-  const skillLines = [];
+        // ── 全ての資格（保育士含む） ──
+        document.querySelectorAll(".qual-item").forEach((item) => {
+          const cb = item.querySelector(".qual-checkbox");
+          if (!cb || !cb.checked) return;
 
-  // ★ 保育士（既存のブロック）はこれまで通り特別扱い
-  const hoikushiCheckbox = document.getElementById("q-hoikushi");
-  if (hoikushiCheckbox && hoikushiCheckbox.checked) {
-    const y = document.getElementById("q-hoikushi-year")?.value;
-    const m = document.getElementById("q-hoikushi-month")?.value;
-    let dateStr = "";
-    if (y && m) {
-      // 保育士は西暦表示
-      dateStr = `${y}年${m}月`;
-    }
+          const label = cb.dataset.label || "";
 
-    const status = document.querySelector(
-      'input[name="q-hoikushi-status"]:checked'
-    )?.value;
+          // 状態ラジオ
+          let statusText = "";
+          let statusValue = "";
+          const statusName = cb.dataset.statusName;
+          if (statusName) {
+            const statusEl = item.querySelector(
+              `input[name="${statusName}"]:checked`
+            );
+            statusValue = statusEl?.value || "";
+            if (statusValue === "plan") statusText = "（取得見込み）";
+            else if (statusValue === "study") statusText = "（勉強中）";
+            // done のときはカッコ無し
+          }
 
-    let line = "";
+          const free = item.querySelector(".qual-free")?.value.trim() || "";
 
-    if (status === "done") {
-      line = dateStr ? `${dateStr}　保育士資格 取得` : "保育士資格 取得";
-    } else if (status === "plan") {
-      line = dateStr
-        ? `${dateStr}　保育士資格 取得見込み`
-        : "保育士資格 取得見込み";
-    } else if (status === "study") {
-      line = "現在、保育士資格の取得に向けて勉強中です。";
-    } else {
-      line = "保育士資格";
-    }
+          // 取得済のときだけ取得年月を使う
+          const y = item.querySelector(".qual-year")?.value;
+          const m = item.querySelector(".qual-month")?.value;
+          let dateStr = "";
+          if (statusValue === "done" && y && m) {
+            dateStr = `${y}年${m}月`;
+          }
 
-    qualLines.push(`・${line}`);
-  }
+          let core = label + statusText;
+          if (free) {
+            core += `：${free}`;
+          }
+          if (!core) return;
 
-  // ★ その他の資格（qual-item ベース）
-  document.querySelectorAll(".qual-item").forEach((item) => {
-    const cb = item.querySelector(".qual-checkbox");
-    if (!cb || !cb.checked) return;
+          let line = core;
+          if (dateStr) {
+            line = `${dateStr}　${core}`;
+          }
 
-    // 保育士はさっき処理したので飛ばす
-    if (cb.id === "q-hoikushi") return;
+          qualLines.push(`・${line}`);
+        });
 
-    const label = cb.dataset.label || "";
+        // ── スキル ──
+        document.querySelectorAll(".skill-item").forEach((item) => {
+          const cb = item.querySelector(".skill-checkbox");
+          if (!cb || !cb.checked) return;
 
-    // 状態のラジオ
-    let statusText = "";
-    const statusName = cb.dataset.statusName;
-    if (statusName) {
-      const statusEl = item.querySelector(
-        `input[name="${statusName}"]:checked`
-      );
-      const v = statusEl?.value;
-      if (v === "done") statusText = "（取得済）";
-      else if (v === "plan") statusText = "（取得見込み）";
-      else if (v === "study") statusText = "（勉強中）";
-    }
+          const label = cb.dataset.label || "";
+          const free = item.querySelector(".skill-free")?.value.trim() || "";
 
-    // 自由記入欄
-    const free = item.querySelector(".qual-free")?.value.trim() || "";
-    let lineCore = label;
-    if (statusText) lineCore += statusText;
-    if (free) lineCore += `：${free}`;
+          let line = label;
+          if (free) line += `：${free}`;
+          if (line) skillLines.push(`・${line}`);
+        });
 
-    if (lineCore) {
-      qualLines.push(`・${lineCore}`);
-    }
-  });
+        // 何もない場合
+        if (!qualLines.length && !skillLines.length) {
+          const span = document.createElement("span");
+          span.className = "preview-empty";
+          span.textContent = "（未入力）";
+          wrapper.appendChild(span);
+          return;
+        }
 
-  // ★ スキル（skill-item ベース）
-  document.querySelectorAll(".skill-item").forEach((item) => {
-    const cb = item.querySelector(".skill-checkbox");
-    if (!cb || !cb.checked) return;
+        // 【資格】ブロック
+        if (qualLines.length) {
+          const title = document.createElement("div");
+          title.textContent = "【資格】";
+          title.style.fontWeight = "600";
+          wrapper.appendChild(title);
 
-    const label = cb.dataset.label || "";
-    const free = item.querySelector(".skill-free")?.value.trim() || "";
+          qualLines.forEach((line) => {
+            const div = document.createElement("div");
+            div.textContent = line;
+            wrapper.appendChild(div);
+          });
 
-    let line = label;
-    if (free) line += `：${free}`;
+          const space = document.createElement("div");
+          space.style.height = "6px";
+          wrapper.appendChild(space);
+        }
 
-    if (line) {
-      skillLines.push(`・${line}`);
-    }
-  });
+        // 【スキル】ブロック
+        if (skillLines.length) {
+          const title = document.createElement("div");
+          title.textContent = "【スキル】";
+          title.style.fontWeight = "600";
+          wrapper.appendChild(title);
 
-  // 何も選ばれてない場合
-  if (!qualLines.length && !skillLines.length) {
-    const span = document.createElement("span");
-    span.className = "preview-empty";
-    span.textContent = "（未入力）";
-    wrapper.appendChild(span);
-    return;
-  }
+          skillLines.forEach((line) => {
+            const div = document.createElement("div");
+            div.textContent = line;
+            wrapper.appendChild(div);
+          });
+        }
 
-  // 【資格】ブロック
-  if (qualLines.length) {
-    const title = document.createElement("div");
-    title.textContent = "【資格】";
-    title.style.fontWeight = "600";
-    wrapper.appendChild(title);
-
-    qualLines.forEach((line) => {
-      const div = document.createElement("div");
-      div.textContent = line;
-      wrapper.appendChild(div);
-    });
-
-    const space = document.createElement("div");
-    space.style.height = "6px";
-    wrapper.appendChild(space);
-  }
-
-  // 【スキル】ブロック
-  if (skillLines.length) {
-    const title = document.createElement("div");
-    title.textContent = "【スキル】";
-    title.style.fontWeight = "600";
-    wrapper.appendChild(title);
-
-    skillLines.forEach((line) => {
-      const div = document.createElement("div");
-      div.textContent = line;
-      wrapper.appendChild(div);
-    });
-  }
-
-  updatePageCountIndicator && updatePageCountIndicator();
-}
+        updatePageCountIndicator && updatePageCountIndicator();
+      }
 
       document.addEventListener("change", (e) => {
         const target = e.target;
+
+        // ▼ 資格の状態ラジオが変わったとき（全資格共通）
+        if (target.classList.contains("qual-radio")) {
+          const item = target.closest(".qual-item");
+          if (item) {
+            const y = item.querySelector(".qual-year");
+            const m = item.querySelector(".qual-month");
+            if (y && m) {
+              if (target.value === "done" && target.checked) {
+                // 取得済 → 入力可
+                y.disabled = false;
+                m.disabled = false;
+              } else if (target.checked) {
+                // 取得見込み・勉強中 → クリアして無効化
+                y.value = "";
+                m.value = "";
+                y.disabled = true;
+                m.disabled = true;
+              }
+            }
+          }
+        }
+
+        // ▼ プレビュー更新
         if (
           target.classList.contains("qual-checkbox") ||
           target.classList.contains("qual-radio") ||
           target.classList.contains("skill-checkbox") ||
-          target.id === "q-hoikushi-year" ||
-          target.id === "q-hoikushi-month"
+          target.classList.contains("qual-year") ||
+          target.classList.contains("qual-month")
         ) {
           updateSkillExperiencePreview();
         }
       });
 
-      // 自由記入欄のリアルタイム反映
-      document.addEventListener("input", (e) => {
-        const target = e.target;
-        if (
-          target.classList.contains("qual-free") ||
-          target.classList.contains("skill-free")
-        ) {
-          updateSkillExperiencePreview();
-        }
-      });
-
-      // 初期表示
-      updateSkillExperiencePreview();
 
       // ───── 経歴要約：選択肢から自動生成 ─────
       const generateSummaryBtn = document.getElementById('generateSummary');
