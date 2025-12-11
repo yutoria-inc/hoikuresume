@@ -461,6 +461,42 @@
   padding-right: 6px;
 }
 
+/* 生年月日＋性別を1行に収める（折り返し禁止） */
+.rirekisho-profile .birthday,
+.rirekisho-profile .gender {
+  white-space: nowrap;
+}
+
+@media (max-width: 480px) {
+  .rirekisho-profile .birthday,
+  .rirekisho-profile .gender {
+    font-size: 8px;
+  }
+}
+
+/* 生年月日（年・月・日）入力行 */
+.birth-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: nowrap;
+  white-space: nowrap;
+}
+
+.birth-row input {
+  width: 64px;
+  padding: 6px;
+  text-align: right;
+  font-size: 13px;
+}
+
+@media (max-width: 480px) {
+  .birth-row input {
+    width: 56px;
+    font-size: 12px;
+  }
+}
+
 .rirekisho-profile .gender {
   min-width: 70px;
   display: flex;
@@ -1327,9 +1363,34 @@
               </div>
 
               <div class="field">
-                <label for="birth">生年月日</label>
-                <input type="date" id="birth" name="birth" />
+                <label>生年月日</label>
+                <div class="birth-row">
+                  <input
+                    type="text"
+                    id="birthYear"
+                    inputmode="numeric"
+                    placeholder="1990"
+                  />
+                  <span>年</span>
+                  <input
+                    type="text"
+                    id="birthMonth"
+                    inputmode="numeric"
+                    placeholder="1"
+                  />
+                  <span>月</span>
+                  <input
+                    type="text"
+                    id="birthDay"
+                    inputmode="numeric"
+                    placeholder="23"
+                  />
+                  <span>日 生</span>
+                </div>
+                <!-- サーバー送信用：結合した文字列をここに入れる -->
+                <input type="hidden" id="birth" name="birth" />
               </div>
+
 
               <div class="field">
                 <label>性別</label>
@@ -1719,46 +1780,6 @@
       })();
 
 
-      // ───────── A3 横1枚レイアウトを PDF用に一時生成する ─────────
-function createA3LayoutForPdf() {
-  // プレビューの1ページ目・2ページ目を取得
-  const page1 = document.querySelector('#preview-root .preview-card.preview.page-1');
-  const page2 = document.querySelector('#preview-root .preview-card.preview.page-2');
-
-  if (!page1 || !page2) return null;
-
-  // 画面外に置く一時コンテナ
-  const container = document.createElement('div');
-  container.id = 'pdf-temp-root';
-  container.style.position = 'fixed';
-  container.style.left = '-9999px'; // 画面外
-  container.style.top = '0';
-  container.style.width = '1400px'; // 描画用の幅（適当でOK）
-  container.style.background = '#ffffff';
-  container.style.zIndex = '-1';
-
-  // A3ページ本体（CSSの .pdf-a3-page をそのまま使う）
-  const wrapper = document.createElement('div');
-  wrapper.className = 'pdf-a3-page';
-
-  const left = document.createElement('div');
-  left.className = 'pdf-a3-left';
-  left.appendChild(page1.cloneNode(true));  // プレビュー1ページ目のクローン
-
-  const right = document.createElement('div');
-  right.className = 'pdf-a3-right';
-  right.appendChild(page2.cloneNode(true)); // プレビュー2ページ目のクローン
-
-  wrapper.appendChild(left);
-  wrapper.appendChild(right);
-  container.appendChild(wrapper);
-
-  // bodyに一時的に追加
-  document.body.appendChild(container);
-
-  return container;
-}
-
       // ─────────────────────────
       // ステップ制ロジック（6ステップ）
       // ─────────────────────────
@@ -1926,103 +1947,124 @@ function createA3LayoutForPdf() {
           updateNamePreview();
         })();
 
+        // ───────── 生年月日 ＋ 性別（プレビュー）─────────
+        const birthYearInput  = document.getElementById('birthYear');
+        const birthMonthInput = document.getElementById('birthMonth');
+        const birthDayInput   = document.getElementById('birthDay');
+        const hiddenBirth     = document.getElementById('birth');
 
-      // ───────── 生年月日 ＋ 性別（プレビュー）─────────
-      const birthInput = document.getElementById('birth');
-      const genderRadios = document.querySelectorAll('input[name="gender"]');
-      const pvBirth = document.getElementById('pv-birth');
-      const pvGender = document.getElementById('pv-gender');
+        const genderRadios = document.querySelectorAll('input[name="gender"]');
+        const pvBirth  = document.getElementById('pv-birth');
+        const pvGender = document.getElementById('pv-gender');
 
-      // 満年齢を計算する関数
-      function calcAge(dateStr) {
-        const birth = new Date(dateStr);
-        if (isNaN(birth.getTime())) return null;
+        // 年月日から Date を作る
+        function getBirthDateFromInputs() {
+          if (!birthYearInput || !birthMonthInput || !birthDayInput) return null;
 
-        const today = new Date();
-        let age = today.getFullYear() - birth.getFullYear();
+          const y = parseInt(birthYearInput.value, 10);
+          const m = parseInt(birthMonthInput.value, 10);
+          const d = parseInt(birthDayInput.value, 10);
 
-        const m = today.getMonth() - birth.getMonth();
-        if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) {
-          age--;
-        }
-        return age;
-      }
+          if (!y || !m || !d) return null;
 
-      // 生年月日 + （満○歳）のプレビュー
-      function updateBirthPreview() {
-        if (!pvBirth) return;
-
-        if (birthInput && birthInput.value) {
-          const d = new Date(birthInput.value);
-          let ageText = '（満○歳）';
-
-          if (!isNaN(d.getTime())) {
-            const y = d.getFullYear();
-            const m = d.getMonth() + 1;
-            const day = d.getDate();
-
-            const age = calcAge(birthInput.value);
-            if (age !== null) {
-              ageText = `（満${age}歳）`;
-            }
-
-            pvBirth.textContent = `${y}年${m}月${day}日生${ageText}`;
-            pvBirth.classList.remove('preview-empty');
-          } else {
-            // 変な値が入ったときはそのまま + 満○歳
-            pvBirth.textContent = `${birthInput.value}（満○歳）`;
-            pvBirth.classList.remove('preview-empty');
+          const dt = new Date(y, m - 1, d);
+          // 妥当性チェック
+          if (
+            dt.getFullYear() !== y ||
+            dt.getMonth() !== m - 1 ||
+            dt.getDate() !== d
+          ) {
+            return null;
           }
-        } else {
-          pvBirth.textContent = '未入力（満○歳）';
-          pvBirth.classList.add('preview-empty');
-        }
-      }
 
-      // 性別プレビュー（「男・女」を常に表示して、選択だけ丸で囲む）
-      function updateGenderPreview() {
-        if (!pvGender || genderRadios.length < 2) return;
-
-        // ベース表示を毎回リセット
-        pvGender.innerHTML =
-          '<span class="male">男</span><span>・</span><span class="female">女</span>';
-
-        const maleSpan = pvGender.querySelector('.male');
-        const femaleSpan = pvGender.querySelector('.female');
-
-        // ラジオ 1個目＝男, 2個目＝女 として扱う
-        const maleChecked = genderRadios[0].checked;
-        const femaleChecked = genderRadios[1].checked;
-
-        if (maleChecked) {
-          maleSpan.classList.add('circle');
-        }
-        if (femaleChecked) {
-          femaleSpan.classList.add('circle');
+          return dt;
         }
 
-        if (!maleChecked && !femaleChecked) {
-          pvGender.classList.add('preview-empty');
-        } else {
-          pvGender.classList.remove('preview-empty');
+        // 満年齢を計算
+        function calcAgeFromDate(birth) {
+          if (!birth) return null;
+          const today = new Date();
+
+          let age = today.getFullYear() - birth.getFullYear();
+          const mm = today.getMonth() - birth.getMonth();
+          if (mm < 0 || (mm === 0 && today.getDate() < birth.getDate())) {
+            age--;
+          }
+          return age;
         }
-      }
 
-      // 両方まとめて更新
-      function updateBirthGenderPreview() {
-        updateBirthPreview();
-        updateGenderPreview();
-      }
+        // 生年月日プレビュー＋hidden value 更新
+        function updateBirthPreview() {
+          if (!pvBirth) return;
 
-      if (birthInput) {
-        birthInput.addEventListener('input', updateBirthGenderPreview);
-      }
-      genderRadios.forEach((r) => {
-        r.addEventListener('change', updateBirthGenderPreview);
-      });
+          const birthDate = getBirthDateFromInputs();
 
-      // 初期表示
-      updateBirthGenderPreview();
+          if (birthDate) {
+            const y = birthDate.getFullYear();
+            const m = birthDate.getMonth() + 1;
+            const d = birthDate.getDate();
+
+            const age = calcAgeFromDate(birthDate);
+            const ageText = age !== null ? `（満${age}歳）` : '（満○歳）';
+
+            pvBirth.textContent = `${y}年${m}月${d}日生${ageText}`;
+            pvBirth.classList.remove('preview-empty');
+
+            // サーバー送信用（YYYY-MM-DD）
+            if (hiddenBirth) {
+              const mm = String(m).padStart(2, '0');
+              const dd = String(d).padStart(2, '0');
+              hiddenBirth.value = `${y}-${mm}-${dd}`;
+            }
+          } else {
+            pvBirth.textContent = '未入力（満○歳）';
+            pvBirth.classList.add('preview-empty');
+            if (hiddenBirth) hiddenBirth.value = '';
+          }
+        }
+
+        // 性別プレビュー（男・女のどちらかに丸をつける）
+        function updateGenderPreview() {
+          if (!pvGender || genderRadios.length < 2) return;
+
+          // ベース表示をリセット
+          pvGender.innerHTML =
+            '<span class="male">男</span><span>・</span><span class="female">女</span>';
+
+          const maleSpan   = pvGender.querySelector('.male');
+          const femaleSpan = pvGender.querySelector('.female');
+
+          const maleChecked   = genderRadios[0].checked;
+          const femaleChecked = genderRadios[1].checked;
+
+          if (maleChecked)   maleSpan.classList.add('circle');
+          if (femaleChecked) femaleSpan.classList.add('circle');
+
+          if (!maleChecked && !femaleChecked) {
+            pvGender.classList.add('preview-empty');
+          } else {
+            pvGender.classList.remove('preview-empty');
+          }
+        }
+
+        // 両方まとめて更新
+        function updateBirthGenderPreview() {
+          updateBirthPreview();
+          updateGenderPreview();
+        }
+
+        // 入力イベント
+        [birthYearInput, birthMonthInput, birthDayInput].forEach((el) => {
+          if (!el) return;
+          el.addEventListener('input', updateBirthGenderPreview);
+        });
+
+        genderRadios.forEach((r) => {
+          r.addEventListener('change', updateBirthGenderPreview);
+        });
+
+        // 初期表示
+        updateBirthGenderPreview();
 
 
       /* ============================
@@ -2661,35 +2703,189 @@ function createA3LayoutForPdf() {
         resumeForm.addEventListener('submit', function (e) {
           e.preventDefault(); // サーバー送信を止める
 
-          // A3横1枚レイアウトを画面外に一時生成
+          // A3横1枚レイアウトを一時生成（DOM要素として返す）
           const pdfContainer = createA3LayoutForPdf();
           if (!pdfContainer) {
             alert('PDFレイアウトの生成に失敗しました。');
             return;
           }
 
-          const opt = {
-            margin: 0,
-            filename: 'rirekisyo.pdf',
-            image: { type: 'jpeg', quality: 0.95 },
-            html2canvas: { scale: 2, useCORS: true },
-            jsPDF: {
-              unit: 'pt',
-              // A3横
-              format: [1190.52, 841.92],
-              orientation: 'landscape'
-            }
-          };
+          // モーダルでプレビュー表示 → OKでPDF生成
+          showPdfConfirmModal({
+            contentEl: pdfContainer,
+            message: 'PDFはこのように表示されます。よろしいですか？',
+            okLabel: 'この内容でPDFをダウンロード',
+            cancelLabel: 'キャンセル',
+            onConfirm: ({ overlay, previewArea, okButton }) => {
+              const opt = {
+                margin: 0,
+                filename: 'rirekisyo.pdf',
+                image: { type: 'jpeg', quality: 0.95 },
+                html2canvas: { scale: 2, useCORS: true },
+                jsPDF: {
+                  unit: 'pt',
+                  // A3横
+                  format: [1190.52, 841.92],
+                  orientation: 'landscape',
+                },
+              };
 
-          html2pdf()
-            .from(pdfContainer)
-            .set(opt)
-            .save()
-            .then(() => {
-              // 使い終わった一時コンテナを削除
-              pdfContainer.remove();
-            });
+              okButton.disabled = true;
+              okButton.textContent = 'PDF生成中…';
+
+              html2pdf()
+                .from(pdfContainer)
+                .set(opt)
+                .save()
+                .then(() => {
+                  overlay.remove();
+                  pdfContainer.remove();
+                })
+                .catch((err) => {
+                  console.error(err);
+                  alert('PDFの作成中にエラーが発生しました。もう一度お試しください。');
+                  overlay.remove();
+                  pdfContainer.remove();
+                });
+            },
+          });
         });
+      }
+
+      // ───────── A3 横1枚レイアウトを PDF用に一時生成する ─────────
+      function createA3LayoutForPdf() {
+        // プレビューの1ページ目・2ページ目を取得
+        const page1 = document.querySelector('#preview-root .preview-card.preview.page-1');
+        const page2 = document.querySelector('#preview-root .preview-card.preview.page-2');
+
+        if (!page1 || !page2) return null;
+
+        // コンテナ（モーダル内に乗せる用）
+        const container = document.createElement('div');
+        container.id = 'pdf-temp-root';
+        container.style.background = '#ffffff';
+
+        // A3ページ本体（CSSの .pdf-a3-page をそのまま使う）
+        const wrapper = document.createElement('div');
+        wrapper.className = 'pdf-a3-page';
+
+        const left = document.createElement('div');
+        left.className = 'pdf-a3-left';
+        left.appendChild(page1.cloneNode(true));  // プレビュー1ページ目のクローン
+
+        const right = document.createElement('div');
+        right.className = 'pdf-a3-right';
+        right.appendChild(page2.cloneNode(true)); // プレビュー2ページ目のクローン
+
+        wrapper.appendChild(left);
+        wrapper.appendChild(right);
+        container.appendChild(wrapper);
+
+        return container;
+      }
+
+            // ───── PDF確認用モーダル共通関数 ─────
+      function showPdfConfirmModal(options) {
+        const {
+          contentEl,
+          message,
+          okLabel,
+          cancelLabel,
+          onConfirm,
+        } = options;
+
+        // すでにオーバーレイがあれば一回消す
+        let oldOverlay = document.getElementById('pdf-confirm-overlay');
+        if (oldOverlay) {
+          oldOverlay.remove();
+        }
+
+        // オーバーレイ
+        const overlay = document.createElement('div');
+        overlay.id = 'pdf-confirm-overlay';
+        overlay.style.position = 'fixed';
+        overlay.style.inset = '0';
+        overlay.style.background = 'rgba(0,0,0,0.5)';
+        overlay.style.display = 'flex';
+        overlay.style.alignItems = 'center';
+        overlay.style.justifyContent = 'center';
+        overlay.style.zIndex = '9999';
+
+        // ダイアログ
+        const dialog = document.createElement('div');
+        dialog.style.background = '#ffffff';
+        dialog.style.borderRadius = '10px';
+        dialog.style.maxWidth = '960px';
+        dialog.style.width = '90%';
+        dialog.style.maxHeight = '90vh';
+        dialog.style.display = 'flex';
+        dialog.style.flexDirection = 'column';
+        dialog.style.boxShadow = '0 10px 25px rgba(0,0,0,0.25)';
+        dialog.style.padding = '16px';
+
+        // メッセージ
+        const header = document.createElement('div');
+        header.textContent = message || 'PDFはこのように表示されます。よろしいですか？';
+        header.style.fontSize = '14px';
+        header.style.marginBottom = '8px';
+        dialog.appendChild(header);
+
+        // プレビューエリア
+        const previewArea = document.createElement('div');
+        previewArea.style.flex = '1';
+        previewArea.style.overflow = 'auto';
+        previewArea.style.border = '1px solid #e5e7eb';
+        previewArea.style.borderRadius = '6px';
+        previewArea.style.padding = '8px';
+        previewArea.style.background = '#f9fafb';
+
+        // contentEl を差し込む
+        previewArea.appendChild(contentEl);
+        dialog.appendChild(previewArea);
+
+        // ボタンエリア
+        const footer = document.createElement('div');
+        footer.style.display = 'flex';
+        footer.style.justifyContent = 'flex-end';
+        footer.style.gap = '8px';
+        footer.style.marginTop = '12px';
+
+        const cancelButton = document.createElement('button');
+        cancelButton.type = 'button';
+        cancelButton.textContent = cancelLabel || 'キャンセル';
+        cancelButton.style.padding = '6px 12px';
+        cancelButton.style.borderRadius = '4px';
+        cancelButton.style.border = '1px solid #d1d5db';
+        cancelButton.style.background = '#ffffff';
+        cancelButton.style.cursor = 'pointer';
+        cancelButton.addEventListener('click', () => {
+          overlay.remove();
+        });
+
+        const okButton = document.createElement('button');
+        okButton.type = 'button';
+        okButton.textContent = okLabel || 'PDFをダウンロード';
+        okButton.style.padding = '6px 12px';
+        okButton.style.borderRadius = '4px';
+        okButton.style.border = 'none';
+        okButton.style.background = '#0f766e';
+        okButton.style.color = '#ffffff';
+        okButton.style.cursor = 'pointer';
+
+        okButton.addEventListener('click', () => {
+          if (typeof onConfirm === 'function') {
+            onConfirm({ overlay, previewArea, okButton });
+          } else {
+            overlay.remove();
+          }
+        });
+
+        footer.appendChild(cancelButton);
+        footer.appendChild(okButton);
+        dialog.appendChild(footer);
+
+        overlay.appendChild(dialog);
+        document.body.appendChild(overlay);
       }
 
     </script>

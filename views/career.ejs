@@ -2221,54 +2221,6 @@
         });
       });
 
-
-      // ───── PDF ダウンロード（職務経歴書） ─────
-      const careerForm = document.getElementById('career-form');
-
-      if (careerForm) {
-        careerForm.addEventListener('submit', function (e) {
-          e.preventDefault(); // 通常のPOST送信を止める
-
-          const layout = document.getElementById('layout');
-          const element = document.querySelector('.preview-pane .preview-card-wrapper'); // ★ ここ変更
-
-          if (!element) {
-            alert('プレビューが見つかりません。');
-            return;
-          }
-
-          // モバイルの場合でもプレビューを確実に表示
-          if (layout) {
-            layout.classList.add('show-preview');
-            layout.classList.remove('show-form');
-          }
-
-          const opt = {
-            margin: [5, 5, 5, 5], // mm
-            filename: 'shokumu-keirekisho.pdf',
-            image: { type: 'jpeg', quality: 0.98 },
-            html2canvas: { scale: 2, useCORS: true },
-            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-          };
-
-          // ★ PDFモードON
-          document.body.classList.add('pdf-mode');
-
-          html2pdf()
-            .set(opt)
-            .from(element)
-            .save()
-            .then(() => {
-              // ★ PDFモードOFF
-              document.body.classList.remove('pdf-mode');
-            })
-            .catch(() => {
-              document.body.classList.remove('pdf-mode');
-            });
-        });
-      }
-
-
       // ───── プレビューのリアルタイム反映 ─────
       function bindText(inputId, previewId, defaultText) {
         const input = document.getElementById(inputId);
@@ -2349,35 +2301,6 @@
       if (firstInput) firstInput.addEventListener('input', updateNamePreview);
       updateNamePreview();
 
-
-      // ───── 資格・スキル：プレビュー反映 ─────
-
-      // 西暦 → 和暦（ざっくり）に変換する関数
-      function toWareki(ym) {
-        if (!ym) return "";
-
-        const [yStr, mStr] = ym.split("-");
-        const y = parseInt(yStr, 10);
-        const m = parseInt(mStr, 10);
-
-        let era = "";
-        let n = 0;
-
-        if (y >= 2019) {
-          era = "令和";
-          n = y - 2018;
-        } else if (y >= 1989) {
-          era = "平成";
-          n = y - 1988;
-        } else {
-          // それ以前はとりあえず西暦表示
-          return `${y}年${m}月`;
-        }
-
-        const yearStr = n === 1 ? "元" : String(n);
-        return `${era}${yearStr}年${m}月`;
-      }
-
       // ───── 資格・スキル：プレビュー反映 ─────
       function toWareki(ym) {
         if (!ym) return "";
@@ -2404,7 +2327,7 @@
         return `${era}${yearStr}年${m}月`;
       }
 
-            function updateSkillExperiencePreview() {
+      function updateSkillExperiencePreview() {
         const wrapper = document.getElementById("pv-skill-wrapper");
         if (!wrapper) return;
 
@@ -2872,6 +2795,177 @@
         const m = d.getMonth() + 1;
         const day = d.getDate();
         dateEl.textContent = `${y}年${m}月${day}日現在`;
+      }
+
+      // ───── PDF ダウンロード（職務経歴書） ─────
+      const careerForm = document.getElementById('career-form');
+
+      if (careerForm) {
+        careerForm.addEventListener('submit', async function (event) {
+          event.preventDefault();
+
+          // まだ最終ステップじゃないなら、次のステップへ進めるだけ
+          if (currentStep < totalSteps) {
+            showStep(currentStep + 1);
+            return;
+          }
+
+          const submitBtn = document.getElementById('btn-submit');
+          if (!submitBtn) return;
+
+          // 元のプレビュー
+          const originalPreview = document.querySelector('.preview-card-wrapper');
+          if (!originalPreview) {
+            alert('プレビューエリアが見つかりませんでした。');
+            return;
+          }
+
+          // PDF 用にクローンを作る（画面のプレビューは動かさない）
+          const pdfContainer = originalPreview.cloneNode(true);
+
+          // モーダルを開いて確認 → OK なら PDF 生成
+          showPdfConfirmModal({
+            contentEl: pdfContainer,
+            message: 'PDFはこのように表示されます。よろしいですか？',
+            okLabel: 'この内容でPDFをダウンロード',
+            cancelLabel: 'キャンセル',
+            onConfirm: async ({ overlay, previewArea, okButton }) => {
+              // OKを押したときに実際のPDFを作る
+              try {
+                okButton.disabled = true;
+                okButton.textContent = 'PDF生成中…';
+
+                document.body.classList.add('pdf-mode');
+
+                await html2pdf()
+                  .set({
+                    margin: [10, 10, 10, 10],
+                    filename: 'career.pdf',
+                    image: { type: 'jpeg', quality: 0.98 },
+                    html2canvas: {
+                      scale: 2,
+                      useCORS: true,
+                      scrollX: 0,
+                      scrollY: -window.scrollY,
+                    },
+                    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+                  })
+                  .from(pdfContainer)
+                  .save();
+              } catch (err) {
+                console.error(err);
+                alert('PDFの作成中にエラーが発生しました。もう一度お試しください。');
+              } finally {
+                document.body.classList.remove('pdf-mode');
+                overlay.remove();
+              }
+            },
+          });
+        });
+      }
+
+            // ───── PDF確認用モーダル共通関数 ─────
+      function showPdfConfirmModal(options) {
+        const {
+          contentEl,
+          message,
+          okLabel,
+          cancelLabel,
+          onConfirm,
+        } = options;
+
+        // すでにオーバーレイがあれば一回消す
+        let oldOverlay = document.getElementById('pdf-confirm-overlay');
+        if (oldOverlay) {
+          oldOverlay.remove();
+        }
+
+        // オーバーレイ
+        const overlay = document.createElement('div');
+        overlay.id = 'pdf-confirm-overlay';
+        overlay.style.position = 'fixed';
+        overlay.style.inset = '0';
+        overlay.style.background = 'rgba(0,0,0,0.5)';
+        overlay.style.display = 'flex';
+        overlay.style.alignItems = 'center';
+        overlay.style.justifyContent = 'center';
+        overlay.style.zIndex = '9999';
+
+        // ダイアログ
+        const dialog = document.createElement('div');
+        dialog.style.background = '#ffffff';
+        dialog.style.borderRadius = '10px';
+        dialog.style.maxWidth = '960px';
+        dialog.style.width = '90%';
+        dialog.style.maxHeight = '90vh';
+        dialog.style.display = 'flex';
+        dialog.style.flexDirection = 'column';
+        dialog.style.boxShadow = '0 10px 25px rgba(0,0,0,0.25)';
+        dialog.style.padding = '16px';
+
+        // メッセージ
+        const header = document.createElement('div');
+        header.textContent = message || 'PDFはこのように表示されます。よろしいですか？';
+        header.style.fontSize = '14px';
+        header.style.marginBottom = '8px';
+        dialog.appendChild(header);
+
+        // プレビューエリア
+        const previewArea = document.createElement('div');
+        previewArea.style.flex = '1';
+        previewArea.style.overflow = 'auto';
+        previewArea.style.border = '1px solid #e5e7eb';
+        previewArea.style.borderRadius = '6px';
+        previewArea.style.padding = '8px';
+        previewArea.style.background = '#f9fafb';
+
+        // contentEl を差し込む
+        previewArea.appendChild(contentEl);
+        dialog.appendChild(previewArea);
+
+        // ボタンエリア
+        const footer = document.createElement('div');
+        footer.style.display = 'flex';
+        footer.style.justifyContent = 'flex-end';
+        footer.style.gap = '8px';
+        footer.style.marginTop = '12px';
+
+        const cancelButton = document.createElement('button');
+        cancelButton.type = 'button';
+        cancelButton.textContent = cancelLabel || 'キャンセル';
+        cancelButton.style.padding = '6px 12px';
+        cancelButton.style.borderRadius = '4px';
+        cancelButton.style.border = '1px solid #d1d5db';
+        cancelButton.style.background = '#ffffff';
+        cancelButton.style.cursor = 'pointer';
+        cancelButton.addEventListener('click', () => {
+          overlay.remove();
+        });
+
+        const okButton = document.createElement('button');
+        okButton.type = 'button';
+        okButton.textContent = okLabel || 'PDFをダウンロード';
+        okButton.style.padding = '6px 12px';
+        okButton.style.borderRadius = '4px';
+        okButton.style.border = 'none';
+        okButton.style.background = '#0f766e';
+        okButton.style.color = '#ffffff';
+        okButton.style.cursor = 'pointer';
+
+        okButton.addEventListener('click', () => {
+          if (typeof onConfirm === 'function') {
+            onConfirm({ overlay, previewArea, okButton });
+          } else {
+            overlay.remove();
+          }
+        });
+
+        footer.appendChild(cancelButton);
+        footer.appendChild(okButton);
+        dialog.appendChild(footer);
+
+        overlay.appendChild(dialog);
+        document.body.appendChild(overlay);
       }
 
     </script>
