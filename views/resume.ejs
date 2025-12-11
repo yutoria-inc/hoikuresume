@@ -679,6 +679,12 @@
       vertical-align: middle; /* 行の上下中央に揃えるならこれも推奨 */
     }
 
+    /* 学歴・職歴ラベル行 */
+    .jis-table tbody tr.edu-header-row td {
+      font-weight: 600;
+      text-align: center;
+    }
+
     .jis-section {
       margin: 4px 0;
     }
@@ -1457,20 +1463,26 @@
             <div class="step-section" data-step="2">
               <h3>学歴・職歴を入力</h3>
               <p class="note">
-                1行につき1つずつ入力してください。<br />
-                例）「2018年 3月 市立△△中学校卒業」<br />
-                行数に制限はありません。「行を追加」ボタンから増やせます。
+                学歴と職歴をそれぞれ入力してください。<br />
+                1行につき1つずつ入力します。<br />
+                例）「2018年 3月 市立△△中学校卒業」「2022年 4月 △△保育園入社」など。
               </p>
 
-              <!-- 行が入っていくコンテナ -->
-              <div id="edu-container"></div>
-
-              <!-- 行を追加ボタン -->
-              <button type="button" id="add-edu-btn" class="generate-pr-btn">
-                ＋ 行を追加
+              <!-- ▼ 学歴エリア -->
+              <p class="field-label">学歴</p>
+              <div id="edu-container-school"></div>
+              <button type="button" id="add-edu-school-btn" class="generate-pr-btn">
+                ＋ 学歴の行を追加
               </button>
 
-              <!-- 入力行のテンプレート -->
+              <!-- ▼ 職歴エリア -->
+              <p class="field-label" style="margin-top:16px;">職歴</p>
+              <div id="edu-container-work"></div>
+              <button type="button" id="add-edu-work-btn" class="generate-pr-btn">
+                ＋ 職歴の行を追加
+              </button>
+
+              <!-- 入力行のテンプレート（共通） -->
               <template id="edu-template">
                 <div class="field-row-edu edu-row">
                   <div class="field field--year">
@@ -1494,12 +1506,12 @@
                   </div>
 
                   <div class="field field--wide">
-                    <label>学歴・職歴</label>
+                    <label>内容</label>
                     <input
                       type="text"
                       class="edu-text"
                       name="edu_text[]"
-                      placeholder="市立△△中学校卒業"
+                      placeholder="市立△△中学校卒業 / △△保育園入社 など"
                     />
                   </div>
                 </div>
@@ -2279,73 +2291,145 @@ function createA3LayoutForPdf() {
       // 学歴・職歴 → プレビュー（1ページ目15行 + 2ページ目7行）
       // ─────────────────────────
       (function () {
-        const eduContainer = document.getElementById('edu-container');
-        const eduTemplate = document.getElementById('edu-template');
-        const eduPreviewBody1 = document.getElementById('edu-preview-body-page1'); // 1〜15行
-        const eduPreviewBody2 = document.getElementById('edu-preview-body-page2'); // 16〜22行
-        const addEduBtn = document.getElementById('add-edu-btn');
+        const eduContainerSchool = document.getElementById('edu-container-school'); // 学歴
+        const eduContainerWork   = document.getElementById('edu-container-work');   // 職歴
+        const eduTemplate        = document.getElementById('edu-template');
+        const eduPreviewBody1    = document.getElementById('edu-preview-body-page1'); // 1〜15行
+        const eduPreviewBody2    = document.getElementById('edu-preview-body-page2'); // 16〜22行
+        const addEduSchoolBtn    = document.getElementById('add-edu-school-btn');
+        const addEduWorkBtn      = document.getElementById('add-edu-work-btn');
 
-        if (!eduContainer || !eduTemplate || !eduPreviewBody1 || !eduPreviewBody2 || !addEduBtn) return;
+        if (
+          !eduContainerSchool ||
+          !eduContainerWork   ||
+          !eduTemplate        ||
+          !eduPreviewBody1    ||
+          !eduPreviewBody2    ||
+          !addEduSchoolBtn    ||
+          !addEduWorkBtn
+        ) return;
 
+        // コンテナから行データを取得する共通関数
+        function collectRows(container) {
+          const result = [];
+          const rows = container.querySelectorAll('.edu-row');
+          rows.forEach((row) => {
+            const year  = row.querySelector('.edu-year')?.value.trim()  || '';
+            const month = row.querySelector('.edu-month')?.value.trim() || '';
+            const text  = row.querySelector('.edu-text')?.value.trim()  || '';
+            // 年・月・内容どれか1つでも入っていたら行として採用
+            if (year || month || text) {
+              result.push({ year, month, text });
+            }
+          });
+          return result;
+        }
+
+        // プレビュー同期
         function syncEduPreview() {
           eduPreviewBody1.innerHTML = '';
           eduPreviewBody2.innerHTML = '';
 
-          // 入力された行を配列に
+          const schoolRows = collectRows(eduContainerSchool); // 学歴
+          const workRows   = collectRows(eduContainerWork);   // 職歴
+
           const allRows = [];
-          const rows = eduContainer.querySelectorAll('.edu-row');
-          rows.forEach((row) => {
-            const year = row.querySelector('.edu-year')?.value.trim() || '';
-            const month = row.querySelector('.edu-month')?.value.trim() || '';
-            const text = row.querySelector('.edu-text')?.value.trim() || '';
-            if (year || month || text) {
-              allRows.push({ year, month, text });
-            }
-          });
+
+          // ▼ 学歴が1つ以上あれば、先頭に「学歴」ラベル行
+          if (schoolRows.length > 0) {
+            allRows.push({ header: true, text: '学歴' });
+            schoolRows.forEach((r) => allRows.push({ ...r, header: false }));
+          }
+
+          // ▼ 職歴が1つ以上あれば、その前に「職歴」ラベル行
+          if (workRows.length > 0) {
+            allRows.push({ header: true, text: '職歴' });
+            workRows.forEach((r) => allRows.push({ ...r, header: false }));
+          }
 
           // 1ページ目：0〜14番（15行）
           for (let i = 0; i < 15; i++) {
-            const data = allRows[i] || { year: '', month: '', text: '' };
+            const data = allRows[i] || { year: '', month: '', text: '', header: false };
             const tr = document.createElement('tr');
-            tr.innerHTML = `
-              <td>${data.year}</td>
-              <td>${data.month}</td>
-              <td>${data.text}</td>
-            `;
+
+            if (data.header) {
+              tr.classList.add('edu-header-row');
+              tr.innerHTML = `
+                <td></td>
+                <td></td>
+                <td>${data.text}</td>
+              `;
+            } else {
+              tr.innerHTML = `
+                <td>${data.year}</td>
+                <td>${data.month}</td>
+                <td>${data.text}</td>
+              `;
+            }
+
             eduPreviewBody1.appendChild(tr);
           }
 
           // 2ページ目：15〜21番（7行）
           for (let i = 15; i < 22; i++) {
-            const data = allRows[i] || { year: '', month: '', text: '' };
+            const data = allRows[i] || { year: '', month: '', text: '', header: false };
             const tr = document.createElement('tr');
-            tr.innerHTML = `
-              <td>${data.year}</td>
-              <td>${data.month}</td>
-              <td>${data.text}</td>
-            `;
+
+            if (data.header) {
+              tr.classList.add('edu-header-row');
+              tr.innerHTML = `
+                <td></td>
+                <td></td>
+                <td>${data.text}</td>
+              `;
+            } else {
+              tr.innerHTML = `
+                <td>${data.year}</td>
+                <td>${data.month}</td>
+                <td>${data.text}</td>
+              `;
+            }
+
             eduPreviewBody2.appendChild(tr);
           }
         }
 
-        function addEduRow() {
+        // 学歴の行を追加
+        function addEduRowSchool() {
           const frag = eduTemplate.content.cloneNode(true);
-          eduContainer.appendChild(frag);
+          eduContainerSchool.appendChild(frag);
+          syncEduPreview();
+        }
+
+        // 職歴の行を追加
+        function addEduRowWork() {
+          const frag = eduTemplate.content.cloneNode(true);
+          eduContainerWork.appendChild(frag);
           syncEduPreview();
         }
 
         // 入力されたら都度プレビュー更新（イベント委譲）
-        eduContainer.addEventListener('input', (e) => {
+        eduContainerSchool.addEventListener('input', (e) => {
           if (e.target.matches('.edu-year, .edu-month, .edu-text')) {
             syncEduPreview();
           }
         });
 
-        addEduBtn.addEventListener('click', addEduRow);
+        eduContainerWork.addEventListener('input', (e) => {
+          if (e.target.matches('.edu-year, .edu-month, .edu-text')) {
+            syncEduPreview();
+          }
+        });
 
-        // 最初の1行
-        addEduRow();
+        // ボタン押下で行追加
+        addEduSchoolBtn.addEventListener('click', addEduRowSchool);
+        addEduWorkBtn.addEventListener('click', addEduRowWork);
+
+        // 初期表示：学歴1行・職歴1行
+        addEduRowSchool();
+        addEduRowWork();
       })();
+
 
 
       // ─────────────────────────

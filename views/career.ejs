@@ -451,6 +451,40 @@
         cursor: default;
       }
 
+      /* 資格・スキルの1項目ブロック */
+      .qual-item,
+      .skill-item {
+        margin-bottom: 8px;
+      }
+
+      /* 資格のサブエリア（状態＋自由記入） */
+      .qual-sub {
+        margin-left: 22px;
+        margin-top: 4px;
+        font-size: 12px;
+        color: var(--text-sub);
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+
+      .qual-status-group {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      /* 自由記入欄 */
+      .qual-free,
+      .skill-free {
+        width: 100%;
+        padding: 6px 8px;
+        border-radius: 6px;
+        border: 1px solid #ddd;
+        font-size: 12px;
+        box-sizing: border-box;
+      }
+
       .skill-row {
         display: flex;
         gap: 8px;
@@ -476,9 +510,18 @@
       .career-period-row {
         display: flex;
         gap: 14px;
+        flex-wrap: wrap;           /* ★ これを追加 */
       }
 
-      /* モバイル：園児数・職員数を縦並びにする */
+      /* 現在も勤務中 用の行 */
+      .career-current-row {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        flex-basis: 100%;          /* ★ この行だけ下段に落とす */
+      }
+
+      /* モバイル：全部縦並びでOK */
       @media (max-width: 899px) {
         .career-period-row {
           flex-direction: column;
@@ -914,130 +957,490 @@
                 </div>
               </div>
 
-              <!-- その他の資格（チェックのみ） -->
+              <!-- その他の資格（取得ステータス＋自由記入付き） -->
               <div class="pr-checkbox-group" style="margin-top:6px;">
-                <label>
-                  <input
-                    type="checkbox"
-                    class="qual-checkbox"
-                    data-label="幼稚園教諭二種免許"
-                  />
-                  幼稚園教諭二種免許
-                </label>
-                <label>
-                  <input
-                    type="checkbox"
-                    class="qual-checkbox"
-                    data-label="幼稚園教諭一種免許"
-                  />
-                  幼稚園教諭一種免許
-                </label>
-                <label>
-                  <input
-                    type="checkbox"
-                    class="qual-checkbox"
-                    data-label="児童指導員"
-                  />
-                  児童指導員
-                </label>
-                <label>
-                  <input
-                    type="checkbox"
-                    id="q-jidou-hattatsu"
-                    class="qual-checkbox"
-                    data-label="児童発達支援管理責任者"
-                  />
-                  児童発達支援管理責任者
-                </label>
-                <label>
-                  <input
-                    type="checkbox"
-                    class="qual-checkbox"
-                    data-label="社会福祉士"
-                  />
-                  社会福祉士
-                </label>
-                <label>
-                  <input
-                    type="checkbox"
-                    class="qual-checkbox"
-                    data-label="看護師"
-                  />
-                  看護師
-                </label>
-                <label>
-                  <input
-                    type="checkbox"
-                    class="qual-checkbox"
-                    data-label="栄養士"
-                  />
-                  栄養士
-                </label>
-                <label>
-                  <input
-                    type="checkbox"
-                    class="qual-checkbox"
-                    data-label="無資格"
-                  />
-                  無資格
-                </label>
+
+                <!-- 幼稚園教諭二種免許 -->
+                <div class="qual-item">
+                  <label>
+                    <input
+                      type="checkbox"
+                      class="qual-checkbox"
+                      data-label="幼稚園教諭二種免許"
+                      data-status-name="q-yo2-status"
+                    />
+                    幼稚園教諭二種免許
+                  </label>
+                  <div class="qual-sub">
+                    <div class="qual-status-group">
+                      <label>
+                        <input
+                          type="radio"
+                          name="q-yo2-status"
+                          value="done"
+                          class="qual-radio"
+                        />
+                        取得済
+                      </label>
+                      <label>
+                        <input
+                          type="radio"
+                          name="q-yo2-status"
+                          value="plan"
+                          class="qual-radio"
+                        />
+                        取得見込み
+                      </label>
+                      <label>
+                        <input
+                          type="radio"
+                          name="q-yo2-status"
+                          value="study"
+                          class="qual-radio"
+                        />
+                        勉強中
+                      </label>
+                    </div>
+                    <input
+                      type="text"
+                      class="qual-free"
+                      placeholder="自由記入欄（任意）例：通信講座で学習中 など"
+                    />
+                  </div>
+                </div>
+
+                <!-- 幼稚園教諭一種免許 -->
+                <div class="qual-item">
+                  <label>
+                    <input
+                      type="checkbox"
+                      class="qual-checkbox"
+                      data-label="幼稚園教諭一種免許"
+                      data-status-name="q-yo1-status"
+                    />
+                    幼稚園教諭一種免許
+                  </label>
+                  <div class="qual-sub">
+                    <div class="qual-status-group">
+                      <label>
+                        <input
+                          type="radio"
+                          name="q-yo1-status"
+                          value="done"
+                          class="qual-radio"
+                        />
+                        取得済
+                      </label>
+                      <label>
+                        <input
+                          type="radio"
+                          name="q-yo1-status"
+                          value="plan"
+                          class="qual-radio"
+                        />
+                        取得見込み
+                      </label>
+                      <label>
+                        <input
+                          type="radio"
+                          name="q-yo1-status"
+                          value="study"
+                          class="qual-radio"
+                        />
+                        勉強中
+                      </label>
+                    </div>
+                    <input
+                      type="text"
+                      class="qual-free"
+                      placeholder="自由記入欄（任意）"
+                    />
+                  </div>
+                </div>
+
+                <!-- 児童指導員 -->
+                <div class="qual-item">
+                  <label>
+                    <input
+                      type="checkbox"
+                      class="qual-checkbox"
+                      data-label="児童指導員"
+                      data-status-name="q-jidou-status"
+                    />
+                    児童指導員
+                  </label>
+                  <div class="qual-sub">
+                    <div class="qual-status-group">
+                      <label>
+                        <input
+                          type="radio"
+                          name="q-jidou-status"
+                          value="done"
+                          class="qual-radio"
+                        />
+                        取得済
+                      </label>
+                        <label>
+                          <input
+                            type="radio"
+                            name="q-jidou-status"
+                            value="plan"
+                            class="qual-radio"
+                          />
+                          取得見込み
+                        </label>
+                        <label>
+                          <input
+                            type="radio"
+                            name="q-jidou-status"
+                            value="study"
+                            class="qual-radio"
+                          />
+                          勉強中
+                        </label>
+                    </div>
+                    <input
+                      type="text"
+                      class="qual-free"
+                      placeholder="自由記入欄（任意）"
+                    />
+                  </div>
+                </div>
+
+                <!-- 児童発達支援管理責任者 -->
+                <div class="qual-item">
+                  <label>
+                    <input
+                      type="checkbox"
+                      id="q-jidou-hattatsu"
+                      class="qual-checkbox"
+                      data-label="児童発達支援管理責任者"
+                      data-status-name="q-jidou-hattatsu-status"
+                    />
+                    児童発達支援管理責任者
+                  </label>
+                  <div class="qual-sub">
+                    <div class="qual-status-group">
+                      <label>
+                        <input
+                          type="radio"
+                          name="q-jidou-hattatsu-status"
+                          value="done"
+                          class="qual-radio"
+                        />
+                        取得済
+                      </label>
+                      <label>
+                        <input
+                          type="radio"
+                          name="q-jidou-hattatsu-status"
+                          value="plan"
+                          class="qual-radio"
+                        />
+                        取得見込み
+                      </label>
+                      <label>
+                        <input
+                          type="radio"
+                          name="q-jidou-hattatsu-status"
+                          value="study"
+                          class="qual-radio"
+                        />
+                        勉強中
+                      </label>
+                    </div>
+                    <input
+                      type="text"
+                      class="qual-free"
+                      placeholder="自由記入欄（任意）"
+                    />
+                  </div>
+                </div>
+
+                <!-- 社会福祉士 -->
+                <div class="qual-item">
+                  <label>
+                    <input
+                      type="checkbox"
+                      class="qual-checkbox"
+                      data-label="社会福祉士"
+                      data-status-name="q-shakai-status"
+                    />
+                    社会福祉士
+                  </label>
+                  <div class="qual-sub">
+                    <div class="qual-status-group">
+                      <label>
+                        <input
+                          type="radio"
+                          name="q-shakai-status"
+                          value="done"
+                          class="qual-radio"
+                        />
+                        取得済
+                      </label>
+                      <label>
+                        <input
+                          type="radio"
+                          name="q-shakai-status"
+                          value="plan"
+                          class="qual-radio"
+                        />
+                        取得見込み
+                      </label>
+                      <label>
+                        <input
+                          type="radio"
+                          name="q-shakai-status"
+                          value="study"
+                          class="qual-radio"
+                        />
+                        勉強中
+                      </label>
+                    </div>
+                    <input
+                      type="text"
+                      class="qual-free"
+                      placeholder="自由記入欄（任意）"
+                    />
+                  </div>
+                </div>
+
+                <!-- 看護師 -->
+                <div class="qual-item">
+                  <label>
+                    <input
+                      type="checkbox"
+                      class="qual-checkbox"
+                      data-label="看護師"
+                      data-status-name="q-kango-status"
+                    />
+                    看護師
+                  </label>
+                  <div class="qual-sub">
+                    <div class="qual-status-group">
+                      <label>
+                        <input
+                          type="radio"
+                          name="q-kango-status"
+                          value="done"
+                          class="qual-radio"
+                        />
+                        取得済
+                      </label>
+                      <label>
+                        <input
+                          type="radio"
+                          name="q-kango-status"
+                          value="plan"
+                          class="qual-radio"
+                        />
+                        取得見込み
+                      </label>
+                      <label>
+                        <input
+                          type="radio"
+                          name="q-kango-status"
+                          value="study"
+                          class="qual-radio"
+                        />
+                        勉強中
+                      </label>
+                    </div>
+                    <input
+                      type="text"
+                      class="qual-free"
+                      placeholder="自由記入欄（任意）"
+                    />
+                  </div>
+                </div>
+
+                <!-- 栄養士 -->
+                <div class="qual-item">
+                  <label>
+                    <input
+                      type="checkbox"
+                      class="qual-checkbox"
+                      data-label="栄養士"
+                      data-status-name="q-eiyou-status"
+                    />
+                    栄養士
+                  </label>
+                  <div class="qual-sub">
+                    <div class="qual-status-group">
+                      <label>
+                        <input
+                          type="radio"
+                          name="q-eiyou-status"
+                          value="done"
+                          class="qual-radio"
+                        />
+                        取得済
+                      </label>
+                      <label>
+                        <input
+                          type="radio"
+                          name="q-eiyou-status"
+                          value="plan"
+                          class="qual-radio"
+                        />
+                        取得見込み
+                      </label>
+                      <label>
+                        <input
+                          type="radio"
+                          name="q-eiyou-status"
+                          value="study"
+                          class="qual-radio"
+                        />
+                        勉強中
+                      </label>
+                    </div>
+                    <input
+                      type="text"
+                      class="qual-free"
+                      placeholder="自由記入欄（任意）"
+                    />
+                  </div>
+                </div>
+
+                <!-- 無資格 -->
+                <div class="qual-item">
+                  <label>
+                    <input
+                      type="checkbox"
+                      class="qual-checkbox"
+                      data-label="無資格"
+                      data-status-name="q-mushikaku-status"
+                    />
+                    無資格
+                  </label>
+                  <div class="qual-sub">
+                    <div class="qual-status-group">
+                      <label>
+                        <input
+                          type="radio"
+                          name="q-mushikaku-status"
+                          value="study"
+                          class="qual-radio"
+                        />
+                        勉強中
+                      </label>
+                    </div>
+                    <input
+                      type="text"
+                      class="qual-free"
+                      placeholder="自由記入欄（任意）例：保育士資格取得に向けて勉強中 など"
+                    />
+                  </div>
+                </div>
               </div>
+
             </div>
 
-            <!-- スキル -->
             <div class="field" style="margin-top:18px;">
               <div class="field-label">スキル</div>
               <div class="pr-checkbox-group">
-                <label>
+
+                <div class="skill-item">
+                  <label>
+                    <input
+                      type="checkbox"
+                      class="skill-checkbox"
+                      data-label="ピアノなど音楽系のスキル"
+                    />
+                    ピアノなど音楽系のスキル
+                  </label>
                   <input
-                    type="checkbox"
-                    class="skill-checkbox"
-                    data-label="ピアノなど音楽系のスキル"
+                    type="text"
+                    class="skill-free"
+                    placeholder="自由記入欄（任意）例：バイエル終了、発表会伴奏経験あり など"
                   />
-                  ピアノなど音楽系のスキル
-                </label>
-                <label>
+                </div>
+
+                <div class="skill-item">
+                  <label>
+                    <input
+                      type="checkbox"
+                      class="skill-checkbox"
+                      data-label="リトミック、運動系のスキル"
+                    />
+                    リトミック、運動系のスキル
+                  </label>
                   <input
-                    type="checkbox"
-                    class="skill-checkbox"
-                    data-label="リトミック、運動系のスキル"
+                    type="text"
+                    class="skill-free"
+                    placeholder="自由記入欄（任意）"
                   />
-                  リトミック、運動系のスキル
-                </label>
-                <label>
+                </div>
+
+                <div class="skill-item">
+                  <label>
+                    <input
+                      type="checkbox"
+                      class="skill-checkbox"
+                      data-label="手遊びや制作系のスキル"
+                    />
+                    手遊びや制作系のスキル
+                  </label>
                   <input
-                    type="checkbox"
-                    class="skill-checkbox"
-                    data-label="手遊びや制作系のスキル"
+                    type="text"
+                    class="skill-free"
+                    placeholder="自由記入欄（任意）"
                   />
-                  手遊びや制作系のスキル
-                </label>
-                <label>
+                </div>
+
+                <div class="skill-item">
+                  <label>
+                    <input
+                      type="checkbox"
+                      class="skill-checkbox"
+                      data-label="障がい児保育の経験"
+                    />
+                    障がい児保育の経験
+                  </label>
                   <input
-                    type="checkbox"
-                    class="skill-checkbox"
-                    data-label="障がい児保育の経験"
+                    type="text"
+                    class="skill-free"
+                    placeholder="自由記入欄（任意）"
                   />
-                  障がい児保育の経験
-                </label>
-                <label>
+                </div>
+
+                <div class="skill-item">
+                  <label>
+                    <input
+                      type="checkbox"
+                      class="skill-checkbox"
+                      data-label="保護者の子育て相談の経験"
+                    />
+                    保護者の子育て相談の経験
+                  </label>
                   <input
-                    type="checkbox"
-                    class="skill-checkbox"
-                    data-label="保護者の子育て相談の経験"
+                    type="text"
+                    class="skill-free"
+                    placeholder="自由記入欄（任意）"
                   />
-                  保護者の子育て相談の経験
-                </label>
-                <label>
+                </div>
+
+                <div class="skill-item">
+                  <label>
+                    <input
+                      type="checkbox"
+                      class="skill-checkbox"
+                      data-label="Word（文書作成）などPCスキル"
+                    />
+                    Word（文書作成）などPCスキル
+                  </label>
                   <input
-                    type="checkbox"
-                    class="skill-checkbox"
-                    data-label="Word（文書作成）などPCスキル"
+                    type="text"
+                    class="skill-free"
+                    placeholder="自由記入欄（任意）"
                   />
-                  Word（文書作成）などPCスキル
-                </label>
+                </div>
+
               </div>
             </div>
+
           </div>
 
           <!-- STEP 3: 職務経歴 -->
@@ -1128,7 +1531,7 @@
                       </div>
                   </div>
 
-                  <div style="display:flex; align-items:center; gap:6px;">
+                  <div class="career-current-row">
                     <input type="checkbox" name="current[]" class="career-current" />
                     <label>現在も勤務中</label>
                   </div>
@@ -1755,117 +2158,169 @@
         return `${era}${yearStr}年${m}月`;
       }
 
-      function updateSkillExperiencePreview() {
-        const wrapper = document.getElementById("pv-skill-wrapper");
-        if (!wrapper) return;
+// ───── 資格・スキル：プレビュー反映 ─────
 
-        wrapper.innerHTML = "";
+// 西暦 → 和暦（ざっくり）に変換する関数（キャリア用）
+// ※このままでOK
+function toWareki(ym) {
+  if (!ym) return "";
 
-        const qualLines = [];
-        const skillLines = [];
+  const [yStr, mStr] = ym.split("-");
+  const y = parseInt(yStr, 10);
+  const m = parseInt(mStr, 10);
 
-        // 保育士
-        const hoikushiCheckbox = document.getElementById("q-hoikushi");
-        if (hoikushiCheckbox && hoikushiCheckbox.checked) {
-          const y = document.getElementById("q-hoikushi-year")?.value;
-          const m = document.getElementById("q-hoikushi-month")?.value;
+  let era = "";
+  let n = 0;
 
-          // ★★ 保育士の取得年月は「西暦」で表示 ★★
-          let dateStr = "";
-          if (y && m) {
-            dateStr = `${y}年${m}月`;
-          }
+  if (y >= 2019) {
+    era = "令和";
+    n = y - 2018;
+  } else if (y >= 1989) {
+    era = "平成";
+    n = y - 1988;
+  } else {
+    // それ以前はとりあえず西暦表示
+    return `${y}年${m}月`;
+  }
 
-          const status = document.querySelector(
-            'input[name="q-hoikushi-status"]:checked'
-          )?.value;
+  const yearStr = n === 1 ? "元" : String(n);
+  return `${era}${yearStr}年${m}月`;
+}
 
-          let line = "";
+    function updateSkillExperiencePreview() {
+  const wrapper = document.getElementById("pv-skill-wrapper");
+  if (!wrapper) return;
 
-          if (status === "done") {
-            line = dateStr ? `${dateStr}　保育士資格 取得` : "保育士資格 取得";
-          } else if (status === "plan") {
-            line = dateStr
-              ? `${dateStr}　保育士資格 取得見込み`
-              : "保育士資格 取得見込み";
-          } else if (status === "study") {
-            line = "現在、保育士資格の取得に向けて勉強中です。";
-          } else {
-            // 状態未選択の場合は、とりあえず資格名だけ
-            line = "保育士資格";
-          }
+  wrapper.innerHTML = "";
 
-          // ★ 資格も箇条書きにしたいので「・」を付けて push
-          qualLines.push(`・${line}`);
-        }
+  const qualLines = [];
+  const skillLines = [];
 
-        // その他資格（児童発達支援管理責任者だけ特別文章）
-        document.querySelectorAll(".qual-checkbox").forEach((cb) => {
-          if (!cb.checked) return;
-          if (cb.id === "q-hoikushi") return; // 保育士は上で処理済み
+  // ★ 保育士（既存のブロック）はこれまで通り特別扱い
+  const hoikushiCheckbox = document.getElementById("q-hoikushi");
+  if (hoikushiCheckbox && hoikushiCheckbox.checked) {
+    const y = document.getElementById("q-hoikushi-year")?.value;
+    const m = document.getElementById("q-hoikushi-month")?.value;
+    let dateStr = "";
+    if (y && m) {
+      // 保育士は西暦表示
+      dateStr = `${y}年${m}月`;
+    }
 
-          const label = cb.dataset.label || "";
+    const status = document.querySelector(
+      'input[name="q-hoikushi-status"]:checked'
+    )?.value;
 
-          if (cb.id === "q-jidou-hattatsu") {
-            qualLines.push("・現在、児童発達支援管理責任者の資格取得に向けて勉強中です。");
-          } else if (label) {
-            qualLines.push(`・${label}`);
-          }
-        });
+    let line = "";
 
-        // スキル
-        document.querySelectorAll(".skill-checkbox").forEach((cb) => {
-          if (!cb.checked) return;
-          const label = cb.dataset.label || "";
-          if (label) {
-            skillLines.push(`・${label}`);
-          }
-        });
+    if (status === "done") {
+      line = dateStr ? `${dateStr}　保育士資格 取得` : "保育士資格 取得";
+    } else if (status === "plan") {
+      line = dateStr
+        ? `${dateStr}　保育士資格 取得見込み`
+        : "保育士資格 取得見込み";
+    } else if (status === "study") {
+      line = "現在、保育士資格の取得に向けて勉強中です。";
+    } else {
+      line = "保育士資格";
+    }
 
-        // 何も選択されていない場合
-        if (!qualLines.length && !skillLines.length) {
-          const span = document.createElement("span");
-          span.className = "preview-empty";
-          span.textContent = "（未入力）";
-          wrapper.appendChild(span);
-          return;
-        }
+    qualLines.push(`・${line}`);
+  }
 
-        // 【資格】ブロック
-        if (qualLines.length) {
-          const title = document.createElement("div");
-          title.textContent = "【資格】";
-          title.style.fontWeight = "600";
-          wrapper.appendChild(title);
+  // ★ その他の資格（qual-item ベース）
+  document.querySelectorAll(".qual-item").forEach((item) => {
+    const cb = item.querySelector(".qual-checkbox");
+    if (!cb || !cb.checked) return;
 
-          qualLines.forEach((line) => {
-            const div = document.createElement("div");
-            div.textContent = line;
-            wrapper.appendChild(div);
-          });
+    // 保育士はさっき処理したので飛ばす
+    if (cb.id === "q-hoikushi") return;
 
-          // 間を少し空ける
-          const space = document.createElement("div");
-          space.style.height = "6px";
-          wrapper.appendChild(space);
-        }
+    const label = cb.dataset.label || "";
 
-        // 【スキル】ブロック
-        if (skillLines.length) {
-          const title = document.createElement("div");
-          title.textContent = "【スキル】";
-          title.style.fontWeight = "600";
-          wrapper.appendChild(title);
+    // 状態のラジオ
+    let statusText = "";
+    const statusName = cb.dataset.statusName;
+    if (statusName) {
+      const statusEl = item.querySelector(
+        `input[name="${statusName}"]:checked`
+      );
+      const v = statusEl?.value;
+      if (v === "done") statusText = "（取得済）";
+      else if (v === "plan") statusText = "（取得見込み）";
+      else if (v === "study") statusText = "（勉強中）";
+    }
 
-          skillLines.forEach((line) => {
-            const div = document.createElement("div");
-            div.textContent = line;
-            wrapper.appendChild(div);
-          });
-        }
-        updatePageCountIndicator();
-      }
+    // 自由記入欄
+    const free = item.querySelector(".qual-free")?.value.trim() || "";
+    let lineCore = label;
+    if (statusText) lineCore += statusText;
+    if (free) lineCore += `：${free}`;
 
+    if (lineCore) {
+      qualLines.push(`・${lineCore}`);
+    }
+  });
+
+  // ★ スキル（skill-item ベース）
+  document.querySelectorAll(".skill-item").forEach((item) => {
+    const cb = item.querySelector(".skill-checkbox");
+    if (!cb || !cb.checked) return;
+
+    const label = cb.dataset.label || "";
+    const free = item.querySelector(".skill-free")?.value.trim() || "";
+
+    let line = label;
+    if (free) line += `：${free}`;
+
+    if (line) {
+      skillLines.push(`・${line}`);
+    }
+  });
+
+  // 何も選ばれてない場合
+  if (!qualLines.length && !skillLines.length) {
+    const span = document.createElement("span");
+    span.className = "preview-empty";
+    span.textContent = "（未入力）";
+    wrapper.appendChild(span);
+    return;
+  }
+
+  // 【資格】ブロック
+  if (qualLines.length) {
+    const title = document.createElement("div");
+    title.textContent = "【資格】";
+    title.style.fontWeight = "600";
+    wrapper.appendChild(title);
+
+    qualLines.forEach((line) => {
+      const div = document.createElement("div");
+      div.textContent = line;
+      wrapper.appendChild(div);
+    });
+
+    const space = document.createElement("div");
+    space.style.height = "6px";
+    wrapper.appendChild(space);
+  }
+
+  // 【スキル】ブロック
+  if (skillLines.length) {
+    const title = document.createElement("div");
+    title.textContent = "【スキル】";
+    title.style.fontWeight = "600";
+    wrapper.appendChild(title);
+
+    skillLines.forEach((line) => {
+      const div = document.createElement("div");
+      div.textContent = line;
+      wrapper.appendChild(div);
+    });
+  }
+
+  updatePageCountIndicator && updatePageCountIndicator();
+}
 
       document.addEventListener("change", (e) => {
         const target = e.target;
@@ -1875,6 +2330,17 @@
           target.classList.contains("skill-checkbox") ||
           target.id === "q-hoikushi-year" ||
           target.id === "q-hoikushi-month"
+        ) {
+          updateSkillExperiencePreview();
+        }
+      });
+
+      // 自由記入欄のリアルタイム反映
+      document.addEventListener("input", (e) => {
+        const target = e.target;
+        if (
+          target.classList.contains("qual-free") ||
+          target.classList.contains("skill-free")
         ) {
           updateSkillExperiencePreview();
         }
