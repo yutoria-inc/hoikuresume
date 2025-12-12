@@ -602,35 +602,30 @@
 
       /* ───── PDF用レイアウト（A4中央に本文を配置） ───── */
       body.pdf-mode .preview-card-wrapper {
-        /* A4 と同じサイズにする */
-        width: 210mm;
-        height: 297mm;
+        aspect-ratio: auto !important;
+      }
 
-        /* ページいっぱいを使うので影や角丸は消す */
-        border-radius: 0;
-        box-shadow: none;
-        border: none;
+      body.pdf-mode {
+        padding: 0 !important;
+        margin: 0 !important;
+      }
 
-        /* 通常プレビュー用の aspect-ratio を無効化 */
-        aspect-ratio: auto;
-
-        /* 余白込みで中央に見えるように */
-        margin: 0 auto;
-        background: #ffffff;
-        position: relative;
+      body.pdf-mode .preview-card-wrapper {
+        width: 210mm !important;
+        height: 297mm !important;
+        aspect-ratio: auto !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        border: none !important;
+        box-shadow: none !important;
       }
 
       body.pdf-mode .preview-card {
-        /* 絶対配置をやめて、普通のブロック要素に */
-        position: static;
-        inset: auto;
-
-        /* A4 の内側に余白を作る（ここが実質の上下左右マージン） */
-        padding: 20mm 18mm 22mm;  /* 上右左下：お好みで微調整OK */
-
-        box-sizing: border-box;
-        height: 100%;
-        overflow: visible;
+        position: static !important;
+        inset: auto !important;
+        padding: 15mm !important;
+        overflow: visible !important;
+        height: auto !important;
       }
 
     </style>

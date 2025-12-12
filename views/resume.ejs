@@ -371,7 +371,6 @@
   border-bottom: none;
   box-sizing: border-box;
 }
-
 /* 「履歴書」「○年○月○日現在」 */
 .rirekisho-header {
   display: flex;
@@ -641,7 +640,7 @@
     .jis-table {
       width: 100%;
       border-collapse: collapse;
-      font-size: 9px;
+      font-size: 7px;
       margin-top: 0;
     }
 
@@ -697,7 +696,7 @@
 
     /* 郵便番号専用行 */
 .zip-line {
-  font-size: 7px;         /* 小さく */
+  font-size: 8px;         /* 小さく */
   padding: 1px 4px;
   padding-left: 40px;
   display: flex;
@@ -716,7 +715,7 @@
 
     /* 行内のセルに余白（可読性アップ） */
     .jis-table td {
-      padding: 6px 4px;
+      padding: 8px 6px;
     }
 
     /* 学歴・職歴／免許・資格の tbody セルを全部センター寄せ */
@@ -738,7 +737,7 @@
     /* ボックス自体をラベル用に少し上を空ける */
     .jis-multiline-box {
       position: relative; 
-      min-height: 70px;
+      min-height: 110px;
       padding: 16px 6px 4px; 
       border: 0.5px solid #000000;
       background: #ffffff;
@@ -957,8 +956,10 @@
 
     /* 実際の A3 用紙（横長1枚分） */
     .pdf-a3-page {
-      width: 1190.52px;   /* jsPDFのformatと同じ幅 */
-      height: 841.92px;   /* jsPDFのformatと同じ高さ */
+      /* ★A3 横：420mm × 297mm に統一 */
+      width: 420mm;
+      height: 297mm;
+
       background: #ffffff;
       border: none;
       box-shadow: none;
@@ -967,25 +968,171 @@
       overflow: hidden;
     }
 
-
-    /* 左右の「半分」 */
     .pdf-a3-left,
     .pdf-a3-right {
       flex: 1;
+      display: flex;        /* 子要素を伸ばすため */
+      align-items: stretch; /* 高さ100% に */
       overflow: hidden;
     }
 
-    /* 中の preview-card を A3 用に調整 */
     .pdf-a3-left .preview-card,
     .pdf-a3-right .preview-card {
       width: 100%;
+      height: 100%;         /* ★ここがポイント：縦をA4いっぱいに */
       max-width: none;
       margin: 0;
-      padding: 32px 24px;
+      padding: 15mm 10mm;   /* A4 の余白っぽく mm で指定（好みで調整OK） */
       border: none;
       box-shadow: none;
       box-sizing: border-box;
     }
+
+    /* ==========================================================
+    PDF（A3 横並び）出力時だけフォントを大きくする
+    ========================================================== */
+    .pdf-a3-page .preview-card.preview {
+      font-size: 16px !important; /* 元が9〜10px → 1.5倍で14px */
+    }
+
+    /* タイトル系 */
+    .pdf-a3-page #pv-title,
+    .pdf-a3-page .jis-section-title {
+      font-size: 20px !important;
+      font-weight: 600 !important;
+    }
+
+    /* 「履歴書」「日付」「氏名」などの主要ヘッダー */
+    .pdf-a3-page .header-row,
+    .pdf-a3-page .name-row,
+    .pdf-a3-page .date-row {
+      font-size: 18px !important;
+    }
+
+    .pdf-a3-page .rirekisho-header .title {
+      font-size: 36px !important;
+      letter-spacing: 0.4em !important;
+    }
+
+    .pdf-a3-page .rirekisho-header .date {
+      font-size: 14px !important;
+    }
+
+    .pdf-a3-page .rirekisho-photo {
+      flex: 0 0 100px !important;   /* 72px × 1.5 くらい */
+      margin-left: 8px !important;  /* ちょっと余裕を持たせるなら調整OK */
+      padding-top: 8px !important; /* 12px × 1.5 相当 */
+    }
+
+    .pdf-a3-page .jis-photo-cell {
+      width: 105px !important;      /* 69px × 1.5 くらい */
+      height: 140px !important;     /* 92px × 1.5 くらい */
+      font-size: 14px !important;   /* 8px × 1.5 */
+      padding: 3px !important;      /* 少しだけ増やす */
+    }
+
+    /* 画像のフィットはそのままでOKだが、念のため上書きも可 */
+    .pdf-a3-page .jis-photo-cell img {
+      width: 100% !important;
+      height: 100% !important;
+      object-fit: cover;
+    }
+
+    /* 氏名・現住所・連絡先・電話・Email のラベル */
+    .pdf-a3-page .rirekisho-profile .label,
+    .pdf-a3-page .contact-information .label {
+      font-size: 12px !important;  /* プレビューの約1.5倍イメージ */
+      font-weight: 500;
+    }
+
+    .pdf-a3-page .zip-line {
+      font-size:  12px !important; /* プレビューの約1.5倍イメージ */
+      padding-left: 60px !important; 
+    }
+
+    /* 氏名の中身（本人の名前）はさらに大きめ */
+    .pdf-a3-page #pv-name {
+      font-size: 24px !important;
+    }
+
+    /* 生年月日・性別 */
+    .pdf-a3-page #pv-birth,
+    .pdf-a3-page #pv-gender {
+      font-size: 18px !important;
+    }
+
+    /* 現住所／連絡先の本文（住所・電話・メール） */
+    .pdf-a3-page #pv-address,
+    .pdf-a3-page #pv-contact-address,
+    .pdf-a3-page #pv-phone,
+    .pdf-a3-page #pv-phone-contact,
+    .pdf-a3-page #pv-email,
+    .pdf-a3-page #pv-email-contact {
+      font-size: 16px !important;
+      text-align: center;
+    }
+
+    /* 現住所ふりがな・連絡先ふりがなも少しだけ大きく */
+    .pdf-a3-page #pv-address-kana-current,
+    .pdf-a3-page #pv-address-kana-contact {
+      font-size: 12px !important;
+      text-align: center;
+    }
+
+    /* 生年月日・性別ブロック */
+    .pdf-a3-page .birth-sex-block {
+      font-size: 16px !important;
+    }
+
+    /* 住所・連絡先 */
+    .pdf-a3-page .address-block {
+      font-size: 16px !important;
+    }
+
+    /* ==========================================================
+    PDF用：学歴・職歴／資格テーブルの行高をそろえる
+    ========================================================== */    
+    /* セクション内の表（学歴・職歴、資格など） */
+    .pdf-a3-page .jis-table {
+      font-size: 16px !important;
+    }
+
+    .pdf-a3-page .jis-table td,
+    .pdf-a3-page .jis-table th {
+      padding: 12px 9px !important;
+    }
+
+    .pdf-a3-page .jis-table thead tr,
+    .pdf-a3-page .jis-table tbody tr {
+      height: 40px !important;         /* 好きに微調整してOK（24〜30の間） */
+    }
+
+    /* 空白セルでも高さが潰れないようにする */
+    .pdf-a3-page .jis-table tbody td {
+      vertical-align: middle !important;
+      text-align: center;
+    }
+
+    /* 中身が空のセルにも疑似的に「中身あり」にして高さ確保 */
+    .pdf-a3-page .jis-table tbody td:empty::before {
+      content: " ";                     /* 空白1文字 */
+      visibility: hidden;               /* 見た目は何も出さない */
+    }
+
+     /* 志望動機／本人希望欄 */
+    .pdf-a3-page .jis-multiline-box {
+      min-height: 165px !important; 
+      font-size: 16px !important;
+      line-height: 1.6 !important;
+      padding-top: 27px !important; /* ラベル分の余白を増やす */
+    }
+
+    .pdf-a3-page .jis-multiline-box.pr::before,
+    .pdf-a3-page .jis-multiline-box.hope::before {
+      font-size: 12px !important;  /* プレビュー9〜10px → PDFで約1.5倍 */
+      line-height: 1.6 !important;
+    }
+
 
     /* ───────── 10. NAVIGATION BUTTONS ───────── */
 
@@ -1306,7 +1453,6 @@
 
           </div>
           <!-- ここまで JIS レイアウト -->
-
         </div>
 
         <!-- 右：入力フォーム -->
@@ -2701,198 +2847,201 @@
         dateEl.textContent = `${y}年${m}月${day}日現在`;
       })();
 
-      // ───── PDF ダウンロード（履歴書：A3横1枚） ─────
-      const resumeForm = document.getElementById('resume-form');
-      const resumePdfButton = document.getElementById('btn-submit-resume');
 
-      if (resumeForm && resumePdfButton) {
-        resumeForm.addEventListener('submit', function (e) {
-          e.preventDefault(); // サーバー送信を止める
+// ───── PDF ダウンロード（履歴書：A3横1枚） ─────
+const resumeForm = document.getElementById('resume-form');
+const resumePdfButton = document.getElementById('btn-submit-resume');
 
-          // A3横1枚レイアウトを一時生成（DOM要素として返す）
-          const pdfContainer = createA3LayoutForPdf();
-          if (!pdfContainer) {
-            alert('PDFレイアウトの生成に失敗しました。');
-            return;
-          }
+if (resumeForm && resumePdfButton) {
+  resumeForm.addEventListener('submit', function (e) {
+    e.preventDefault(); // サーバー送信を止める
 
-          // モーダルでプレビュー表示 → OKでPDF生成
-          showPdfConfirmModal({
-            contentEl: pdfContainer,
-            message: 'PDFはこのように表示されます。よろしいですか？',
-            okLabel: 'この内容でPDFをダウンロード',
-            cancelLabel: 'キャンセル',
-            onConfirm: ({ overlay, previewArea, okButton }) => {
-              const opt = {
-                margin: 0,
-                filename: 'rirekisyo.pdf',
-                image: { type: 'jpeg', quality: 0.95 },
-                html2canvas: { scale: 2, useCORS: true },
-                jsPDF: {
-                  unit: 'pt',
-                  // A3横
-                  format: [1190.52, 841.92],
-                  orientation: 'landscape',
-                },
-              };
+    // A3横1枚レイアウトを一時生成（DOM要素として返す）
+    const pdfContainer = createA3LayoutForPdf();
+    if (!pdfContainer) {
+      alert('PDFレイアウトの生成に失敗しました。');
+      return;
+    }
 
-              okButton.disabled = true;
-              okButton.textContent = 'PDF生成中…';
+    // モーダルでプレビュー表示 → OKでPDF生成
+    showPdfConfirmModal({
+      contentEl: pdfContainer,
+      message: 'PDFはこのように表示されます。よろしいですか？',
+      okLabel: 'この内容でPDFをダウンロード',
+      cancelLabel: 'キャンセル',
+      onConfirm: ({ overlay, previewArea, okButton }) => {
+        const opt = {
+          margin: 0,
+          filename: 'rirekisyo.pdf',
+          image: { type: 'jpeg', quality: 0.95 },
+          html2canvas: {
+            scale: 2,
+            useCORS: true,
+          },
+          jsPDF: {
+            unit: 'mm',          // ★ mm に統一
+            format: 'a3',        // ★ A3 指定
+            orientation: 'landscape', // ★ 横向き
+          },
+        };
 
-              html2pdf()
-                .from(pdfContainer)
-                .set(opt)
-                .save()
-                .then(() => {
-                  overlay.remove();
-                  pdfContainer.remove();
-                })
-                .catch((err) => {
-                  console.error(err);
-                  alert('PDFの作成中にエラーが発生しました。もう一度お試しください。');
-                  overlay.remove();
-                  pdfContainer.remove();
-                });
-            },
-          });
-        });
-      }
+        okButton.disabled = true;
+        okButton.textContent = 'PDF生成中…';
 
-      // ───────── A3 横1枚レイアウトを PDF用に一時生成する ─────────
-      function createA3LayoutForPdf() {
-        // プレビューの1ページ目・2ページ目を取得
-        const page1 = document.querySelector('#preview-root .preview-card.preview.page-1');
-        const page2 = document.querySelector('#preview-root .preview-card.preview.page-2');
-
-        if (!page1 || !page2) return null;
-
-        // コンテナ（モーダル内に乗せる用）
-        const container = document.createElement('div');
-        container.id = 'pdf-temp-root';
-        container.style.background = '#ffffff';
-
-        // A3ページ本体（CSSの .pdf-a3-page をそのまま使う）
-        const wrapper = document.createElement('div');
-        wrapper.className = 'pdf-a3-page';
-
-        const left = document.createElement('div');
-        left.className = 'pdf-a3-left';
-        left.appendChild(page1.cloneNode(true));  // プレビュー1ページ目のクローン
-
-        const right = document.createElement('div');
-        right.className = 'pdf-a3-right';
-        right.appendChild(page2.cloneNode(true)); // プレビュー2ページ目のクローン
-
-        wrapper.appendChild(left);
-        wrapper.appendChild(right);
-        container.appendChild(wrapper);
-
-        return container;
-      }
-
-            // ───── PDF確認用モーダル共通関数 ─────
-      function showPdfConfirmModal(options) {
-        const {
-          contentEl,
-          message,
-          okLabel,
-          cancelLabel,
-          onConfirm,
-        } = options;
-
-        // すでにオーバーレイがあれば一回消す
-        let oldOverlay = document.getElementById('pdf-confirm-overlay');
-        if (oldOverlay) {
-          oldOverlay.remove();
-        }
-
-        // オーバーレイ
-        const overlay = document.createElement('div');
-        overlay.id = 'pdf-confirm-overlay';
-        overlay.style.position = 'fixed';
-        overlay.style.inset = '0';
-        overlay.style.background = 'rgba(0,0,0,0.5)';
-        overlay.style.display = 'flex';
-        overlay.style.alignItems = 'center';
-        overlay.style.justifyContent = 'center';
-        overlay.style.zIndex = '9999';
-
-        // ダイアログ
-        const dialog = document.createElement('div');
-        dialog.style.background = '#ffffff';
-        dialog.style.borderRadius = '10px';
-        dialog.style.maxWidth = '960px';
-        dialog.style.width = '90%';
-        dialog.style.maxHeight = '90vh';
-        dialog.style.display = 'flex';
-        dialog.style.flexDirection = 'column';
-        dialog.style.boxShadow = '0 10px 25px rgba(0,0,0,0.25)';
-        dialog.style.padding = '16px';
-
-        // メッセージ
-        const header = document.createElement('div');
-        header.textContent = message || 'PDFはこのように表示されます。よろしいですか？';
-        header.style.fontSize = '14px';
-        header.style.marginBottom = '8px';
-        dialog.appendChild(header);
-
-        // プレビューエリア
-        const previewArea = document.createElement('div');
-        previewArea.style.flex = '1';
-        previewArea.style.overflow = 'auto';
-        previewArea.style.border = '1px solid #e5e7eb';
-        previewArea.style.borderRadius = '6px';
-        previewArea.style.padding = '8px';
-        previewArea.style.background = '#f9fafb';
-
-        // contentEl を差し込む
-        previewArea.appendChild(contentEl);
-        dialog.appendChild(previewArea);
-
-        // ボタンエリア
-        const footer = document.createElement('div');
-        footer.style.display = 'flex';
-        footer.style.justifyContent = 'flex-end';
-        footer.style.gap = '8px';
-        footer.style.marginTop = '12px';
-
-        const cancelButton = document.createElement('button');
-        cancelButton.type = 'button';
-        cancelButton.textContent = cancelLabel || 'キャンセル';
-        cancelButton.style.padding = '6px 12px';
-        cancelButton.style.borderRadius = '4px';
-        cancelButton.style.border = '1px solid #d1d5db';
-        cancelButton.style.background = '#ffffff';
-        cancelButton.style.cursor = 'pointer';
-        cancelButton.addEventListener('click', () => {
-          overlay.remove();
-        });
-
-        const okButton = document.createElement('button');
-        okButton.type = 'button';
-        okButton.textContent = okLabel || 'PDFをダウンロード';
-        okButton.style.padding = '6px 12px';
-        okButton.style.borderRadius = '4px';
-        okButton.style.border = 'none';
-        okButton.style.background = '#0f766e';
-        okButton.style.color = '#ffffff';
-        okButton.style.cursor = 'pointer';
-
-        okButton.addEventListener('click', () => {
-          if (typeof onConfirm === 'function') {
-            onConfirm({ overlay, previewArea, okButton });
-          } else {
+        html2pdf()
+          .from(pdfContainer)
+          .set(opt)
+          .save()
+          .then(() => {
             overlay.remove();
-          }
-        });
+            pdfContainer.remove();
+          })
+          .catch((err) => {
+            console.error(err);
+            alert('PDFの作成中にエラーが発生しました。もう一度お試しください。');
+            overlay.remove();
+            pdfContainer.remove();
+          });
+      },
+    });
+  });
+}
 
-        footer.appendChild(cancelButton);
-        footer.appendChild(okButton);
-        dialog.appendChild(footer);
+// ───────── A3 横1枚レイアウトを PDF用に一時生成する ─────────
+function createA3LayoutForPdf() {
+  // プレビューの1ページ目・2ページ目を取得
+  const page1 = document.querySelector('#preview-root .preview-card.preview.page-1');
+  const page2 = document.querySelector('#preview-root .preview-card.preview.page-2');
 
-        overlay.appendChild(dialog);
-        document.body.appendChild(overlay);
-      }
+  if (!page1 || !page2) return null;
+
+  // コンテナ（モーダル内に乗せる用）
+  const container = document.createElement('div');
+  container.id = 'pdf-temp-root';
+  container.style.background = '#ffffff';
+
+  // A3ページ本体（CSSの .pdf-a3-page をそのまま使う）
+  const wrapper = document.createElement('div');
+  wrapper.className = 'pdf-a3-page';
+
+  const left = document.createElement('div');
+  left.className = 'pdf-a3-left';
+  left.appendChild(page1.cloneNode(true));  // プレビュー1ページ目のクローン
+
+  const right = document.createElement('div');
+  right.className = 'pdf-a3-right';
+  right.appendChild(page2.cloneNode(true)); // プレビュー2ページ目のクローン
+
+  wrapper.appendChild(left);
+  wrapper.appendChild(right);
+  container.appendChild(wrapper);
+
+  return container;
+}
+
+// ───── PDF確認用モーダル共通関数 ─────
+function showPdfConfirmModal(options) {
+  const {
+    contentEl,
+    message,
+    okLabel,
+    cancelLabel,
+    onConfirm,
+  } = options;
+
+  // すでにオーバーレイがあれば一回消す
+  let oldOverlay = document.getElementById('pdf-confirm-overlay');
+  if (oldOverlay) {
+    oldOverlay.remove();
+  }
+
+  // オーバーレイ
+  const overlay = document.createElement('div');
+  overlay.id = 'pdf-confirm-overlay';
+  overlay.style.position = 'fixed';
+  overlay.style.inset = '0';
+  overlay.style.background = 'rgba(0,0,0,0.5)';
+  overlay.style.display = 'flex';
+  overlay.style.alignItems = 'center';
+  overlay.style.justifyContent = 'center';
+  overlay.style.zIndex = '9999';
+
+  // ダイアログ
+  const dialog = document.createElement('div');
+  dialog.style.background = '#ffffff';
+  dialog.style.borderRadius = '10px';
+  dialog.style.maxWidth = '960px';
+  dialog.style.width = '90%';
+  dialog.style.maxHeight = '90vh';
+  dialog.style.display = 'flex';
+  dialog.style.flexDirection = 'column';
+  dialog.style.boxShadow = '0 10px 25px rgba(0,0,0,0.25)';
+  dialog.style.padding = '16px';
+
+  // メッセージ
+  const header = document.createElement('div');
+  header.textContent = message || 'PDFはこのように表示されます。よろしいですか？';
+  header.style.fontSize = '14px';
+  header.style.marginBottom = '8px';
+  dialog.appendChild(header);
+
+  // プレビューエリア
+  const previewArea = document.createElement('div');
+  previewArea.style.flex = '1';
+  previewArea.style.overflow = 'auto';
+  previewArea.style.border = '1px solid #e5e7eb';
+  previewArea.style.borderRadius = '6px';
+  previewArea.style.padding = '8px';
+  previewArea.style.background = '#f9fafb';
+
+  // contentEl を差し込む
+  previewArea.appendChild(contentEl);
+  dialog.appendChild(previewArea);
+
+  // ボタンエリア
+  const footer = document.createElement('div');
+  footer.style.display = 'flex';
+  footer.style.justifyContent = 'flex-end';
+  footer.style.gap = '8px';
+  footer.style.marginTop = '12px';
+
+  const cancelButton = document.createElement('button');
+  cancelButton.type = 'button';
+  cancelButton.textContent = cancelLabel || 'キャンセル';
+  cancelButton.style.padding = '6px 12px';
+  cancelButton.style.borderRadius = '4px';
+  cancelButton.style.border = '1px solid #d1d5db';
+  cancelButton.style.background = '#ffffff';
+  cancelButton.style.cursor = 'pointer';
+  cancelButton.addEventListener('click', () => {
+    overlay.remove();
+  });
+
+  const okButton = document.createElement('button');
+  okButton.type = 'button';
+  okButton.textContent = okLabel || 'PDFをダウンロード';
+  okButton.style.padding = '6px 12px';
+  okButton.style.borderRadius = '4px';
+  okButton.style.border = 'none';
+  okButton.style.background = '#0f766e';
+  okButton.style.color = '#ffffff';
+  okButton.style.cursor = 'pointer';
+
+  okButton.addEventListener('click', () => {
+    if (typeof onConfirm === 'function') {
+      onConfirm({ overlay, previewArea, okButton });
+    } else {
+      overlay.remove();
+    }
+  });
+
+  footer.appendChild(cancelButton);
+  footer.appendChild(okButton);
+  dialog.appendChild(footer);
+
+  overlay.appendChild(dialog);
+  document.body.appendChild(overlay);
+}
 
     </script>
     
