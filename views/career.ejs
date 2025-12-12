@@ -600,16 +600,36 @@
         opacity: 0.85;
       }
 
-      /* PDF生成中だけ A4比率制約を外す */
+      /* ───── PDF用レイアウト（A4中央に本文を配置） ───── */
       body.pdf-mode .preview-card-wrapper {
+        /* A4 と同じサイズにする */
+        width: 210mm;
+        height: 297mm;
+
+        /* ページいっぱいを使うので影や角丸は消す */
+        border-radius: 0;
+        box-shadow: none;
+        border: none;
+
+        /* 通常プレビュー用の aspect-ratio を無効化 */
         aspect-ratio: auto;
-        height: auto;
+
+        /* 余白込みで中央に見えるように */
+        margin: 0 auto;
+        background: #ffffff;
+        position: relative;
       }
 
       body.pdf-mode .preview-card {
+        /* 絶対配置をやめて、普通のブロック要素に */
         position: static;
         inset: auto;
-        height: auto;
+
+        /* A4 の内側に余白を作る（ここが実質の上下左右マージン） */
+        padding: 20mm 18mm 22mm;  /* 上右左下：お好みで微調整OK */
+
+        box-sizing: border-box;
+        height: 100%;
         overflow: visible;
       }
 
@@ -752,7 +772,6 @@
                     id="lastName"
                     name="lastName"
                     placeholder="姓"
-                    required
                   />
                 </div>
                 <div style="flex:1;">
@@ -761,7 +780,6 @@
                     id="firstName"
                     name="firstName"
                     placeholder="名"
-                    required
                   />
                 </div>
               </div>
@@ -771,7 +789,7 @@
 
             <!-- 経歴要約：選択肢＋自動生成 -->
             <div class="field">
-              <label for="summary">経歴要約（ご自由に書き換えて下さい）</label>
+              <label for="summary">経歴要約</label>
 
               <p class="note">
                 当てはまる項目を選択すると、自動で経歴要約文を作成できます。（あとから自由に編集できます）
@@ -791,9 +809,9 @@
                   <input
                     type="checkbox"
                     class="summary-option"
-                    value="主に0〜2歳児クラスを担当し、基本的生活習慣の自立と情緒の安定を大切にした保育を行ってきました。"
+                    value="3〜5歳児クラスを中心に担任として勤務し、基本的生活習慣の自立と情緒の安定を大切にした保育を行ってきました。"
                   />
-                  0〜2歳児クラス中心
+                  0〜2歳児クラス
                 </label>
                 <label>
                   <input
@@ -801,7 +819,7 @@
                     class="summary-option"
                     value="3〜5歳児クラスを中心に担任として勤務し、集団生活のなかでの主体性・協調性を育む保育に取り組んできました。"
                   />
-                  3〜5歳児クラス中心
+                  3〜5歳児クラス
                 </label>
 
                 <!-- 役割・ポジション -->
@@ -857,6 +875,7 @@
               >
                 選択内容から経歴要約を自動生成する
               </button>
+              <label>(ご自由に書き換えてください)</label>
 
               <textarea
                 id="summary"
@@ -894,37 +913,6 @@
                     保育士
                   </label>
                   <div class="qual-sub">
-                        <div class="qual-date-row">
-                          取得年月：
-                          <div style="display:flex; gap:6px; align-items:center;">
-                            <input
-                              type="number"
-                              class="qual-year"
-                              placeholder="年"
-                              min="1950"
-                              max="2100"
-                              style="width:80px;"
-                              disabled
-                            />
-                            <span>年</span>
-                            <select class="qual-month" disabled>
-                              <option value="">月</option>
-                              <option value="1">1</option>
-                              <option value="2">2</option>
-                              <option value="3">3</option>
-                              <option value="4">4</option>
-                              <option value="5">5</option>
-                              <option value="6">6</option>
-                              <option value="7">7</option>
-                              <option value="8">8</option>
-                              <option value="9">9</option>
-                              <option value="10">10</option>
-                              <option value="11">11</option>
-                              <option value="12">12</option>
-                            </select>
-                            <span>月</span>
-                          </div>
-                        </div>
                     <div class="qual-status-group">
                       <label>
                         <input
@@ -953,6 +941,35 @@
                         />
                         勉強中
                       </label>
+                    </div>
+                    <div class="qual-date-row">
+                      取得年月：
+                      <div style="display:flex; gap:6px; align-items:center;">
+                        <input
+                          type="number"
+                          class="qual-year"
+                          placeholder="年"
+                          style="width:80px;"
+                          disabled
+                        />
+                        <span>年</span>
+                        <select class="qual-month" disabled>
+                          <option value="">月</option>
+                          <option value="1">1</option>
+                          <option value="2">2</option>
+                          <option value="3">3</option>
+                          <option value="4">4</option>
+                          <option value="5">5</option>
+                          <option value="6">6</option>
+                          <option value="7">7</option>
+                          <option value="8">8</option>
+                          <option value="9">9</option>
+                          <option value="10">10</option>
+                          <option value="11">11</option>
+                          <option value="12">12</option>
+                        </select>
+                        <span>月</span>
+                      </div>
                     </div>
                     <input
                       type="text"
@@ -974,38 +991,6 @@
                     幼稚園教諭二種免許
                   </label>
                   <div class="qual-sub">
-                    <div class="qual-date-row">
-                      取得年月：
-                      <div style="display:flex; gap:6px; align-items:center;">
-                        <input
-                          type="number"
-                          class="qual-year"
-                          placeholder="年"
-                          min="1950"
-                          max="2100"
-                          style="width:80px;"
-                          disabled
-                        />
-                        <span>年</span>
-                        <select class="qual-month" disabled>
-                          <option value="">月</option>
-                          <option value="1">1</option>
-                          <option value="2">2</option>
-                          <option value="3">3</option>
-                          <option value="4">4</option>
-                          <option value="5">5</option>
-                          <option value="6">6</option>
-                          <option value="7">7</option>
-                          <option value="8">8</option>
-                          <option value="9">9</option>
-                          <option value="10">10</option>
-                          <option value="11">11</option>
-                          <option value="12">12</option>
-                        </select>
-                        <span>月</span>
-                      </div>
-                    </div>
-
                     <div class="qual-status-group">
                       <label>
                         <input
@@ -1034,6 +1019,35 @@
                         />
                         勉強中
                       </label>
+                    </div>
+                    <div class="qual-date-row">
+                      取得年月：
+                      <div style="display:flex; gap:6px; align-items:center;">
+                        <input
+                          type="number"
+                          class="qual-year"
+                          placeholder="年"
+                          style="width:80px;"
+                          disabled
+                        />
+                        <span>年</span>
+                        <select class="qual-month" disabled>
+                          <option value="">月</option>
+                          <option value="1">1</option>
+                          <option value="2">2</option>
+                          <option value="3">3</option>
+                          <option value="4">4</option>
+                          <option value="5">5</option>
+                          <option value="6">6</option>
+                          <option value="7">7</option>
+                          <option value="8">8</option>
+                          <option value="9">9</option>
+                          <option value="10">10</option>
+                          <option value="11">11</option>
+                          <option value="12">12</option>
+                        </select>
+                        <span>月</span>
+                      </div>
                     </div>
                     <input
                       type="text"
@@ -1055,37 +1069,6 @@
                     幼稚園教諭一種免許
                   </label>
                   <div class="qual-sub">
-                    <div class="qual-date-row">
-                      取得年月：
-                      <div style="display:flex; gap:6px; align-items:center;">
-                        <input
-                          type="number"
-                          class="qual-year"
-                          placeholder="年"
-                          min="1950"
-                          max="2100"
-                          style="width:80px;"
-                          disabled
-                        />
-                        <span>年</span>
-                        <select class="qual-month" disabled>
-                          <option value="">月</option>
-                          <option value="1">1</option>
-                          <option value="2">2</option>
-                          <option value="3">3</option>
-                          <option value="4">4</option>
-                          <option value="5">5</option>
-                          <option value="6">6</option>
-                          <option value="7">7</option>
-                          <option value="8">8</option>
-                          <option value="9">9</option>
-                          <option value="10">10</option>
-                          <option value="11">11</option>
-                          <option value="12">12</option>
-                        </select>
-                        <span>月</span>
-                      </div>
-                    </div>
                     <div class="qual-status-group">
                       <label>
                         <input
@@ -1115,26 +1098,6 @@
                         勉強中
                       </label>
                     </div>
-                    <input
-                      type="text"
-                      class="qual-free"
-                      placeholder="自由記入欄（任意）"
-                    />
-                  </div>
-                </div>
-
-                <!-- 児童指導員 -->
-                <div class="qual-item">
-                  <label>
-                    <input
-                      type="checkbox"
-                      class="qual-checkbox"
-                      data-label="児童指導員"
-                      data-status-name="q-jidou-status"
-                    />
-                    児童指導員
-                  </label>
-                  <div class="qual-sub">
                     <div class="qual-date-row">
                       取得年月：
                       <div style="display:flex; gap:6px; align-items:center;">
@@ -1142,8 +1105,6 @@
                           type="number"
                           class="qual-year"
                           placeholder="年"
-                          min="1950"
-                          max="2100"
                           style="width:80px;"
                           disabled
                         />
@@ -1166,6 +1127,26 @@
                         <span>月</span>
                       </div>
                     </div>
+                    <input
+                      type="text"
+                      class="qual-free"
+                      placeholder="自由記入欄（任意）"
+                    />
+                  </div>
+                </div>
+
+                <!-- 児童指導員 -->
+                <div class="qual-item">
+                  <label>
+                    <input
+                      type="checkbox"
+                      class="qual-checkbox"
+                      data-label="児童指導員"
+                      data-status-name="q-jidou-status"
+                    />
+                    児童指導員
+                  </label>
+                  <div class="qual-sub">
                     <div class="qual-status-group">
                       <label>
                         <input
@@ -1195,6 +1176,35 @@
                           勉強中
                         </label>
                     </div>
+                    <div class="qual-date-row">
+                      取得年月：
+                      <div style="display:flex; gap:6px; align-items:center;">
+                        <input
+                          type="number"
+                          class="qual-year"
+                          placeholder="年"
+                          style="width:80px;"
+                          disabled
+                        />
+                        <span>年</span>
+                        <select class="qual-month" disabled>
+                          <option value="">月</option>
+                          <option value="1">1</option>
+                          <option value="2">2</option>
+                          <option value="3">3</option>
+                          <option value="4">4</option>
+                          <option value="5">5</option>
+                          <option value="6">6</option>
+                          <option value="7">7</option>
+                          <option value="8">8</option>
+                          <option value="9">9</option>
+                          <option value="10">10</option>
+                          <option value="11">11</option>
+                          <option value="12">12</option>
+                        </select>
+                        <span>月</span>
+                      </div>
+                    </div>
                     <input
                       type="text"
                       class="qual-free"
@@ -1216,37 +1226,6 @@
                     児童発達支援管理責任者
                   </label>
                   <div class="qual-sub">
-                    <div class="qual-date-row">
-                      取得年月：
-                      <div style="display:flex; gap:6px; align-items:center;">
-                        <input
-                          type="number"
-                          class="qual-year"
-                          placeholder="年"
-                          min="1950"
-                          max="2100"
-                          style="width:80px;"
-                          disabled
-                        />
-                        <span>年</span>
-                        <select class="qual-month" disabled>
-                          <option value="">月</option>
-                          <option value="1">1</option>
-                          <option value="2">2</option>
-                          <option value="3">3</option>
-                          <option value="4">4</option>
-                          <option value="5">5</option>
-                          <option value="6">6</option>
-                          <option value="7">7</option>
-                          <option value="8">8</option>
-                          <option value="9">9</option>
-                          <option value="10">10</option>
-                          <option value="11">11</option>
-                          <option value="12">12</option>
-                        </select>
-                        <span>月</span>
-                      </div>
-                    </div>
                     <div class="qual-status-group">
                       <label>
                         <input
@@ -1275,6 +1254,35 @@
                         />
                         勉強中
                       </label>
+                    </div>
+                    <div class="qual-date-row">
+                      取得年月：
+                      <div style="display:flex; gap:6px; align-items:center;">
+                        <input
+                          type="number"
+                          class="qual-year"
+                          placeholder="年"
+                          style="width:80px;"
+                          disabled
+                        />
+                        <span>年</span>
+                        <select class="qual-month" disabled>
+                          <option value="">月</option>
+                          <option value="1">1</option>
+                          <option value="2">2</option>
+                          <option value="3">3</option>
+                          <option value="4">4</option>
+                          <option value="5">5</option>
+                          <option value="6">6</option>
+                          <option value="7">7</option>
+                          <option value="8">8</option>
+                          <option value="9">9</option>
+                          <option value="10">10</option>
+                          <option value="11">11</option>
+                          <option value="12">12</option>
+                        </select>
+                        <span>月</span>
+                      </div>
                     </div>
                     <input
                       type="text"
@@ -1296,37 +1304,6 @@
                     社会福祉士
                   </label>
                   <div class="qual-sub">
-                    <div class="qual-date-row">
-                      取得年月：
-                      <div style="display:flex; gap:6px; align-items:center;">
-                        <input
-                          type="number"
-                          class="qual-year"
-                          placeholder="年"
-                          min="1950"
-                          max="2100"
-                          style="width:80px;"
-                          disabled
-                        />
-                        <span>年</span>
-                        <select class="qual-month" disabled>
-                          <option value="">月</option>
-                          <option value="1">1</option>
-                          <option value="2">2</option>
-                          <option value="3">3</option>
-                          <option value="4">4</option>
-                          <option value="5">5</option>
-                          <option value="6">6</option>
-                          <option value="7">7</option>
-                          <option value="8">8</option>
-                          <option value="9">9</option>
-                          <option value="10">10</option>
-                          <option value="11">11</option>
-                          <option value="12">12</option>
-                        </select>
-                        <span>月</span>
-                      </div>
-                    </div>
                     <div class="qual-status-group">
                       <label>
                         <input
@@ -1355,6 +1332,35 @@
                         />
                         勉強中
                       </label>
+                    </div>
+                    <div class="qual-date-row">
+                      取得年月：
+                      <div style="display:flex; gap:6px; align-items:center;">
+                        <input
+                          type="number"
+                          class="qual-year"
+                          placeholder="年"
+                          style="width:80px;"
+                          disabled
+                        />
+                        <span>年</span>
+                        <select class="qual-month" disabled>
+                          <option value="">月</option>
+                          <option value="1">1</option>
+                          <option value="2">2</option>
+                          <option value="3">3</option>
+                          <option value="4">4</option>
+                          <option value="5">5</option>
+                          <option value="6">6</option>
+                          <option value="7">7</option>
+                          <option value="8">8</option>
+                          <option value="9">9</option>
+                          <option value="10">10</option>
+                          <option value="11">11</option>
+                          <option value="12">12</option>
+                        </select>
+                        <span>月</span>
+                      </div>
                     </div>
                     <input
                       type="text"
@@ -1376,37 +1382,6 @@
                     看護師
                   </label>
                   <div class="qual-sub">
-                    <div class="qual-date-row">
-                      取得年月：
-                      <div style="display:flex; gap:6px; align-items:center;">
-                        <input
-                          type="number"
-                          class="qual-year"
-                          placeholder="年"
-                          min="1950"
-                          max="2100"
-                          style="width:80px;"
-                          disabled
-                        />
-                        <span>年</span>
-                        <select class="qual-month" disabled>
-                          <option value="">月</option>
-                          <option value="1">1</option>
-                          <option value="2">2</option>
-                          <option value="3">3</option>
-                          <option value="4">4</option>
-                          <option value="5">5</option>
-                          <option value="6">6</option>
-                          <option value="7">7</option>
-                          <option value="8">8</option>
-                          <option value="9">9</option>
-                          <option value="10">10</option>
-                          <option value="11">11</option>
-                          <option value="12">12</option>
-                        </select>
-                        <span>月</span>
-                      </div>
-                    </div>
                     <div class="qual-status-group">
                       <label>
                         <input
@@ -1435,6 +1410,35 @@
                         />
                         勉強中
                       </label>
+                    </div>
+                    <div class="qual-date-row">
+                      取得年月：
+                      <div style="display:flex; gap:6px; align-items:center;">
+                        <input
+                          type="number"
+                          class="qual-year"
+                          placeholder="年"
+                          style="width:80px;"
+                          disabled
+                        />
+                        <span>年</span>
+                        <select class="qual-month" disabled>
+                          <option value="">月</option>
+                          <option value="1">1</option>
+                          <option value="2">2</option>
+                          <option value="3">3</option>
+                          <option value="4">4</option>
+                          <option value="5">5</option>
+                          <option value="6">6</option>
+                          <option value="7">7</option>
+                          <option value="8">8</option>
+                          <option value="9">9</option>
+                          <option value="10">10</option>
+                          <option value="11">11</option>
+                          <option value="12">12</option>
+                        </select>
+                        <span>月</span>
+                      </div>
                     </div>
                     <input
                       type="text"
@@ -1456,37 +1460,6 @@
                     栄養士
                   </label>
                   <div class="qual-sub">
-                    <div class="qual-date-row">
-                      取得年月：
-                      <div style="display:flex; gap:6px; align-items:center;">
-                        <input
-                          type="number"
-                          class="qual-year"
-                          placeholder="年"
-                          min="1950"
-                          max="2100"
-                          style="width:80px;"
-                          disabled
-                        />
-                        <span>年</span>
-                        <select class="qual-month" disabled>
-                          <option value="">月</option>
-                          <option value="1">1</option>
-                          <option value="2">2</option>
-                          <option value="3">3</option>
-                          <option value="4">4</option>
-                          <option value="5">5</option>
-                          <option value="6">6</option>
-                          <option value="7">7</option>
-                          <option value="8">8</option>
-                          <option value="9">9</option>
-                          <option value="10">10</option>
-                          <option value="11">11</option>
-                          <option value="12">12</option>
-                        </select>
-                        <span>月</span>
-                      </div>
-                    </div>
                     <div class="qual-status-group">
                       <label>
                         <input
@@ -1515,6 +1488,35 @@
                         />
                         勉強中
                       </label>
+                    </div>
+                    <div class="qual-date-row">
+                      取得年月：
+                      <div style="display:flex; gap:6px; align-items:center;">
+                        <input
+                          type="number"
+                          class="qual-year"
+                          placeholder="年"
+                          style="width:80px;"
+                          disabled
+                        />
+                        <span>年</span>
+                        <select class="qual-month" disabled>
+                          <option value="">月</option>
+                          <option value="1">1</option>
+                          <option value="2">2</option>
+                          <option value="3">3</option>
+                          <option value="4">4</option>
+                          <option value="5">5</option>
+                          <option value="6">6</option>
+                          <option value="7">7</option>
+                          <option value="8">8</option>
+                          <option value="9">9</option>
+                          <option value="10">10</option>
+                          <option value="11">11</option>
+                          <option value="12">12</option>
+                        </select>
+                        <span>月</span>
+                      </div>
                     </div>
                     <input
                       type="text"
@@ -1694,8 +1696,6 @@
                         type="number"
                         class="career-start-year"
                         placeholder="年"
-                        min="1950"
-                        max="2100"
                         style="width:80px;"
                       />
                       <span>年</span>
@@ -1726,8 +1726,6 @@
                           type="number"
                           class="career-end-year"
                           placeholder="年"
-                          min="1950"
-                          max="2100"
                           style="width:80px;"
                         />
                         <span>年</span>
@@ -1805,7 +1803,7 @@
 
                 <!-- 担当業務 -->
                 <div class="field">
-                  <label>担当業務（ご自由に書き換えて下さい）</label>
+                  <label>担当業務</label>
 
                   <div class="pr-checkbox-group responsibility-checkbox-group">
                     <!-- クラス・年齢 -->
@@ -1813,9 +1811,25 @@
                       <input
                         type="checkbox"
                         class="responsibility-option"
-                        data-text="0〜2歳児クラスの担任"
+                        data-text="0歳児クラスの担任"
                       />
-                      0〜2歳児クラスの担任
+                      0歳児クラスの担任
+                    </label>
+                    <label>
+                      <input
+                        type="checkbox"
+                        class="responsibility-option"
+                        data-text="1歳児クラスの担任"
+                      />
+                      1歳児クラスの担任
+                    </label>
+                    <label>
+                      <input
+                        type="checkbox"
+                        class="responsibility-option"
+                        data-text="2歳児クラスの担任"
+                      />
+                      2歳児クラスの担任
                     </label>
                     <label>
                       <input
@@ -1892,6 +1906,7 @@
                   <button type="button" class="generate-pr-btn generate-responsibility-btn">
                     選択内容から担当業務を自動生成
                   </button>
+                  <label>（ご自由に書き換えて下さい）</label>
 
                   <textarea
                     name="responsibility[]"
@@ -1907,7 +1922,7 @@
 
                 <!-- 職務内容（カテゴリ＋自動生成） -->
                 <div class="field">
-                  <label>職務内容（ご自由に書き換えて下さい）</label>
+                  <label>職務内容</label>
 
                   <div class="career-category-group" style="font-size:13px; margin-bottom:6px;">
                     <label><input type="checkbox" class="duty-category" data-text="日々の保育実践（基本的生活習慣の援助や遊びの見守りなど）"> 日常保育</label>
@@ -1922,6 +1937,7 @@
                   <button type="button" class="generate-pr-btn generate-duty-btn">
                     カテゴリから職務内容を自動生成
                   </button>
+                  <label>（ご自由に書き換えて下さい）</label>
 
                   <textarea
                     name="duty_detail[]"
@@ -1937,7 +1953,7 @@
 
                 <!-- 退職理由 -->
                 <div class="field">
-                  <label>退職理由（任意）（ご自由に書き換えて下さい）</label>
+                  <label>退職理由（任意）</label>
                   <p class="note">
                     当てはまる項目を選択すると、退職理由文を自動で作成できます。（あとから自由に書き換えOK）
                   </p>
@@ -1988,6 +2004,7 @@
                   <button type="button" class="generate-pr-btn generate-retire-btn">
                     選択内容から退職理由を自動生成
                   </button>
+                  <label>（ご自由に書き換えて下さい）</label>
 
                   <textarea
                     name="reason[]"
@@ -2090,10 +2107,8 @@
               "
             >
               入力内容は左側のプレビューに反映されています。<br />
-              内容を確認し、問題なければ「PDFをダウンロード」を押してください。
-            </p>
-            <p class="note">
-              ※テスト版のため、入力内容はサーバーに保存されません（PDF生成のみに利用されます）。
+              内容を確認し、問題なければ「PDFをダウンロード」を押してください。<br />
+              職務経歴書は一般的にA4サイズ１枚です。
             </p>
           </div>
 
@@ -2434,8 +2449,6 @@
             wrapper.appendChild(div);
           });
         }
-
-        updatePageCountIndicator && updatePageCountIndicator();
       }
 
       document.addEventListener("change", (e) => {
@@ -2462,6 +2475,18 @@
             }
           }
         }
+
+        // 自由記入欄を打ったときもプレビュー更新
+        document.addEventListener("input", (e) => {
+          const target = e.target;
+          if (
+            target.classList.contains("qual-free") ||
+            target.classList.contains("skill-free")
+          ) {
+            updateSkillExperiencePreview();
+          }
+        });
+
 
         // ▼ プレビュー更新
         if (
@@ -2780,8 +2805,6 @@
 
           wrapper.appendChild(block);
         });
-
-        updatePageCountIndicator();
       }
 
       // 入力イベントと紐づける
@@ -2839,7 +2862,7 @@
 
                 await html2pdf()
                   .set({
-                    margin: [10, 10, 10, 10],
+                    margin: 0,
                     filename: 'career.pdf',
                     image: { type: 'jpeg', quality: 0.98 },
                     html2canvas: {

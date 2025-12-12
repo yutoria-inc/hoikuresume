@@ -647,7 +647,7 @@
 
     .jis-table th,
     .jis-table td {
-      border: 1px solid #111;      /* 0.5px → 1px & 黒 */
+      border: 0.5px solid #111;      /* 0.5px → 1px & 黒 */
       padding: 4px 6px;            /* ちょい広めに */
     }
 
@@ -953,17 +953,20 @@
       background: #f3f4f6;
     }
 
+    /* ───────── A3 横 1 枚の PDF レイアウト ───────── */
+
     /* 実際の A3 用紙（横長1枚分） */
     .pdf-a3-page {
-      width: 100%;
-      max-width: 1000px;         /* 画面上での表示サイズ */
-      aspect-ratio: 420 / 297;   /* A3 横の比率 */
+      width: 1190.52px;   /* jsPDFのformatと同じ幅 */
+      height: 841.92px;   /* jsPDFのformatと同じ高さ */
       background: #ffffff;
-      border: 1px solid #d1d5db;
-      box-shadow: 0 0 0 1px rgba(0,0,0,0.04);
-      display: flex;             /* 左右に 1 ページずつ並べる */
+      border: none;
+      box-shadow: none;
+
+      display: flex;      /* 左右に 1 ページずつ並べる */
       overflow: hidden;
     }
+
 
     /* 左右の「半分」 */
     .pdf-a3-left,
@@ -1720,7 +1723,10 @@
               <h3>内容確認・PDFダウンロード</h3>
               <p class="note">
                 左側のプレビューを確認し、誤字脱字や日付などに問題がないかチェックしてください。<br />
-                問題なければ下の「PDFをダウンロード」ボタンを押してください。
+                問題なければ下の「PDFをダウンロード」ボタンを押してください。<br />
+                履歴書の一般的なサイズは横開きA3サイズ１枚です。<br />
+                ２つ折りにするとA4サイズになります。<br />
+                トリミングなどしてご使用ください。
               </p>
             </div>
 
