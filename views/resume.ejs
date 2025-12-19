@@ -2888,47 +2888,67 @@
             message: 'PDFはこのように表示されます。よろしいですか？',
             okLabel: 'この内容でPDFをダウンロード',
             cancelLabel: 'キャンセル',
-            onConfirm: async ({ overlay, okButton }) => {
+            onConfirm: async ({ overlay, okButton, preOpened }) => {
               okButton.disabled = true;
               okButton.textContent = 'PDF生成中…';
 
-              // Safari含めフォント待ち
-              if (document.fonts && document.fonts.ready) {
-                await document.fonts.ready;
-              }
-
-              // PDF化する本体を画面外に置く（overflow/transform影響を避ける）
-              const tempHost = document.createElement('div');
-              tempHost.style.position = 'fixed';
-              tempHost.style.left = '-10000px';
-              tempHost.style.top = '0';
-              tempHost.style.background = '#fff';
-              tempHost.appendChild(pdfContainer);
-              document.body.appendChild(tempHost);
-
-              const opt = {
-                margin: 0,
-                filename: 'rirekisyo.pdf',
-                image: { type: 'jpeg', quality: 0.95 },
-                html2canvas: {
-                  scale: 2,
-                  useCORS: true,
-                  scrollX: 0,
-                  scrollY: 0,
-                },
-                jsPDF: { unit: 'mm', format: 'a3', orientation: 'landscape' },
-              };
+              const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+              let tempHost = null;
 
               try {
-                await html2pdf().from(pdfContainer).set(opt).save();
+                if (document.fonts && document.fonts.ready) await document.fonts.ready;
+
+                tempHost = document.createElement('div');
+                tempHost.style.position = 'fixed';
+                tempHost.style.left = '-10000px';
+                tempHost.style.top = '0';
+                tempHost.style.background = '#fff';
+                tempHost.appendChild(pdfContainer);
+                document.body.appendChild(tempHost);
+
+                const opt = {
+                  margin: 0,
+                  filename: 'rirekisyo.pdf',
+                  image: { type: 'jpeg', quality: 0.9 },
+                  html2canvas: {
+                    scale: isIOS ? 1.2 : 2,
+                    useCORS: true,
+                    scrollX: 0,
+                    scrollY: 0,
+                    backgroundColor: '#ffffff',
+                  },
+                  jsPDF: { unit: 'mm', format: 'a3', orientation: 'landscape' },
+                };
+
+                const worker = html2pdf().from(pdfContainer).set(opt);
+
+                if (isIOS) {
+                  const pdf = await worker.get('pdf');
+                  const blob = pdf.output('blob');
+                  const url = URL.createObjectURL(blob);
+
+                  if (preOpened) {
+                    preOpened.location.href = url;
+                  } else {
+                    // 空タブ開けない環境の保険（これが一番確実）
+                    window.location.href = url;
+                  }
+                } else {
+                  await worker.save();
+                }
+
+                overlay.remove();
               } catch (err) {
                 console.error(err);
                 alert('PDFの作成中にエラーが発生しました。もう一度お試しください。');
+                okButton.disabled = false;
+                okButton.textContent = 'この内容でPDFをダウンロード';
+                if (preOpened) preOpened.close();
               } finally {
-                overlay.remove();
-                tempHost.remove();
+                if (tempHost) tempHost.remove();
               }
             },
+
           });
         });
       }
@@ -2967,21 +2987,11 @@
 
       // ───── PDF確認用モーダル共通関数 ─────
       function showPdfConfirmModal(options) {
-        const {
-          contentEl,
-          message,
-          okLabel,
-          cancelLabel,
-          onConfirm,
-        } = options;
+        const { contentEl, message, okLabel, cancelLabel, onConfirm } = options;
 
-        // すでにオーバーレイがあれば一回消す
         let oldOverlay = document.getElementById('pdf-confirm-overlay');
-        if (oldOverlay) {
-          oldOverlay.remove();
-        }
+        if (oldOverlay) oldOverlay.remove();
 
-        // オーバーレイ
         const overlay = document.createElement('div');
         overlay.id = 'pdf-confirm-overlay';
         overlay.style.position = 'fixed';
@@ -2992,7 +3002,6 @@
         overlay.style.justifyContent = 'center';
         overlay.style.zIndex = '9999';
 
-        // ダイアログ
         const dialog = document.createElement('div');
         dialog.style.background = '#ffffff';
         dialog.style.borderRadius = '10px';
@@ -3004,14 +3013,12 @@
         dialog.style.boxShadow = '0 10px 25px rgba(0,0,0,0.25)';
         dialog.style.padding = '16px';
 
-        // メッセージ
         const header = document.createElement('div');
         header.textContent = message || 'PDFはこのように表示されます。よろしいですか？';
         header.style.fontSize = '14px';
         header.style.marginBottom = '8px';
         dialog.appendChild(header);
 
-        // プレビューエリア
         const previewArea = document.createElement('div');
         previewArea.style.flex = '1';
         previewArea.style.overflow = 'auto';
@@ -3019,12 +3026,9 @@
         previewArea.style.borderRadius = '6px';
         previewArea.style.padding = '8px';
         previewArea.style.background = '#f9fafb';
-
-        // contentEl を差し込む
         previewArea.appendChild(contentEl.cloneNode(true));
         dialog.appendChild(previewArea);
 
-        // ボタンエリア
         const footer = document.createElement('div');
         footer.style.display = 'flex';
         footer.style.justifyContent = 'flex-end';
@@ -3039,9 +3043,7 @@
         cancelButton.style.border = '1px solid #d1d5db';
         cancelButton.style.background = '#ffffff';
         cancelButton.style.cursor = 'pointer';
-        cancelButton.addEventListener('click', () => {
-          overlay.remove();
-        });
+        cancelButton.addEventListener('click', () => overlay.remove());
 
         const okButton = document.createElement('button');
         okButton.type = 'button';
@@ -3053,11 +3055,23 @@
         okButton.style.color = '#ffffff';
         okButton.style.cursor = 'pointer';
 
-        okButton.addEventListener('click', () => {
+        okButton.addEventListener('click', async () => {
+          const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+          const preOpened = isIOS ? window.open('', '_blank') : null; // ← iPhone対策
+
           if (typeof onConfirm === 'function') {
-            onConfirm({ overlay, previewArea, okButton });
+            await onConfirm({ overlay, previewArea, okButton, preOpened });
           } else {
             overlay.remove();
+            if (preOpened) {
+              try {
+                preOpened.location.href = url;
+              } catch (e) {
+                window.location.href = url;
+              }
+            } else {
+              window.location.href = url;
+            }
           }
         });
 
@@ -3067,7 +3081,6 @@
 
         overlay.appendChild(dialog);
         document.body.appendChild(overlay);
-
       }
 
     </script>
