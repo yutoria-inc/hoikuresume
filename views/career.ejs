@@ -600,6 +600,12 @@
         opacity: 0.85;
       }
 
+      #prText{
+        overflow: hidden;   /* スクロールバー消す */
+        resize: none;       /* 手動リサイズも消す（好みで） */
+      }
+
+
       /* ───── PDF用レイアウト（A4中央に本文を配置） ───── */
       body.pdf-mode .preview-card-wrapper {
         aspect-ratio: auto !important;
@@ -2141,13 +2147,21 @@
     </main>
 
     <script>
+      // =========================
+      // 環境判定
+      // =========================
       function isIOS() {
         return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
       }
 
       function isSafari() {
         const ua = navigator.userAgent.toLowerCase();
-        const isSafariLike = ua.includes("safari") && !ua.includes("chrome") && !ua.includes("crios") && !ua.includes("android") && !ua.includes("edg");
+        const isSafariLike =
+          ua.includes("safari") &&
+          !ua.includes("chrome") &&
+          !ua.includes("crios") &&
+          !ua.includes("android") &&
+          !ua.includes("edg");
         return isSafariLike;
       }
 
@@ -2156,202 +2170,231 @@
         return isIOS() || isSafari();
       }
 
-      // ───── ステップ制ロジック ─────
-      const totalSteps = 5;
-      let currentStep = 1;
+      // =========================
+      // ステップ制ロジック
+      // =========================
+      (function () {
+        const totalSteps = 5;
+        let currentStep = 1;
 
-      const stepSections = document.querySelectorAll('.step-section');
-      const stepElems = document.querySelectorAll('#stepper .step');
-      const prevBtn = document.getElementById('btn-prev');
-      const nextBtn = document.getElementById('btn-next');
-      const submitBtn = document.getElementById('btn-submit');
-      const formTitle = document.getElementById('form-title');
+        const stepSections = document.querySelectorAll(".step-section");
+        const stepElems = document.querySelectorAll("#stepper .step");
+        const prevBtn = document.getElementById("btn-prev");
+        const nextBtn = document.getElementById("btn-next");
+        const submitBtn = document.getElementById("btn-submit");
+        const formTitle = document.getElementById("form-title");
 
-      const stepTitles = {
-        1: '経歴要約（氏名・職務要約）を入力',
-        2: '資格・スキルを入力',
-        3: '職務経歴（勤務先企業・職務内容）を入力',
-        4: '自己PR・志望動機を入力',
-        5: '内容確認・PDFダウンロード',
-      };
+        const stepTitles = {
+          1: "経歴要約（氏名・職務要約）を入力",
+          2: "資格・スキルを入力",
+          3: "職務経歴（勤務先企業・職務内容）を入力",
+          4: "自己PR・志望動機を入力",
+          5: "内容確認・PDFダウンロード",
+        };
 
-      function showStep(step) {
-        currentStep = step;
+        if (!stepSections.length) return;
 
-        stepSections.forEach((sec) => {
-          const s = parseInt(sec.dataset.step, 10);
-          sec.classList.toggle('is-active', s === currentStep);
-        });
+        function showStep(step) {
+          currentStep = step;
 
-        if (formTitle) {
-          formTitle.textContent = stepTitles[currentStep] || '';
+          stepSections.forEach((sec) => {
+            const s = parseInt(sec.dataset.step, 10);
+            sec.classList.toggle("is-active", s === currentStep);
+          });
+
+          if (formTitle) {
+            formTitle.textContent = stepTitles[currentStep] || "";
+          }
+
+          stepElems.forEach((el) => {
+            const s = parseInt(el.dataset.step, 10);
+            el.classList.remove("step--active", "step--completed");
+            if (s < currentStep) el.classList.add("step--completed");
+            else if (s === currentStep) el.classList.add("step--active");
+          });
+
+          if (prevBtn) prevBtn.disabled = currentStep === 1;
+
+          if (nextBtn && submitBtn) {
+            if (currentStep === totalSteps) {
+              nextBtn.style.display = "none";
+              submitBtn.style.display = "inline-block";
+            } else {
+              nextBtn.style.display = "inline-block";
+              submitBtn.style.display = "none";
+            }
+          }
+        }
+
+        if (prevBtn) {
+          prevBtn.addEventListener("click", () => {
+            if (currentStep > 1) showStep(currentStep - 1);
+          });
+        }
+
+        if (nextBtn) {
+          nextBtn.addEventListener("click", () => {
+            if (currentStep < totalSteps) showStep(currentStep + 1);
+          });
         }
 
         stepElems.forEach((el) => {
-          const s = parseInt(el.dataset.step, 10);
-          el.classList.remove('step--active', 'step--completed');
-          if (s < currentStep) el.classList.add('step--completed');
-          else if (s === currentStep) el.classList.add('step--active');
+          el.addEventListener("click", () => {
+            const targetStep = parseInt(el.dataset.step, 10);
+            if (!Number.isNaN(targetStep)) showStep(targetStep);
+          });
         });
 
-        if (currentStep === 1) {
-          prevBtn.disabled = true;
-        } else {
-          prevBtn.disabled = false;
-        }
+        // 他の処理から参照できるように
+        window.__careerStep = {
+          getCurrentStep: () => currentStep,
+          showStep,
+          totalSteps,
+        };
 
-        if (currentStep === totalSteps) {
-          nextBtn.style.display = 'none';
-          submitBtn.style.display = 'inline-block';
-        } else {
-          nextBtn.style.display = 'inline-block';
-          submitBtn.style.display = 'none';
-        }
-      }
+        showStep(1);
+      })();
 
-      prevBtn.addEventListener('click', () => {
-        if (currentStep > 1) showStep(currentStep - 1);
-      });
-      nextBtn.addEventListener('click', () => {
-        if (currentStep < totalSteps) showStep(currentStep + 1);
-      });
-      stepElems.forEach((el) => {
-        el.addEventListener('click', () => {
-          const targetStep = parseInt(el.dataset.step, 10);
-          if (!Number.isNaN(targetStep)) showStep(targetStep);
+      // =========================
+      // モバイル：入力 / プレビュー切り替え
+      // =========================
+      (function () {
+        const layoutEl = document.getElementById("layout");
+        const viewToggleBtns = document.querySelectorAll(".view-toggle-btn");
+        if (!layoutEl || !viewToggleBtns.length) return;
+
+        viewToggleBtns.forEach((btn) => {
+          btn.addEventListener("click", () => {
+            const view = btn.dataset.view;
+
+            viewToggleBtns.forEach((b) => b.classList.remove("is-active"));
+            btn.classList.add("is-active");
+
+            if (view === "form") {
+              layoutEl.classList.add("show-form");
+              layoutEl.classList.remove("show-preview");
+            } else {
+              layoutEl.classList.add("show-preview");
+              layoutEl.classList.remove("show-form");
+            }
+          });
         });
-      });
-      showStep(1);
+      })();
 
-      // ───── モバイル：入力 / プレビュー切り替え ─────
-      const layoutEl = document.getElementById('layout');
-      const viewToggleBtns = document.querySelectorAll('.view-toggle-btn');
-
-      viewToggleBtns.forEach((btn) => {
-        btn.addEventListener('click', () => {
-          const view = btn.dataset.view; // 'form' or 'preview'
-
-          // ボタンの見た目を更新
-          viewToggleBtns.forEach((b) => b.classList.remove('is-active'));
-          btn.classList.add('is-active');
-
-          // レイアウトの表示を切り替え
-          if (view === 'form') {
-            layoutEl.classList.add('show-form');
-            layoutEl.classList.remove('show-preview');
-          } else if (view === 'preview') {
-            layoutEl.classList.add('show-preview');
-            layoutEl.classList.remove('show-form');
-          }
-        });
-      });
-
-      // ───── プレビューのリアルタイム反映 ─────
+      // =========================
+      // プレビューのリアルタイム反映（単一input → 単一preview）
+      // =========================
       function bindText(inputId, previewId, defaultText) {
         const input = document.getElementById(inputId);
         const preview = document.getElementById(previewId);
         if (!input || !preview) return;
 
-        const base = defaultText || preview.textContent || '未入力';
+        const base = defaultText || preview.textContent || "未入力";
         preview.dataset.default = base;
 
         const update = () => {
           const v = input.value.trim();
           if (v) {
             preview.textContent = v;
-            preview.classList.remove('preview-empty');
+            preview.classList.remove("preview-empty");
           } else {
             preview.textContent = preview.dataset.default;
-            preview.classList.add('preview-empty');
+            preview.classList.add("preview-empty");
           }
         };
 
-        input.addEventListener('input', update);
+        input.addEventListener("input", update);
         update();
       }
 
-      bindText('skill1-left', 'pv-skill1-left', '（未入力）');
-      bindText('skill1-right', 'pv-skill1-right', '（未入力）');
-      bindText('skill2-left', 'pv-skill2-left', '（未入力）');
-      bindText('skill2-right', 'pv-skill2-right', '（未入力）');
-      bindText('skill3-left', 'pv-skill3-left', '（未入力）');
-      bindText('skill3-right', 'pv-skill3-right', '（未入力）');
-      bindText('summary', 'pv-summary', '（ここに経歴要約が入ります）');
-      bindText(
-        'history',
-        'pv-history',
-        '（ここに勤務先企業・職務内容が入ります）'
-      );
-      bindText(
-        'prText',
-        'pv-prText',
-        '（ここに自己PR・志望動機が入ります）'
-      );
+      // 必要なやつだけ bind（存在しないIDでも落ちない）
+      bindText("skill1-left", "pv-skill1-left", "（未入力）");
+      bindText("skill1-right", "pv-skill1-right", "（未入力）");
+      bindText("skill2-left", "pv-skill2-left", "（未入力）");
+      bindText("skill2-right", "pv-skill2-right", "（未入力）");
+      bindText("skill3-left", "pv-skill3-left", "（未入力）");
+      bindText("skill3-right", "pv-skill3-right", "（未入力）");
+      bindText("summary", "pv-summary", "（ここに経歴要約が入ります）");
+      bindText("history", "pv-history", "（ここに勤務先企業・職務内容が入ります）");
+      bindText("prText", "pv-prText", "（ここに自己PR・志望動機が入ります）");
 
-      // ───── 氏名（姓＋名）プレビュー反映 ─────
-      const lastInput = document.getElementById('lastName');
-      const firstInput = document.getElementById('firstName');
-      const hiddenName = document.getElementById('name');
-      const pvNameTop = document.getElementById('pv-name-top');
+      // =========================
+      // 氏名（姓＋名）プレビュー反映
+      // =========================
+      (function () {
+        const lastInput = document.getElementById("lastName");
+        const firstInput = document.getElementById("firstName");
+        const hiddenName = document.getElementById("name");
+        const pvNameTop = document.getElementById("pv-name-top");
+        if (!pvNameTop || (!lastInput && !firstInput)) return;
 
-      function updateNamePreview() {
-        if (!pvNameTop) return;
+        function updateNamePreview() {
+          const last = (lastInput?.value || "").trim();
+          const first = (firstInput?.value || "").trim();
 
-        const last = (lastInput?.value || '').trim();
-        const first = (firstInput?.value || '').trim();
+          let display = "";
+          if (last && first) display = `${last} ${first}`;
+          else display = last || first || "";
 
-        let display = '';
-        if (last && first) {
-          // ★姓と名の間に半角スペース 1 個
-          display = `${last} ${first}`;
-        } else if (last || first) {
-          display = last || first;
+          if (hiddenName) hiddenName.value = display;
+
+          if (display) {
+            pvNameTop.textContent = display;
+            pvNameTop.classList.remove("preview-empty");
+          } else {
+            pvNameTop.textContent = "";
+            pvNameTop.classList.add("preview-empty");
+          }
         }
 
-        // hidden の name にも同じ値を入れておく（サーバー送信用）
-        if (hiddenName) {
-          hiddenName.value = display;
+        lastInput?.addEventListener("input", updateNamePreview);
+        firstInput?.addEventListener("input", updateNamePreview);
+        updateNamePreview();
+      })();
+
+      // =========================
+      // textarea：スクロールさせずに内容に合わせて伸ばす（安全版）
+      // =========================
+      (function () {
+        const ta = document.getElementById("prText");
+        if (!ta) return;
+
+        function autoResize() {
+          ta.style.height = "auto";
+          ta.style.height = ta.scrollHeight + "px";
         }
 
-        if (display) {
-          pvNameTop.textContent = display;
-          pvNameTop.classList.remove('preview-empty');
-        } else {
-          pvNameTop.textContent = '';
-          pvNameTop.classList.add('preview-empty');
-        }
-      }
+        ta.addEventListener("input", autoResize);
 
-      if (lastInput) lastInput.addEventListener('input', updateNamePreview);
-      if (firstInput) firstInput.addEventListener('input', updateNamePreview);
-      updateNamePreview();
+        // 自動生成（valueを入れて dispatchEvent する）にも反応する
+        autoResize();
+      })();
 
-      // ───── 資格・スキル：プレビュー反映 ─────
+      // =========================
+      // 和暦変換（YYYY-MM）
+      // =========================
       function toWareki(ym) {
         if (!ym) return "";
-
         const [yStr, mStr] = ym.split("-");
         const y = parseInt(yStr, 10);
         const m = parseInt(mStr, 10);
 
-        let era = "";
-        let n = 0;
+        if (!y || !m) return "";
 
         if (y >= 2019) {
-          era = "令和";
-          n = y - 2018;
-        } else if (y >= 1989) {
-          era = "平成";
-          n = y - 1988;
-        } else {
-          // それ以前はとりあえず西暦表示
-          return `${y}年${m}月`;
+          const n = y - 2018;
+          return `令和${n === 1 ? "元" : n}年${m}月`;
         }
-
-        const yearStr = n === 1 ? "元" : String(n);
-        return `${era}${yearStr}年${m}月`;
+        if (y >= 1989) {
+          const n = y - 1988;
+          return `平成${n === 1 ? "元" : n}年${m}月`;
+        }
+        return `${y}年${m}月`;
       }
 
+      // =========================
+      // 資格・スキル：プレビュー反映
+      // =========================
       function updateSkillExperiencePreview() {
         const wrapper = document.getElementById("pv-skill-wrapper");
         if (!wrapper) return;
@@ -2361,7 +2404,7 @@
         const qualLines = [];
         const skillLines = [];
 
-        // ── 全ての資格（保育士含む） ──
+        // ── 資格 ──
         document.querySelectorAll(".qual-item").forEach((item) => {
           const cb = item.querySelector(".qual-checkbox");
           if (!cb || !cb.checked) return;
@@ -2373,35 +2416,29 @@
           let statusValue = "";
           const statusName = cb.dataset.statusName;
           if (statusName) {
-            const statusEl = item.querySelector(
-              `input[name="${statusName}"]:checked`
-            );
+            const statusEl = item.querySelector(`input[name="${statusName}"]:checked`);
             statusValue = statusEl?.value || "";
             if (statusValue === "plan") statusText = "（取得見込み）";
             else if (statusValue === "study") statusText = "（勉強中）";
-            // done のときはカッコ無し
           }
 
           const free = item.querySelector(".qual-free")?.value.trim() || "";
 
-          // 取得済のときだけ取得年月を使う
+          // 取得済だけ年月を使う
           const y = item.querySelector(".qual-year")?.value;
           const m = item.querySelector(".qual-month")?.value;
+
           let dateStr = "";
           if (statusValue === "done" && y && m) {
             dateStr = `${y}年${m}月`;
           }
 
           let core = label + statusText;
-          if (free) {
-            core += `：${free}`;
-          }
+          if (free) core += `：${free}`;
           if (!core) return;
 
           let line = core;
-          if (dateStr) {
-            line = `${dateStr}　${core}`;
-          }
+          if (dateStr) line = `${dateStr}　${core}`;
 
           qualLines.push(`・${line}`);
         });
@@ -2419,7 +2456,7 @@
           if (line) skillLines.push(`・${line}`);
         });
 
-        // 何もない場合
+        // 空なら（未入力）
         if (!qualLines.length && !skillLines.length) {
           const span = document.createElement("span");
           span.className = "preview-empty";
@@ -2428,7 +2465,7 @@
           return;
         }
 
-        // 【資格】ブロック
+        // 資格
         if (qualLines.length) {
           const title = document.createElement("div");
           title.textContent = "【資格】";
@@ -2446,7 +2483,7 @@
           wrapper.appendChild(space);
         }
 
-        // 【スキル】ブロック
+        // スキル
         if (skillLines.length) {
           const title = document.createElement("div");
           title.textContent = "【スキル】";
@@ -2461,10 +2498,25 @@
         }
       }
 
+      // ★ここが重要：inputは “1回だけ” 登録（増殖バグ防止）
+      document.addEventListener("input", (e) => {
+        const target = e.target;
+
+        if (
+          target.classList.contains("qual-free") ||
+          target.classList.contains("skill-free")
+        ) {
+          updateSkillExperiencePreview();
+        }
+
+        // 勤務先プレビューは別関数に任せる（下で登録）
+      });
+
+      // change（チェック/ラジオ/セレクト）も1回だけ
       document.addEventListener("change", (e) => {
         const target = e.target;
 
-        // ▼ 資格の状態ラジオが変わったとき（全資格共通）
+        // 状態ラジオ切替 → 年月disable制御
         if (target.classList.contains("qual-radio")) {
           const item = target.closest(".qual-item");
           if (item) {
@@ -2472,11 +2524,9 @@
             const m = item.querySelector(".qual-month");
             if (y && m) {
               if (target.value === "done" && target.checked) {
-                // 取得済 → 入力可
                 y.disabled = false;
                 m.disabled = false;
               } else if (target.checked) {
-                // 取得見込み・勉強中 → クリアして無効化
                 y.value = "";
                 m.value = "";
                 y.disabled = true;
@@ -2486,19 +2536,7 @@
           }
         }
 
-        // 自由記入欄を打ったときもプレビュー更新
-        document.addEventListener("input", (e) => {
-          const target = e.target;
-          if (
-            target.classList.contains("qual-free") ||
-            target.classList.contains("skill-free")
-          ) {
-            updateSkillExperiencePreview();
-          }
-        });
-
-
-        // ▼ プレビュー更新
+        // プレビュー更新
         if (
           target.classList.contains("qual-checkbox") ||
           target.classList.contains("qual-radio") ||
@@ -2510,65 +2548,77 @@
         }
       });
 
+      // 初期反映
+      updateSkillExperiencePreview();
 
-      // ───── 経歴要約：選択肢から自動生成 ─────
-      const generateSummaryBtn = document.getElementById('generateSummary');
-      const summaryTextarea = document.getElementById('summary');
-      const summaryOptions = document.querySelectorAll('.summary-option');
+      // =========================
+      // 経歴要約：選択肢から自動生成
+      // =========================
+      (function () {
+        const generateSummaryBtn = document.getElementById("generateSummary");
+        const summaryTextarea = document.getElementById("summary");
+        const summaryOptions = document.querySelectorAll(".summary-option");
 
-      if (generateSummaryBtn && summaryTextarea) {
-        generateSummaryBtn.addEventListener('click', () => {
+        if (!generateSummaryBtn || !summaryTextarea) return;
+
+        generateSummaryBtn.addEventListener("click", () => {
           const checked = Array.from(summaryOptions).filter((o) => o.checked);
 
           if (!checked.length) {
-            alert('まず当てはまる項目を1つ以上選択してください。');
+            alert("まず当てはまる項目を1つ以上選択してください。");
             return;
           }
 
           const parts = checked.map((o) => o.value);
 
           const text =
-            '保育士としてのこれまでの経験では、' +
-            parts.join(' ') +
-            ' これらの経験を通じて、子ども一人ひとりに寄り添いながら、保護者・職員と協力して安心して過ごせる保育環境づくりに取り組んできました。';
+            "保育士としてのこれまでの経験では、" +
+            parts.join(" ") +
+            " これらの経験を通じて、子ども一人ひとりに寄り添いながら、保護者・職員と協力して安心して過ごせる保育環境づくりに取り組んできました。";
 
           summaryTextarea.value = text;
-          // プレビュー(pv-summary)を更新させる
-          summaryTextarea.dispatchEvent(new Event('input'));
+          summaryTextarea.dispatchEvent(new Event("input"));
         });
-      }
+      })();
 
+      // =========================
+      // 自己PR：選択肢から自動生成
+      // =========================
+      (function () {
+        const generateBtn = document.getElementById("generatePR");
+        const prTextarea = document.getElementById("prText");
+        const prOptions = document.querySelectorAll(".pr-option");
 
-      // ───── 自己PR：選択肢から自動生成 ─────
-      const generateBtn = document.getElementById('generatePR');
-      const prTextarea = document.getElementById('prText');
-      const prOptions = document.querySelectorAll('.pr-option');
+        if (!generateBtn || !prTextarea) return;
 
-      if (generateBtn && prTextarea) {
-        generateBtn.addEventListener('click', () => {
+        generateBtn.addEventListener("click", () => {
           const checked = Array.from(prOptions).filter((o) => o.checked);
           if (!checked.length) {
-            alert('まず当てはまる項目を1つ以上選択してください。');
+            alert("まず当てはまる項目を1つ以上選択してください。");
             return;
           }
 
           const parts = checked.map((o) => o.value);
           const text =
-            'これまでの保育士としての経験の中で、' +
-            parts.join(' ') +
-            ' といった点を大切にしてまいりました。' +
-            '貴園でも子どもたち一人ひとりに寄り添いながら、保護者や職員の方々と協力し、安心して過ごせる環境づくりに貢献したいと考えております。';
+            "これまでの保育士としての経験の中で、" +
+            parts.join(" ") +
+            " といった点を大切にしてまいりました。" +
+            "貴園でも子どもたち一人ひとりに寄り添いながら、保護者や職員の方々と協力し、安心して過ごせる環境づくりに貢献したいと考えております。";
 
           prTextarea.value = text;
-          prTextarea.dispatchEvent(new Event('input'));
+          prTextarea.dispatchEvent(new Event("input"));
+          // textarea自動伸縮も input で反応する
         });
-      }
+      })();
 
-      // ───── 職務経歴：追加ボタン ─────
-      const addCareerBtn = document.getElementById("add-career-btn");
-      const careerList = document.getElementById("career-list");
+      // =========================
+      // 職務経歴：追加ボタン（クローン）
+      // =========================
+      (function () {
+        const addCareerBtn = document.getElementById("add-career-btn");
+        const careerList = document.getElementById("career-list");
+        if (!addCareerBtn || !careerList) return;
 
-      if (addCareerBtn && careerList) {
         addCareerBtn.addEventListener("click", () => {
           const base = careerList.querySelector(".career-item");
           if (!base) return;
@@ -2577,22 +2627,21 @@
 
           // 入力値を全部クリア
           item.querySelectorAll("input, textarea, select").forEach((el) => {
-            if (el.type === "checkbox" || el.type === "radio") {
-              el.checked = false;
-            } else {
-              el.value = "";
-            }
+            if (el.type === "checkbox" || el.type === "radio") el.checked = false;
+            else el.value = "";
           });
 
           careerList.appendChild(item);
           updateCareerPreview();
         });
-      }
+      })();
 
-      // ───── 職務内容：カテゴリから自動生成 ─────
+      // =========================
+      // 職務内容：カテゴリから自動生成
+      // =========================
       document.addEventListener("click", (e) => {
         const btn = e.target;
-        if (!btn.classList.contains("generate-duty-btn")) return;
+        if (!btn.classList || !btn.classList.contains("generate-duty-btn")) return;
 
         const item = btn.closest(".career-item");
         if (!item) return;
@@ -2603,28 +2652,23 @@
           return;
         }
 
-        const parts = Array.from(checked).map(
-          (c) => "・" + (c.dataset.text || "")
-        );
-
+        const parts = Array.from(checked).map((c) => "・" + (c.dataset.text || ""));
         const text = parts.join("\n");
 
         const textarea = item.querySelector(".career-duty-detail");
         if (textarea) {
           textarea.value = text;
-
-          // ① inputイベントをバブリングさせる
           textarea.dispatchEvent(new Event("input", { bubbles: true }));
-
-          // ② 念のためプレビュー関数を直叩き（どっちかだけでも動くけど安心のダブル）
           updateCareerPreview();
         }
       });
 
-      // ───── 担当業務：選択肢から自動生成 ─────
+      // =========================
+      // 担当業務：選択肢から自動生成
+      // =========================
       document.addEventListener("click", (e) => {
         const btn = e.target;
-        if (!btn.classList.contains("generate-responsibility-btn")) return;
+        if (!btn.classList || !btn.classList.contains("generate-responsibility-btn")) return;
 
         const item = btn.closest(".career-item");
         if (!item) return;
@@ -2639,25 +2683,22 @@
           .map((c) => c.dataset.text || "")
           .filter(Boolean);
 
-        // ★ 1行ずつ「・」から始まる箇条書きにする
         const text = parts.map((p) => `・${p}`).join("\n");
 
         const textarea = item.querySelector(".career-responsibility");
         if (textarea) {
           textarea.value = text;
-
-          // プレビュー更新用に input イベントをバブリングさせる
           textarea.dispatchEvent(new Event("input", { bubbles: true }));
-
-          // 念のため直接も呼んでおく
           updateCareerPreview();
         }
       });
 
-      // ───── 退職理由：選択肢から自動生成 ─────
+      // =========================
+      // 退職理由：選択肢から自動生成
+      // =========================
       document.addEventListener("click", (e) => {
         const btn = e.target;
-        if (!btn.classList.contains("generate-retire-btn")) return;
+        if (!btn.classList || !btn.classList.contains("generate-retire-btn")) return;
 
         const item = btn.closest(".career-item");
         if (!item) return;
@@ -2677,15 +2718,14 @@
         const textarea = item.querySelector(".career-reason");
         if (textarea) {
           textarea.value = text;
-
-          // 入力イベントをバブリングさせてプレビュー更新
           textarea.dispatchEvent(new Event("input", { bubbles: true }));
-
-          // 念のため直接呼ぶ
           updateCareerPreview();
         }
       });
 
+      // =========================
+      // 職務経歴：プレビュー生成
+      // =========================
       function updateCareerPreview() {
         const wrapper = document.getElementById("pv-career-wrapper");
         if (!wrapper) return;
@@ -2718,12 +2758,8 @@
           const facilityType = item.querySelector(".career-facility-type")?.value;
           const children = item.querySelector(".career-children")?.value;
           const staff = item.querySelector(".career-staff")?.value;
-          const responsibility = item
-            .querySelector(".career-responsibility")
-            ?.value.trim();
-          const dutyDetail = item
-            .querySelector(".career-duty-detail")
-            ?.value.trim();
+          const responsibility = item.querySelector(".career-responsibility")?.value.trim();
+          const dutyDetail = item.querySelector(".career-duty-detail")?.value.trim();
           const reason = item.querySelector(".career-reason")?.value.trim();
 
           const jpStart = start ? toWareki(start) : "";
@@ -2779,8 +2815,8 @@
             responsibility.split("\n").forEach((row) => {
               if (!row.trim()) return;
               const li = document.createElement("div");
-              li.textContent = row;          // 中身は「・〜」まで含めたテキスト
-              li.style.paddingLeft = "1em";  // 職務内容と同じくインデント
+              li.textContent = row;
+              li.style.paddingLeft = "1em";
               block.appendChild(li);
             });
           }
@@ -2804,12 +2840,8 @@
           if (!current && jpEnd) {
             const line6 = document.createElement("div");
             line6.style.marginTop = "4px";
-            if (reason) {
-              // 令和7年◯月　実家の移住に伴い退職
-              line6.textContent = `${jpEnd}　${reason}`;
-            } else {
-              line6.textContent = `${jpEnd}　退職`;
-            }
+            if (reason) line6.textContent = `${jpEnd}　${reason}`;
+            else line6.textContent = `${jpEnd}　退職`;
             block.appendChild(line6);
           }
 
@@ -2817,29 +2849,39 @@
         });
       }
 
-      // 入力イベントと紐づける
+      // 入力イベントで更新（1回だけ）
       document.addEventListener("input", updateCareerPreview);
+      updateCareerPreview();
 
-      // ───── 日付（職務経歴書の日付） ─────
-      const dateEl = document.getElementById('pv-date');
-      if (dateEl) {
+      // =========================
+      // 日付（プレビュー上部）
+      // =========================
+      (function () {
+        const dateEl = document.getElementById("pv-date");
+        if (!dateEl) return;
+
         const d = new Date();
-        const y = d.getFullYear();
-        const m = d.getMonth() + 1;
-        const day = d.getDate();
-        dateEl.textContent = `${y}年${m}月${day}日現在`;
-      }
+        dateEl.textContent = `${d.getFullYear()}年${d.getMonth() + 1}月${d.getDate()}日現在`;
+      })();
 
-      // ───── PDF ダウンロード（職務経歴書） ─────
-      const careerForm = document.getElementById("career-form");
+      // =========================
+      // PDF ダウンロード（職務経歴書）
+      // ※ html2pdf が読み込まれてる前提
+      // =========================
+      (function () {
+        const careerForm = document.getElementById("career-form");
+        if (!careerForm) return;
 
-      if (careerForm) {
         careerForm.addEventListener("submit", function (event) {
           event.preventDefault();
 
+          const stepApi = window.__careerStep;
+          const currentStep = stepApi?.getCurrentStep ? stepApi.getCurrentStep() : 1;
+          const totalSteps = stepApi?.totalSteps || 5;
+
           // まだ最終ステップじゃないなら次へ
-          if (currentStep < totalSteps) {
-            showStep(currentStep + 1);
+          if (stepApi?.showStep && currentStep < totalSteps) {
+            stepApi.showStep(currentStep + 1);
             return;
           }
 
@@ -2853,7 +2895,7 @@
           const pdfContainer = originalPreview.cloneNode(true);
 
           showPdfConfirmModal({
-            contentEl: pdfContainer, // ※モーダルは append してしまう仕様なのでクローンを渡す前提
+            contentEl: pdfContainer,
             message: "PDFはこのように表示されます。よろしいですか？",
             okLabel: "この内容でPDFをダウンロード",
             cancelLabel: "キャンセル",
@@ -2872,7 +2914,6 @@
               try {
                 if (document.fonts && document.fonts.ready) await document.fonts.ready;
 
-                // pdf-modeは “生成中だけ” 付ける
                 document.body.classList.add("pdf-mode");
 
                 // オフスクリーンに一時マウント（Safari安定化）
@@ -2901,7 +2942,6 @@
                 const worker = html2pdf().from(pdfContainer).set(opt);
 
                 if (appleSafari) {
-                  // Safari系は “ダウンロード” より “開く” が安定
                   const pdf = await worker.get("pdf");
                   const blob = pdf.output("blob");
                   const url = URL.createObjectURL(blob);
@@ -2909,15 +2949,10 @@
                   if (preOpened) {
                     preOpened.location.href = url;
                   } else {
-                    // macOS Safari など
                     const w = window.open(url, "_blank");
-                    if (!w) {
-                      // ポップアップブロックされた保険
-                      window.location.href = url;
-                    }
+                    if (!w) window.location.href = url;
                   }
                 } else {
-                  // Chrome/Edge/Android等は通常DL
                   await worker.save();
                 }
 
@@ -2935,103 +2970,84 @@
             },
           });
         });
-      }
+      })();
 
-
-            // ───── PDF確認用モーダル共通関数 ─────
+      // =========================
+      // PDF確認用モーダル共通関数
+      // =========================
       function showPdfConfirmModal(options) {
-        const {
-          contentEl,
-          message,
-          okLabel,
-          cancelLabel,
-          onConfirm,
-        } = options;
+        const { contentEl, message, okLabel, cancelLabel, onConfirm } = options;
 
-        // すでにオーバーレイがあれば一回消す
-        let oldOverlay = document.getElementById('pdf-confirm-overlay');
-        if (oldOverlay) {
-          oldOverlay.remove();
-        }
+        const oldOverlay = document.getElementById("pdf-confirm-overlay");
+        if (oldOverlay) oldOverlay.remove();
 
-        // オーバーレイ
-        const overlay = document.createElement('div');
-        overlay.id = 'pdf-confirm-overlay';
-        overlay.style.position = 'fixed';
-        overlay.style.inset = '0';
-        overlay.style.background = 'rgba(0,0,0,0.5)';
-        overlay.style.display = 'flex';
-        overlay.style.alignItems = 'center';
-        overlay.style.justifyContent = 'center';
-        overlay.style.zIndex = '9999';
+        const overlay = document.createElement("div");
+        overlay.id = "pdf-confirm-overlay";
+        overlay.style.position = "fixed";
+        overlay.style.inset = "0";
+        overlay.style.background = "rgba(0,0,0,0.5)";
+        overlay.style.display = "flex";
+        overlay.style.alignItems = "center";
+        overlay.style.justifyContent = "center";
+        overlay.style.zIndex = "9999";
 
-        // ダイアログ
-        const dialog = document.createElement('div');
-        dialog.style.background = '#ffffff';
-        dialog.style.borderRadius = '10px';
-        dialog.style.maxWidth = '960px';
-        dialog.style.width = '90%';
-        dialog.style.maxHeight = '90vh';
-        dialog.style.display = 'flex';
-        dialog.style.flexDirection = 'column';
-        dialog.style.boxShadow = '0 10px 25px rgba(0,0,0,0.25)';
-        dialog.style.padding = '16px';
+        const dialog = document.createElement("div");
+        dialog.style.background = "#ffffff";
+        dialog.style.borderRadius = "10px";
+        dialog.style.maxWidth = "960px";
+        dialog.style.width = "90%";
+        dialog.style.maxHeight = "90vh";
+        dialog.style.display = "flex";
+        dialog.style.flexDirection = "column";
+        dialog.style.boxShadow = "0 10px 25px rgba(0,0,0,0.25)";
+        dialog.style.padding = "16px";
 
-        // メッセージ
-        const header = document.createElement('div');
-        header.textContent = message || 'PDFはこのように表示されます。よろしいですか？';
-        header.style.fontSize = '14px';
-        header.style.marginBottom = '8px';
+        const header = document.createElement("div");
+        header.textContent = message || "PDFはこのように表示されます。よろしいですか？";
+        header.style.fontSize = "14px";
+        header.style.marginBottom = "8px";
         dialog.appendChild(header);
 
-        // プレビューエリア
-        const previewArea = document.createElement('div');
-        previewArea.style.flex = '1';
-        previewArea.style.overflow = 'auto';
-        previewArea.style.border = '1px solid #e5e7eb';
-        previewArea.style.borderRadius = '6px';
-        previewArea.style.padding = '8px';
-        previewArea.style.background = '#f9fafb';
+        const previewArea = document.createElement("div");
+        previewArea.style.flex = "1";
+        previewArea.style.overflow = "auto";
+        previewArea.style.border = "1px solid #e5e7eb";
+        previewArea.style.borderRadius = "6px";
+        previewArea.style.padding = "8px";
+        previewArea.style.background = "#f9fafb";
 
-        // contentEl を差し込む
         previewArea.appendChild(contentEl.cloneNode(true));
         dialog.appendChild(previewArea);
 
-        // ボタンエリア
-        const footer = document.createElement('div');
-        footer.style.display = 'flex';
-        footer.style.justifyContent = 'flex-end';
-        footer.style.gap = '8px';
-        footer.style.marginTop = '12px';
+        const footer = document.createElement("div");
+        footer.style.display = "flex";
+        footer.style.justifyContent = "flex-end";
+        footer.style.gap = "8px";
+        footer.style.marginTop = "12px";
 
-        const cancelButton = document.createElement('button');
-        cancelButton.type = 'button';
-        cancelButton.textContent = cancelLabel || 'キャンセル';
-        cancelButton.style.padding = '6px 12px';
-        cancelButton.style.borderRadius = '4px';
-        cancelButton.style.border = '1px solid #d1d5db';
-        cancelButton.style.background = '#ffffff';
-        cancelButton.style.cursor = 'pointer';
-        cancelButton.addEventListener('click', () => {
-          overlay.remove();
-        });
+        const cancelButton = document.createElement("button");
+        cancelButton.type = "button";
+        cancelButton.textContent = cancelLabel || "キャンセル";
+        cancelButton.style.padding = "6px 12px";
+        cancelButton.style.borderRadius = "4px";
+        cancelButton.style.border = "1px solid #d1d5db";
+        cancelButton.style.background = "#ffffff";
+        cancelButton.style.cursor = "pointer";
+        cancelButton.addEventListener("click", () => overlay.remove());
 
-        const okButton = document.createElement('button');
-        okButton.type = 'button';
-        okButton.textContent = okLabel || 'PDFをダウンロード';
-        okButton.style.padding = '6px 12px';
-        okButton.style.borderRadius = '4px';
-        okButton.style.border = 'none';
-        okButton.style.background = '#0f766e';
-        okButton.style.color = '#ffffff';
-        okButton.style.cursor = 'pointer';
+        const okButton = document.createElement("button");
+        okButton.type = "button";
+        okButton.textContent = okLabel || "PDFをダウンロード";
+        okButton.style.padding = "6px 12px";
+        okButton.style.borderRadius = "4px";
+        okButton.style.border = "none";
+        okButton.style.background = "#0f766e";
+        okButton.style.color = "#ffffff";
+        okButton.style.cursor = "pointer";
 
-        okButton.addEventListener('click', () => {
-          if (typeof onConfirm === 'function') {
-            onConfirm({ overlay, previewArea, okButton });
-          } else {
-            overlay.remove();
-          }
+        okButton.addEventListener("click", () => {
+          if (typeof onConfirm === "function") onConfirm({ overlay, previewArea, okButton });
+          else overlay.remove();
         });
 
         footer.appendChild(cancelButton);
@@ -3041,8 +3057,8 @@
         overlay.appendChild(dialog);
         document.body.appendChild(overlay);
       }
-
     </script>
+
 
     <script src="https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js"></script>
 
