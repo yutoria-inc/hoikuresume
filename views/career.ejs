@@ -2141,6 +2141,21 @@
     </main>
 
     <script>
+      function isIOS() {
+        return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+      }
+
+      function isSafari() {
+        const ua = navigator.userAgent.toLowerCase();
+        const isSafariLike = ua.includes("safari") && !ua.includes("chrome") && !ua.includes("crios") && !ua.includes("android") && !ua.includes("edg");
+        return isSafariLike;
+      }
+
+      // “Apple Safari系”として扱う（iOSは必須、macOS Safariも含める）
+      function isAppleSafari() {
+        return isIOS() || isSafari();
+      }
+
       // ───── ステップ制ロジック ─────
       const totalSteps = 5;
       let currentStep = 1;
@@ -2816,71 +2831,112 @@
       }
 
       // ───── PDF ダウンロード（職務経歴書） ─────
-      const careerForm = document.getElementById('career-form');
+      const careerForm = document.getElementById("career-form");
 
       if (careerForm) {
-        careerForm.addEventListener('submit', async function (event) {
+        careerForm.addEventListener("submit", function (event) {
           event.preventDefault();
 
-          // まだ最終ステップじゃないなら、次のステップへ進めるだけ
+          // まだ最終ステップじゃないなら次へ
           if (currentStep < totalSteps) {
             showStep(currentStep + 1);
             return;
           }
 
-          const submitBtn = document.getElementById('btn-submit');
-          if (!submitBtn) return;
-
-          // 元のプレビュー
-          const originalPreview = document.querySelector('.preview-card-wrapper');
+          const originalPreview = document.querySelector(".preview-card-wrapper");
           if (!originalPreview) {
-            alert('プレビューエリアが見つかりませんでした。');
+            alert("プレビューエリアが見つかりませんでした。");
             return;
           }
 
-          // PDF 用にクローンを作る（画面のプレビューは動かさない）
+          // PDF用クローン（画面プレビューは触らない）
           const pdfContainer = originalPreview.cloneNode(true);
 
-          // モーダルを開いて確認 → OK なら PDF 生成
           showPdfConfirmModal({
-            contentEl: pdfContainer,
-            message: 'PDFはこのように表示されます。よろしいですか？',
-            okLabel: 'この内容でPDFをダウンロード',
-            cancelLabel: 'キャンセル',
-            onConfirm: async ({ overlay, previewArea, okButton }) => {
-              // OKを押したときに実際のPDFを作る
+            contentEl: pdfContainer, // ※モーダルは append してしまう仕様なのでクローンを渡す前提
+            message: "PDFはこのように表示されます。よろしいですか？",
+            okLabel: "この内容でPDFをダウンロード",
+            cancelLabel: "キャンセル",
+            onConfirm: async ({ overlay, okButton }) => {
+              okButton.disabled = true;
+              okButton.textContent = "PDF生成中…";
+
+              const appleSafari = isAppleSafari();
+              const ios = isIOS();
+
+              // iOSは “先に空タブ” を開く（ポップアップブロック回避）
+              const preOpened = ios ? window.open("", "_blank") : null;
+
+              let tempHost = null;
+
               try {
-                okButton.disabled = true;
-                okButton.textContent = 'PDF生成中…';
+                if (document.fonts && document.fonts.ready) await document.fonts.ready;
 
-                document.body.classList.add('pdf-mode');
+                // pdf-modeは “生成中だけ” 付ける
+                document.body.classList.add("pdf-mode");
 
-                await html2pdf()
-                  .set({
-                    margin: 0,
-                    filename: 'career.pdf',
-                    image: { type: 'jpeg', quality: 0.98 },
-                    html2canvas: {
-                      scale: 2,
-                      useCORS: true,
-                      scrollX: 0,
-                      scrollY: -window.scrollY,
-                    },
-                    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-                  })
-                  .from(pdfContainer)
-                  .save();
+                // オフスクリーンに一時マウント（Safari安定化）
+                tempHost = document.createElement("div");
+                tempHost.style.position = "fixed";
+                tempHost.style.left = "-10000px";
+                tempHost.style.top = "0";
+                tempHost.style.background = "#fff";
+                tempHost.appendChild(pdfContainer);
+                document.body.appendChild(tempHost);
+
+                const opt = {
+                  margin: 0,
+                  filename: "career.pdf",
+                  image: { type: "jpeg", quality: 0.98 },
+                  html2canvas: {
+                    scale: ios ? 1.2 : 2,
+                    useCORS: true,
+                    scrollX: 0,
+                    scrollY: 0,
+                    backgroundColor: "#ffffff",
+                  },
+                  jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+                };
+
+                const worker = html2pdf().from(pdfContainer).set(opt);
+
+                if (appleSafari) {
+                  // Safari系は “ダウンロード” より “開く” が安定
+                  const pdf = await worker.get("pdf");
+                  const blob = pdf.output("blob");
+                  const url = URL.createObjectURL(blob);
+
+                  if (preOpened) {
+                    preOpened.location.href = url;
+                  } else {
+                    // macOS Safari など
+                    const w = window.open(url, "_blank");
+                    if (!w) {
+                      // ポップアップブロックされた保険
+                      window.location.href = url;
+                    }
+                  }
+                } else {
+                  // Chrome/Edge/Android等は通常DL
+                  await worker.save();
+                }
+
+                overlay.remove();
               } catch (err) {
                 console.error(err);
-                alert('PDFの作成中にエラーが発生しました。もう一度お試しください。');
+                alert("PDFの作成中にエラーが発生しました。もう一度お試しください。");
+                okButton.disabled = false;
+                okButton.textContent = "この内容でPDFをダウンロード";
+                if (preOpened) preOpened.close();
               } finally {
-                document.body.classList.remove('pdf-mode');
-                overlay.remove();
+                document.body.classList.remove("pdf-mode");
+                if (tempHost) tempHost.remove();
               }
             },
           });
         });
       }
+
 
             // ───── PDF確認用モーダル共通関数 ─────
       function showPdfConfirmModal(options) {
@@ -2938,7 +2994,7 @@
         previewArea.style.background = '#f9fafb';
 
         // contentEl を差し込む
-        previewArea.appendChild(contentEl);
+        previewArea.appendChild(contentEl.cloneNode(true));
         dialog.appendChild(previewArea);
 
         // ボタンエリア
