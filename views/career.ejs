@@ -2356,19 +2356,32 @@
       // textarea：スクロールさせずに内容に合わせて伸ばす（安全版）
       // =========================
       (function () {
-        const ta = document.getElementById("prText");
-        if (!ta) return;
+        function enableAutoGrow(id) {
+          const ta = document.getElementById(id);
+          if (!ta) return;
 
-        function autoResize() {
-          ta.style.height = "auto";
-          ta.style.height = ta.scrollHeight + "px";
+          ta.style.overflowY = "hidden"; // スクロールバー消す
+          ta.style.resize = "none";      // 手動リサイズ防止（好みで）
+
+          function autoResize() {
+            ta.style.height = "auto";
+            ta.style.height = ta.scrollHeight + "px";
+          }
+
+          ta.addEventListener("input", autoResize);
+
+          // 外から呼べるようにしておく（自動生成ボタン用）
+          ta.__autoResize = autoResize;
+
+          // 初期表示
+          autoResize();
         }
 
-        ta.addEventListener("input", autoResize);
-
-        // 自動生成（valueを入れて dispatchEvent する）にも反応する
-        autoResize();
+        // ★ 対象 textarea をここで指定
+        enableAutoGrow("prText");   // 自己PR・志望動機
+        enableAutoGrow("summary");  // 職務要約（ステップ1）
       })();
+
 
       // =========================
       // 和暦変換（YYYY-MM）
