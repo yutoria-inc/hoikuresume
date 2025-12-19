@@ -1718,7 +1718,7 @@
             <div class="step-section" data-step="2">
               <h3>学歴・職歴を入力</h3>
               <p class="note">
-                学歴と職歴をそれぞれ入力してください。<br />
+                学歴と職歴の入力欄です。<br />
                 1行につき1つずつ入力します。<br />
                 例）「2018年 3月 〇〇短期大学保育科卒業」「2022年 4月 △△保育園入社」など。
               </p>
@@ -2654,10 +2654,12 @@
           const frag = eduTemplate.content.cloneNode(true);
           eduContainerSchool.appendChild(frag);
 
-          // 追加した「最後の行」の placeholder を上書き
           const lastRow = eduContainerSchool.querySelector('.edu-row:last-child');
           const textEl = lastRow?.querySelector('.edu-text');
-          if (textEl && customPlaceholder) textEl.placeholder = customPlaceholder;
+
+          if (textEl) {
+            textEl.placeholder = (typeof customPlaceholder === 'string') ? customPlaceholder : '';
+          }
 
           syncEduPreview();
         }
@@ -2668,7 +2670,10 @@
 
           const lastRow = eduContainerWork.querySelector('.edu-row:last-child');
           const textEl = lastRow?.querySelector('.edu-text');
-          if (textEl && customPlaceholder) textEl.placeholder = customPlaceholder;
+
+          if (textEl) {
+            textEl.placeholder = (typeof customPlaceholder === 'string') ? customPlaceholder : '';
+          }
 
           syncEduPreview();
         }
@@ -2687,24 +2692,22 @@
         });
 
         // ボタン押下で行追加
-        addEduSchoolBtn.addEventListener('click', addEduRowSchool);
-        addEduWorkBtn.addEventListener('click', addEduRowWork);
+        addEduSchoolBtn.addEventListener('click', () => addEduRowSchool());
+        addEduWorkBtn.addEventListener('click', () => addEduRowWork());
 
         // 初期表示：学歴3行・職歴3行
         const schoolPlaceholders = [
-          "例：〇〇短期大学 保育科 卒業",
           "例：〇〇高等学校 卒業",
-          "例：〇〇専門学校 保育士コース 修了",
+          "例：〇〇短期大学 保育科 卒業",
         ];
 
         const workPlaceholders = [
           "例：△△保育園 入職",
           "例：認定こども園△△ 退職",
-          "例：△△保育園 配属（0歳児担任）",
         ];
 
-        for (let i = 0; i < 3; i++) addEduRowSchool(schoolPlaceholders[i]);
-        for (let i = 0; i < 3; i++) addEduRowWork(workPlaceholders[i]);
+        for (let i = 0; i < 2; i++) addEduRowSchool(schoolPlaceholders[i]);
+        for (let i = 0; i < 2; i++) addEduRowWork(workPlaceholders[i]);
 
       })();
 
@@ -2752,10 +2755,14 @@
 
           const lastRow = licContainer.querySelector('.lic-row:last-child');
           const textEl = lastRow?.querySelector('.lic-text');
-          if (textEl && customPlaceholder) textEl.placeholder = customPlaceholder;
+
+          if (textEl) {
+            textEl.placeholder = (typeof customPlaceholder === 'string') ? customPlaceholder : '';
+          }
 
           syncLicPreview();
         }
+
 
         licContainer.addEventListener('input', (e) => {
           if (e.target.matches('.lic-year, .lic-month, .lic-text')) {
@@ -2763,16 +2770,15 @@
           }
         });
 
-        addLicBtn.addEventListener('click', addLicRow);
+        addLicBtn.addEventListener('click', () => addLicRow());
 
         // 初期表示：3行
         const licPlaceholders = [
           "例：保育士資格 取得",
           "例：幼稚園教諭二種免許 取得",
-          "例：普通救命講習Ⅰ 修了",
         ];
 
-        for (let i = 0; i < 3; i++) addLicRow(licPlaceholders[i]);
+        for (let i = 0; i < 2; i++) addLicRow(licPlaceholders[i]);
 
       })();
 
