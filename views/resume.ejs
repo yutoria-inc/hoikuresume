@@ -1720,7 +1720,7 @@
               <p class="note">
                 学歴と職歴をそれぞれ入力してください。<br />
                 1行につき1つずつ入力します。<br />
-                例）「2018年 3月 市立△△中学校卒業」「2022年 4月 △△保育園入社」など。
+                例）「2018年 3月 〇〇短期大学保育科卒業」「2022年 4月 △△保育園入社」など。
               </p>
 
               <!-- ▼ 学歴エリア -->
@@ -1766,7 +1766,7 @@
                       type="text"
                       class="edu-text"
                       name="edu_text[]"
-                      placeholder="市立△△中学校卒業 / △△保育園入社 など"
+                      placeholder="例：〇〇短期大学 保育科 卒業 / △△保育園 入職（正社員） / 認定こども園△△ 退職（家庭の事情）"
                     />
                   </div>
                 </div>
@@ -1778,7 +1778,7 @@
               <h3>免許・資格を入力</h3>
               <p class="note">
                 1行につき1つずつ入力してください。<br />
-                例）「2013年 4月 実用英語技能検定3級合格」<br />
+                例）「2013年 4月 保育士資格」<br />
                 行数に制限はありません。
               </p>
 
@@ -1819,7 +1819,7 @@
                       type="text"
                       class="lic-text"
                       name="lic_text[]"
-                      placeholder="実用英語技能検定3級合格"
+                      placeholder="例：保育士資格 取得 / 幼稚園教諭二種免許 取得 / 普通救命講習Ⅰ 修了"
                     />
                   </div>
                 </div>
@@ -2681,9 +2681,9 @@
         addEduSchoolBtn.addEventListener('click', addEduRowSchool);
         addEduWorkBtn.addEventListener('click', addEduRowWork);
 
-        // 初期表示：学歴1行・職歴1行
-        addEduRowSchool();
-        addEduRowWork();
+        // 初期表示：学歴3行・職歴3行
+        for (let i = 0; i < 3; i++) addEduRowSchool();
+        for (let i = 0; i < 3; i++) addEduRowWork();
       })();
 
       // ─────────────────────────
@@ -2738,8 +2738,8 @@
 
         addLicBtn.addEventListener('click', addLicRow);
 
-        // 最初の1行
-        addLicRow();
+        // 初期表示：3行
+        for (let i = 0; i < 3; i++) addLicRow();
       })();
 
       // ─────────────────────────
