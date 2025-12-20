@@ -1931,6 +1931,115 @@
       </div>
     </main>
 
+    <script src="https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js"></script>
+
+    <script>
+    /* =========================
+      Safari / iOS 判定
+    ========================= */
+    function isIOS() {
+      return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+    }
+    function isSafari() {
+      const ua = navigator.userAgent.toLowerCase();
+      return ua.includes("safari") &&
+        !ua.includes("chrome") &&
+        !ua.includes("crios") &&
+        !ua.includes("android") &&
+        !ua.includes("edgios") &&
+        !ua.includes("edg"); 
+    }
+    function isAppleSafari() {
+      return isIOS() || isSafari();
+    }
+
+    /* =========================
+      Safari完全対応 PDF生成
+    ========================= */
+    async function generatePdfSafariSafe({
+      sourceEl,
+      filename = "document.pdf",
+      jsPdfOptions,
+    }) {
+      const appleSafari = isAppleSafari();
+      const ios = isIOS();
+
+      const preOpened = appleSafari
+        ? window.open("about:blank", "_blank")
+        : null;
+
+      if (typeof html2pdf === "undefined") {
+        alert("PDFライブラリの読み込みに失敗しました。再読み込みしてください。");
+        if (preOpened) preOpened.close();
+        return;
+      }
+
+      if (preOpened) {
+        preOpened.document.write(`
+          <p style="font-family:sans-serif;padding:24px;font-size:14px;">
+            PDFを生成しています。<br>このままお待ちください…
+          </p>
+        `);
+      }
+
+      let tempHost = null;
+
+      try {
+        if (document.fonts?.ready) {
+          await document.fonts.ready;
+        }
+
+        tempHost = document.createElement("div");
+        tempHost.style.position = "fixed";
+        tempHost.style.left = "-10000px";
+        tempHost.style.top = "0";
+        tempHost.style.background = "#fff";
+
+        const workEl = sourceEl.cloneNode(true);
+        tempHost.appendChild(workEl);
+        document.body.appendChild(tempHost);
+
+        const opt = {
+          margin: 0,
+          filename,
+          image: { type: "jpeg", quality: 0.98 },
+          html2canvas: {
+            scale: ios ? 1.2 : 2,
+            useCORS: true,
+            scrollX: 0,
+            scrollY: 0,
+            backgroundColor: "#ffffff",
+          },
+          jsPDF: jsPdfOptions,
+        };
+
+        const worker = html2pdf().from(workEl).set(opt);
+
+        if (appleSafari) {
+          const pdf = await worker.get("pdf");
+          const blob = pdf.output("blob");
+          const url = URL.createObjectURL(blob);
+
+          if (preOpened) {
+            preOpened.location.replace(url);
+          } else {
+            window.location.href = url;
+          }
+        } else {
+          await worker.save();
+        }
+
+      } catch (err) {
+        console.error(err);
+        alert("PDFの作成中にエラーが発生しました。");
+        if (preOpened) preOpened.close();
+        throw err;
+      } finally {
+        if (tempHost) tempHost.remove();
+      }
+    }
+    </script>
+
     <script>
       // ─────────────────────────
       // モバイル：入力 / プレビュー 切り替え
@@ -1956,7 +2065,6 @@
           });
         });
       })();
-
 
       // ─────────────────────────
       // ステップ制ロジック（6ステップ）
@@ -2062,9 +2170,6 @@
       // 基本情報 → プレビュー
       // ─────────────────────────
       (function () {
-        bindText('phone', 'pv-phone');
-        bindText('email', 'pv-email');
-
         // ▼ ここから追加：姓・名を分けて入力 → スペース結合でプレビュー更新
         (function () {
           const furiganaLast  = document.getElementById('furiganaLast');
@@ -2307,68 +2412,94 @@
           pvKana.textContent = '';
           pvKana.classList.add('preview-empty');
         }
-      }
 
+        // ------- hidden（サーバー送信用） -------
+        const hidden = document.getElementById('address-current-hidden');
+        if (hidden) {
+          const full = fullAddr ? `〒${formatZip(zip)} ${fullAddr}`.trim() : '';
+          hidden.value = full;
+        }
+      }
 
       /* ============================
         連絡先 → hidden & プレビュー
         ============================ */
-      function updateContactAddress() {
-        const same = document.getElementById('contactSameAsCurrent').checked;
-        const pvContactAddr = document.getElementById('pv-contact-address');
-        const pvContactKana = document.getElementById('pv-address-kana-contact');
+        function updateContactAddress() {
+          const same = document.getElementById('contactSameAsCurrent')?.checked;
 
-        // 「現住所と同一」のときは JS 側では「同上」固定
-        if (same) {
-          if (pvContactAddr) {
-            pvContactAddr.textContent = '同上';
-            pvContactAddr.classList.remove('preview-empty');
-          }
-          if (pvContactKana) {
-            pvContactKana.textContent = '';
-            pvContactKana.classList.add('preview-empty');
-          }
+          const pvContactAddr = document.getElementById('pv-contact-address');
+          const pvContactKana = document.getElementById('pv-address-kana-contact');
+          const pvZip = document.getElementById('pv-contact-zip');
           const hidden = document.getElementById('address-contact-hidden');
-          if (hidden) hidden.value = document.getElementById('address-current-hidden').value || '';
-          return;
-        }
+          const currentHidden = document.getElementById('address-current-hidden');
 
-        // 同一じゃないときは普通に連絡先住所を組み立て
-        const zip = document.getElementById('addressZipContact').value;
-        const pref = document.getElementById('addressPrefContact').value;
-        const city = document.getElementById('addressCityContact').value;
-        const addr1 = document.getElementById('address1Contact').value;
-        const addr2 = document.getElementById('address2Contact').value;
-        const kana = document.getElementById('addressKanaContact').value;
+          // 「現住所と同一」のときは表示を固定
+          if (same) {
+            if (pvZip) {
+              pvZip.textContent = '';
+              pvZip.classList.add('preview-empty');
+            }
+            if (pvContactAddr) {
+              pvContactAddr.textContent = '同上';
+              pvContactAddr.classList.remove('preview-empty');
+            }
+            if (pvContactKana) {
+              pvContactKana.textContent = '';
+              pvContactKana.classList.add('preview-empty');
+            }
+            if (hidden) hidden.value = currentHidden?.value || '';
+            return;
+          }
 
-        const full = buildAddress(zip, pref, city, addr1, addr2);
+          // 同一じゃないときは普通に連絡先住所を組み立て
+          const zip = document.getElementById('addressZipContact')?.value || '';
+          const pref = document.getElementById('addressPrefContact')?.value || '';
+          const city = document.getElementById('addressCityContact')?.value || '';
+          const addr1 = document.getElementById('address1Contact')?.value || '';
+          const addr2 = document.getElementById('address2Contact')?.value || '';
+          const kana = document.getElementById('addressKanaContact')?.value || '';
 
-        // hidden
-        const hidden = document.getElementById('address-contact-hidden');
-        if (hidden) hidden.value = full;
+          const fullAddr = buildAddress(pref, city, addr1, addr2);
 
-        // 住所プレビュー
-        if (pvContactAddr) {
-          if (full) {
-            pvContactAddr.textContent = full;
-            pvContactAddr.classList.remove('preview-empty');
-          } else {
-            pvContactAddr.textContent = '〒（現住所以外に連絡を希望する場合のみ入力）';
-            pvContactAddr.classList.add('preview-empty');
+          // zip プレビュー
+          if (pvZip) {
+            if (zip.trim()) {
+              pvZip.textContent = formatZip(zip);
+              pvZip.classList.remove('preview-empty');
+            } else {
+              pvZip.textContent = '';
+              pvZip.classList.add('preview-empty');
+            }
+          }
+
+          // address（〒は付けない）プレビュー
+          if (pvContactAddr) {
+            if (fullAddr) {
+              pvContactAddr.textContent = fullAddr;
+              pvContactAddr.classList.remove('preview-empty');
+            } else {
+              pvContactAddr.textContent = '（現住所以外に連絡を希望する場合のみ記入）';
+              pvContactAddr.classList.add('preview-empty');
+            }
+          }
+
+          // ふりがなプレビュー
+          if (pvContactKana) {
+            if (kana.trim()) {
+              pvContactKana.textContent = kana.trim();
+              pvContactKana.classList.remove('preview-empty');
+            } else {
+              pvContactKana.textContent = '';
+              pvContactKana.classList.add('preview-empty');
+            }
+          }
+
+          // hidden（サーバー送信用は〒込みでOK）
+          if (hidden) {
+            const fullHidden = fullAddr ? `〒${formatZip(zip)} ${fullAddr}`.trim() : '';
+            hidden.value = fullHidden;
           }
         }
-
-        // ふりがなプレビュー
-        if (pvContactKana) {
-          if (kana) {
-            pvContactKana.textContent = kana;
-            pvContactKana.classList.remove('preview-empty');
-          } else {
-            pvContactKana.textContent = '';
-            pvContactKana.classList.add('preview-empty');
-          }
-        }
-      }
 
       /* ============================
         「現住所と同一」チェック
@@ -2928,67 +3059,28 @@
             message: 'PDFはこのように表示されます。よろしいですか？',
             okLabel: 'この内容でPDFをダウンロード',
             cancelLabel: 'キャンセル',
-            onConfirm: async ({ overlay, okButton, preOpened }) => {
+            onConfirm: async ({ overlay, okButton }) => {
               okButton.disabled = true;
               okButton.textContent = 'PDF生成中…';
 
-              const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-              let tempHost = null;
-
               try {
-                if (document.fonts && document.fonts.ready) await document.fonts.ready;
+                // Safari完全対応の最終関数に一本化
+                const source = pdfContainer; // 既にcreateA3LayoutForPdf()が返したDOM
 
-                tempHost = document.createElement('div');
-                tempHost.style.position = 'fixed';
-                tempHost.style.left = '-10000px';
-                tempHost.style.top = '0';
-                tempHost.style.background = '#fff';
-                tempHost.appendChild(pdfContainer);
-                document.body.appendChild(tempHost);
-
-                const opt = {
-                  margin: 0,
+                await generatePdfSafariSafe({
+                  sourceEl: source,
                   filename: 'rirekisyo.pdf',
-                  image: { type: 'jpeg', quality: 0.9 },
-                  html2canvas: {
-                    scale: isIOS ? 1.2 : 2,
-                    useCORS: true,
-                    scrollX: 0,
-                    scrollY: 0,
-                    backgroundColor: '#ffffff',
-                  },
-                  jsPDF: { unit: 'mm', format: 'a3', orientation: 'landscape' },
-                };
-
-                const worker = html2pdf().from(pdfContainer).set(opt);
-
-                if (isIOS) {
-                  const pdf = await worker.get('pdf');
-                  const blob = pdf.output('blob');
-                  const url = URL.createObjectURL(blob);
-
-                  if (preOpened) {
-                    preOpened.location.href = url;
-                  } else {
-                    // 空タブ開けない環境の保険（これが一番確実）
-                    window.location.href = url;
-                  }
-                } else {
-                  await worker.save();
-                }
+                  jsPdfOptions: { unit: 'mm', format: 'a3', orientation: 'landscape' },
+                });
 
                 overlay.remove();
               } catch (err) {
                 console.error(err);
-                alert('PDFの作成中にエラーが発生しました。もう一度お試しください。');
+                alert('PDFの作成中にエラーが発生しました。');
                 okButton.disabled = false;
                 okButton.textContent = 'この内容でPDFをダウンロード';
-                if (preOpened) preOpened.close();
-              } finally {
-                if (tempHost) tempHost.remove();
               }
             },
-
           });
         });
       }
@@ -3096,23 +3188,9 @@
         okButton.style.cursor = 'pointer';
 
         okButton.addEventListener('click', async () => {
-          const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-          const preOpened = isIOS ? window.open('', '_blank') : null; // ← iPhone対策
-
           if (typeof onConfirm === 'function') {
-            await onConfirm({ overlay, previewArea, okButton, preOpened });
-          } else {
-            overlay.remove();
-            if (preOpened) {
-              try {
-                preOpened.location.href = url;
-              } catch (e) {
-                window.location.href = url;
-              }
-            } else {
-              window.location.href = url;
-            }
-          }
+            await onConfirm({ overlay, previewArea, okButton });
+          } 
         });
 
         footer.appendChild(cancelButton);
@@ -3124,9 +3202,6 @@
       }
 
     </script>
-    
-    <script src="https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js"></script>
-
 
     <!-- PDF生成用の見えないコンテナ -->
     <div id="pdf-root" style="position:fixed; left:-9999px; top:-9999px;"></div>
